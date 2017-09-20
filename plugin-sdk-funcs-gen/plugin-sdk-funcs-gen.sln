@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plugin-sdk-funcs-gen", "plugin-sdk-funcs-gen.vcxproj", "{7B1EAE1E-1B0E-4394-B711-EDCC3E158AA2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B1EAE1E-1B0E-4394-B711-EDCC3E158AA2}.Debug|x86.ActiveCfg = Debug|Win32
+		{7B1EAE1E-1B0E-4394-B711-EDCC3E158AA2}.Debug|x86.Build.0 = Debug|Win32
+		{7B1EAE1E-1B0E-4394-B711-EDCC3E158AA2}.Release|x86.ActiveCfg = Release|Win32
+		{7B1EAE1E-1B0E-4394-B711-EDCC3E158AA2}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4A6A0039-9E20-48AE-A5CA-7C7049213BE9}
+	EndGlobalSection
+EndGlobal
