@@ -4,7 +4,7 @@ static main (void) {
     auto vfAry = CreateArray("VfNames");
     auto readingVTables = 0;
     auto numMethods = 0;
-    auto fileHandle = fopen("D:\\Projects\\fx.txt","r");
+    auto fileHandle = fopen("D:\\Projects\\vfuncs.txt","r");
     auto line = readstr(fileHandle);
     while (line != -1) {
         auto len = strlen(line);

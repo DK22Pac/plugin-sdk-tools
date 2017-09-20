@@ -1,0 +1,37 @@
+D0Ev
+4LoadEii
+8GetValueEffffhPv
+
+85A7DC FxInfo_c
+85A7E8 FxInfoEmSize_c
+85A7F4 FxInfoEmSpeed_c
+85A800 FxInfoEmDir_c
+85A80C FxInfoEmAngle_c
+85A818 FxInfoEmLife_c
+85A824 FxInfoEmPos_c
+85A830 FxInfoEmWeather_c
+85A83C FxInfoEmRotation_c
+85A848 FxInfoNoise_c
+85A854 FxInfoForce_c
+85A860 FxInfoFriction_c
+85A86C FxInfoAttractPt_c
+85A878 FxInfoAttractLine_c
+85A884 FxInfoGroundCollide_c
+85A890 FxInfoWind_c
+85A89C FxInfoJitter_c
+85A8A8 FxInfoRotSpeed_c
+85A8B4 FxInfoFloat_c
+85A8C0 FxInfoUnderwater_c
+85A8CC FxInfoColour_c
+85A8D8 FxInfoSize_c
+85A8E4 FxInfoSpriteRect_c
+85A8F0 FxInfoHeatHaze_c
+85A8FC FxInfoTrail_c
+85A908 FxInfoFlat_c
+85A914 FxInfoDir_c
+85A920 FxInfoAnimTexture_c
+85A92C FxInfoColourRange_c
+85A938 FxInfoSelfLit_c
+85A944 FxInfoColourBright_c
+85A950 FxInfoSmoke_c
+85A95C FxInfoEmRate_c
