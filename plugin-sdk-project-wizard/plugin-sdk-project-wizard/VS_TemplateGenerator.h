@@ -7,8 +7,8 @@
 struct VS_ProjectGenerationSettings {
     QString vsDocumentsPath;
     QString pluginSdkPath;
-    QString d3d8SdkPath;
     QString d3d9SdkPath;
+    QString rwd3d9Path;
     QString vcCleoSdkPath;
     QString saCleoSdkPath;
     QString iiiCleoSdkPath;
@@ -28,20 +28,19 @@ enum eGtaGame {
 
 enum eGenerationFlags {
     VSGEN_D3D9 = 1,
-    VSGEN_D3D8 = 2,
-    VSGEN_CLEO = 4,
-    VSGEN_LA   = 8
+    VSGEN_CLEO = 2,
+    VSGEN_LA   = 4
 };
 
 class VS_ProjectTemplateGenerator {
 public:
-    static bool GenerateTemplate(QString fileName, QString vsVersion, eGtaGame game, unsigned int flags, VS_ProjectGenerationSettings const &settings) {
+    static bool GenerateTemplate(QString fileName, int vsVersion, eGtaGame game, unsigned int flags, VS_ProjectGenerationSettings const &settings) {
         if (ProcessMainCppFile(game) && ProcessVSTemplateFile(game, vsVersion, flags) && ProcessVSProjectFile(game, vsVersion, flags, settings)) {
             QStringList fileNames;
             fileNames.append("templates\\temp\\Main.cpp");
             fileNames.append("templates\\temp\\Project.vcxproj");
             fileNames.append("templates\\temp\\MyTemplate.vstemplate");
-            fileNames.append("templates\\" + vsVersion + "\\Project.vcxproj.filters");
+            fileNames.append("templates\\vs" + QString::number(vsVersion) + "\\Project.vcxproj.filters");
             if(game == GTA_GAME_SA)
                 fileNames.append("templates\\SA.ico");
             else if(game == GTA_GAME_VC)
@@ -72,9 +71,9 @@ public:
         return mainCppFile.Write("templates\\temp\\Main.cpp");
     }
 
-    static bool ProcessVSTemplateFile(eGtaGame game, QString vsVersion, unsigned int genFlags) {
+    static bool ProcessVSTemplateFile(eGtaGame game, int vsVersion, unsigned int genFlags) {
         VsProjectItemFile vsTemplateFile;
-        if (!vsTemplateFile.Read("templates\\" + vsVersion + "\\MyTemplate.vstemplate"))
+        if (!vsTemplateFile.Read("templates\\vs" + QString::number(vsVersion) + "\\MyTemplate.vstemplate"))
             return false;
         QString name, description, icon;
         if (game == GTA_GAME_SA) {
@@ -117,15 +116,9 @@ public:
             }
         }
         else {
-            if (genFlags & VSGEN_D3D8 || genFlags & VSGEN_D3D9) {
-                if (genFlags & VSGEN_D3D8) {
-                    name += " (D3D8";
-                    description += " with D3D8";
-                }
-                else {
-                    name += " (D3D8toD3D9";
-                    description += " with D3D8toD3D9";
-                }
+            if (genFlags & VSGEN_D3D9) {
+                name += " (D3D8toD3D9";
+                description += " with D3D8toD3D9";
                 if (genFlags & VSGEN_LA) {
                     name += "+LA comp.";
                     description += " and Limit Adjuster compatibility";
@@ -144,116 +137,195 @@ public:
         return vsTemplateFile.Write("templates\\temp\\MyTemplate.vstemplate");
     }
 
-    static bool ProcessVSProjectFile(eGtaGame game, QString vsVersion, unsigned int genFlags, VS_ProjectGenerationSettings const &settings) {
+    static void AddValueToCSVLine(QString &line, QString value) {
+        if (line.isEmpty())
+            line = value;
+        else
+            line += ";" + value;
+    }
+
+    static QString ToCSV(QString value, bool atBegin) {
+        if (value.isEmpty())
+            return "";
+        else {
+            if (atBegin)
+                return ";" + value;
+            else
+                return value + ";";
+        }
+    }
+
+    static bool ProcessVSProjectFile(eGtaGame game, int vsVersion, unsigned int genFlags, VS_ProjectGenerationSettings const &settings) {
         VsProjectItemFile vsProjectFile;
-        if (!vsProjectFile.Read("templates\\" + vsVersion + "\\Project.vcxproj"))
+        if (!vsProjectFile.Read("templates\\vs" + QString::number(vsVersion) + "\\Project.vcxproj"))
             return false;
-        QString extension, outDir, definitions, includeFolders, pluginSdkLibFolder, libFolders, dependencies, vcIncludes, vcLibraries;
-        //vcIncludes = "$(IncludePath)";
-        includeFolders = settings.pluginSdkPath;
-        pluginSdkLibFolder = settings.pluginSdkPath + "output\\lib\\";
+        QString extension, outDir, definitions, includeFolders, libFolders, dependencies, vcIncludes, vcLibraries;
+
+        QString cppStd = "c++14";
+
+        if (vsVersion >= 2015)
+            AddValueToCSVLine(libFolders, settings.pluginSdkPath + "output\\lib\\");
+        else
+            AddValueToCSVLine(libFolders, settings.pluginSdkPath + "output\\mingw\\lib\\");
+
+        AddValueToCSVLine(definitions, "_USING_V110_SDK71_");
+        AddValueToCSVLine(definitions, "_CRT_SECURE_NO_WARNINGS");
+        AddValueToCSVLine(definitions, "_CRT_NON_CONFORMING_SWPRINTFS");
+        if (genFlags & VSGEN_LA)
+            AddValueToCSVLine(definitions, "_PLUGIN_LA_COMP");
+
         if (game == GTA_GAME_SA) {
-            includeFolders += "plugin_sa\\;";
-            if (genFlags & VSGEN_CLEO) {
+            AddValueToCSVLine(includeFolders, settings.pluginSdkPath + "plugin_sa\\");
+            AddValueToCSVLine(includeFolders, settings.pluginSdkPath + "plugin_sa\\game_sa\\");
+            if (genFlags & VSGEN_CLEO)
                 outDir = settings.saCleoOutputPath;
-            }
-            else {
+            else
                 outDir = settings.saAsiOutputPath;
-            }
-            if (genFlags & VSGEN_D3D9) {
-                definitions += "_PLUGIN_D3D_INCLUDE";
-                vcIncludes += ";" + settings.d3d9SdkPath + "Include\\";
-                vcLibraries += ";" + settings.d3d9SdkPath + "Lib\\x86\\";
-                dependencies += "d3d9.lib;d3dx9.lib;";
-            }
+            AddValueToCSVLine(definitions, "GTASA");
+            AddValueToCSVLine(definitions, "plugin_header=\"plugin.h\"");
+            AddValueToCSVLine(definitions, "GTAGAME_NAME=\"San Andreas\"");
+            AddValueToCSVLine(definitions, "GTAGAME_ABBR=\"SA\"");
+            AddValueToCSVLine(definitions, "GTAGAME_ABBRLOW=\"sa\"");
+            AddValueToCSVLine(definitions, "GTAGAME_PROTAGONISTNAME=\"CJ\"");
+            AddValueToCSVLine(definitions, "GTAGAME_CITYNAME=\"San Andreas\"");
         }
         else if (game == GTA_GAME_VC) {
-            includeFolders += "plugin_vc\\;";
-            if (genFlags & VSGEN_CLEO) {
+            AddValueToCSVLine(includeFolders, settings.pluginSdkPath + "plugin_vc\\");
+            AddValueToCSVLine(includeFolders, settings.pluginSdkPath + "plugin_vc\\game_vc\\");
+            if (genFlags & VSGEN_CLEO)
                 outDir = settings.vcCleoOutputPath;
-            }
-            else {
+            else
                 outDir = settings.vcAsiOutputPath;
-            }
-            if (genFlags & VSGEN_D3D8) {
-                definitions += "_PLUGIN_D3D_INCLUDE;";
-                vcIncludes += ";" + settings.d3d8SdkPath + "include\\";
-                vcLibraries += ";" + settings.d3d8SdkPath + "lib\\";
-                dependencies += "d3d8.lib;d3dx8.lib;";
-            }
-            else if (genFlags & VSGEN_D3D9) {
-                definitions += "_PLUGIN_D3D_INCLUDE;_PLUGIN_D3D8TO9;";
-                vcIncludes += ";" + settings.d3d9SdkPath + "Include\\";
-                vcLibraries += ";" + settings.d3d9SdkPath + "Lib\\x86\\";
-                dependencies += "d3d9.lib;d3dx9.lib;";
-            }
+            AddValueToCSVLine(definitions, "GTAVC");
+            AddValueToCSVLine(definitions, "plugin_header=\"plugin_vc.h\"");
+            AddValueToCSVLine(definitions, "GTAGAME_NAME=\"Vice City\"");
+            AddValueToCSVLine(definitions, "GTAGAME_ABBR=\"VC\"");
+            AddValueToCSVLine(definitions, "GTAGAME_ABBRLOW=\"vc\"");
+            AddValueToCSVLine(definitions, "GTAGAME_PROTAGONISTNAME=\"Tommy\"");
+            AddValueToCSVLine(definitions, "GTAGAME_CITYNAME=\"Vice City\"");
         }
         else {
-            includeFolders += "plugin_III\\;";
-            if (genFlags & VSGEN_CLEO) {
+            AddValueToCSVLine(includeFolders, settings.pluginSdkPath + "plugin_III\\");
+            AddValueToCSVLine(includeFolders, settings.pluginSdkPath + "plugin_III\\game_III\\");
+            if (genFlags & VSGEN_CLEO)
                 outDir = settings.iiiCleoOutputPath;
-            }
-            else {
+            else
                 outDir = settings.iiiAsiOutputPath;
-            }
-            if (genFlags & VSGEN_D3D8) {
-                definitions += "_PLUGIN_D3D_INCLUDE;";
-                vcIncludes += ";" + settings.d3d8SdkPath + "include\\";
-                vcLibraries += ";" + settings.d3d8SdkPath + "lib\\";
-                dependencies += "d3d8.lib;d3dx8.lib;";
-            }
-            else if (genFlags & VSGEN_D3D9) {
-                definitions += "_PLUGIN_D3D_INCLUDE;_PLUGIN_D3D8TO9;";
-                vcIncludes += ";" + settings.d3d9SdkPath + "Include\\";
-                vcLibraries += ";" + settings.d3d9SdkPath + "Lib\\x86\\";
-                dependencies += "d3d9.lib;d3dx9.lib;";
+            AddValueToCSVLine(definitions, "GTA3");
+            AddValueToCSVLine(definitions, "plugin_header=\"plugin_iii.h\"");
+            AddValueToCSVLine(definitions, "GTAGAME_NAME=\"3\"");
+            AddValueToCSVLine(definitions, "GTAGAME_ABBR=\"3\"");
+            AddValueToCSVLine(definitions, "GTAGAME_ABBRLOW=\"3\"");
+            AddValueToCSVLine(definitions, "GTAGAME_PROTAGONISTNAME=\"Claude\"");
+            AddValueToCSVLine(definitions, "GTAGAME_CITYNAME=\"Liberty City\"");
+        }
+
+        if (genFlags & VSGEN_D3D9) {
+            AddValueToCSVLine(vcIncludes, settings.d3d9SdkPath + "Include\\");
+            AddValueToCSVLine(vcLibraries, settings.d3d9SdkPath + "Lib\\x86\\");
+            AddValueToCSVLine(dependencies, "d3d9.lib");
+            AddValueToCSVLine(dependencies, "d3dx9.lib");
+            if (game != GTA_GAME_SA) {
+                AddValueToCSVLine(dependencies, "rwd3d9.lib");
+                AddValueToCSVLine(includeFolders, settings.rwd3d9Path + "source\\");
+                AddValueToCSVLine(libFolders, settings.rwd3d9Path + "libs\\");
             }
         }
+
         if (genFlags & VSGEN_CLEO) {
             extension = ".cleo";
             if (game == GTA_GAME_SA) {
-                includeFolders += settings.saCleoSdkPath + ';';
-                libFolders += settings.saCleoSdkPath + ';';
+                AddValueToCSVLine(includeFolders, settings.saCleoSdkPath);
+                AddValueToCSVLine(libFolders, settings.saCleoSdkPath);
+                AddValueToCSVLine(dependencies, "cleo.lib");
             }
             else if (game == GTA_GAME_VC) {
-                includeFolders += settings.vcCleoSdkPath + ';';
-                libFolders += settings.vcCleoSdkPath + ';';
+                AddValueToCSVLine(includeFolders, settings.vcCleoSdkPath);
+                AddValueToCSVLine(libFolders, settings.vcCleoSdkPath);
+                AddValueToCSVLine(dependencies, "VC.CLEO.lib");
             }
             else {
-                includeFolders += settings.iiiCleoSdkPath + ';';
-                libFolders += settings.iiiCleoSdkPath + ';';
+                AddValueToCSVLine(includeFolders, settings.iiiCleoSdkPath);
+                AddValueToCSVLine(libFolders, settings.iiiCleoSdkPath);
+                AddValueToCSVLine(dependencies, "III.CLEO.lib");
             }
-            dependencies += "cleo.lib;";
+        }
+        else
+            extension = ".asi";
+
+        QString pluginLibName = "plugin";
+        if (game == GTA_GAME_VC)
+            pluginLibName += "_vc";
+        else if (game == GTA_GAME_III)
+            pluginLibName += "_III";
+
+        vsProjectFile.SetNodesValue("OutDir", outDir);
+
+        if (vsVersion >= 2015) {
+            vsProjectFile.SetNodesValue("TargetExt", extension);
+            vsProjectFile.SetNodesValue("AdditionalIncludeDirectories", includeFolders + ";%(AdditionalIncludeDirectories)");
+            vsProjectFile.SetNodesValue("PreprocessorDefinitions", "_DEBUG", true, definitions + ";_DEBUG;%(PreprocessorDefinitions)");
+            vsProjectFile.SetNodesValue("PreprocessorDefinitions", "NDEBUG", true, definitions + ";NDEBUG;%(PreprocessorDefinitions)");
+            vsProjectFile.SetNodesValue("AdditionalLibraryDirectories", libFolders + ";%(AdditionalLibraryDirectories)");
+            if (!vcIncludes.isEmpty())
+                vsProjectFile.SetNodesValue("IncludePath", "$(IncludePath);" + vcIncludes);
+            if (!vcLibraries.isEmpty())
+                vsProjectFile.SetNodesValue("LibraryPath", "$(LibraryPath);" + vcLibraries);
+            vsProjectFile.SetNodesValue("AdditionalDependencies", "plugin_d.lib", true,
+                pluginLibName + "_d.lib;paths_d.lib;" + ToCSV(dependencies, false) + "%(AdditionalDependencies)");
+            vsProjectFile.SetNodesValue("AdditionalDependencies", "plugin.lib", true,
+                pluginLibName + ".lib;paths.lib;" + ToCSV(dependencies, false) + "%(AdditionalDependencies)");
         }
         else {
-            extension = ".asi";
+            vsProjectFile.SetNodesValue("NMakeOutput", "$TargetNameRelease$", true, "$(ProjectName)" + extension);
+            vsProjectFile.SetNodesValue("NMakeOutput", "$TargetNameDebug$", true, "$(ProjectName)_d" + extension);
+            vsProjectFile.SetNodesValue("NMakePreprocessorDefinitions", "$PreprocessorDefinitionsRelease$", true,
+                definitions + ";NDEBUG;$(NMakePreprocessorDefinitions)");
+            vsProjectFile.SetNodesValue("NMakePreprocessorDefinitions", "$PreprocessorDefinitionsDebug$", true,
+                definitions + ";_DEBUG;$(NMakePreprocessorDefinitions)");
+            if (!vcIncludes.isEmpty())
+                vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", vcIncludes + ";" + includeFolders + ";$(NMakeIncludeSearchPath)");
+            else
+                vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", includeFolders + ";$(NMakeIncludeSearchPath)");
+            QString nmToolCmd = "\"$(PLUGIN_SDK_DIR)\\tools\\pluginsdk-build\\pluginsdk-build.exe\" ";
+            QString nmBuildConfig = "buildtype:(DLL) ";
+            QString nmProjConfig = "projectdir:\"($(ProjectDir))\" projectname:\"($(ProjectName))\" ";
+            QString nmOutDirs = "outdir:\"(" + outDir + ")\" intdir:\"($(ProjectDir)obj\\$(Configuration)\\)\" ";
+            QString nmTargetNameRelease = "targetname:\"($(ProjectName)" + extension + ")\" ";
+            QString nmTargetNameDebug = "targetname:\"($(ProjectName)_d" + extension + ")\" ";
+            QString allIncludeDirs;
+            AddValueToCSVLine(allIncludeDirs, vcIncludes);
+            AddValueToCSVLine(allIncludeDirs, "$(ProjectDir)");
+            AddValueToCSVLine(allIncludeDirs, includeFolders);
+            QString nmIncludeDirs = "includeDirs:\"(" + allIncludeDirs + ")\" ";
+            QString allLibraryDirs;
+            AddValueToCSVLine(allLibraryDirs, vcLibraries);
+            AddValueToCSVLine(allLibraryDirs, libFolders);
+            QString nmLibraryDirs = "libraryDirs:\"(" + allLibraryDirs + ")\" ";
+            QString nmLibrariesRelease = "libraries:\"(libpaths.a;lib" + pluginLibName +  ".a" + ToCSV(dependencies, true) + ")\" ";
+            QString nmLibrariesDebug = "libraries:\"(libpaths_d.a;lib" + pluginLibName + "_d.a" + ToCSV(dependencies, true) + ")\" ";
+            QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
+            QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
+            QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -Os)\"";
+            QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32)\"";
+            QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease;
+            QString nmDirsAndOptionsDebug = nmIncludeDirs + nmLibraryDirs + nmLibrariesDebug + nmDefinitionsDebug + nmAdditionalDebug;
+
+            vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineRelease$", true,
+                nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirs + nmDirsAndOptionsRelease);
+            vsProjectFile.SetNodesValue("NMakeReBuildCommandLine", "$RebuildCommandLineRelease$", true,
+                nmToolCmd + "rebuild " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirs + nmDirsAndOptionsRelease);
+            vsProjectFile.SetNodesValue("NMakeCleanCommandLine", "$CleanCommandLineRelease$", true,
+                nmToolCmd + "clean " + nmProjConfig + nmTargetNameRelease + nmOutDirs);
+
+            vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineDebug$", true,
+                nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameDebug + nmOutDirs + nmDirsAndOptionsDebug);
+            vsProjectFile.SetNodesValue("NMakeReBuildCommandLine", "$RebuildCommandLineDebug$", true,
+                nmToolCmd + "rebuild " + nmBuildConfig + nmProjConfig + nmTargetNameDebug + nmOutDirs + nmDirsAndOptionsDebug);
+            vsProjectFile.SetNodesValue("NMakeCleanCommandLine", "$CleanCommandLineDebug$", true,
+                nmToolCmd + "clean " + nmProjConfig + nmTargetNameDebug + nmOutDirs);
+
         }
-        if (genFlags & VSGEN_LA) {
-            definitions += "_PLUGIN_LA_COMP;";
-        }
-
-        vsProjectFile.SetNodesValue("TargetExt", extension);
-        vsProjectFile.SetNodesValue("OutDir", outDir);
-        vsProjectFile.SetNodesValue("AdditionalIncludeDirectories", includeFolders + "%(AdditionalIncludeDirectories)");
-		vsProjectFile.SetNodesValue("PreprocessorDefinitions", "_USING_V110_SDK71_", true,
-			"_USING_V110_SDK71_;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;" + definitions + "%(PreprocessorDefinitions)");
-		vsProjectFile.SetNodesValue("PreprocessorDefinitions", "_USING_V110_SDK71_", false,
-			"_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;" + definitions + "%(PreprocessorDefinitions)");
-        vsProjectFile.SetNodesValue("AdditionalLibraryDirectories", pluginSdkLibFolder + ";" + libFolders + " % (AdditionalLibraryDirectories)");
-        vsProjectFile.SetNodesValue("IncludePath", "$(IncludePath)" + vcIncludes);
-        vsProjectFile.SetNodesValue("LibraryPath", "$(LibraryPath)" + vcLibraries);
-
-		QString pluginLibName = "plugin";
-		if (game == GTA_GAME_VC)
-			pluginLibName.append("_vc");
-		else if (game == GTA_GAME_III)
-			pluginLibName.append("_III");
-
-        vsProjectFile.SetNodesValue("AdditionalDependencies", "plugin_d.lib", true,
-            pluginLibName + "_d.lib;paths_d.lib;" + dependencies + "%(AdditionalDependencies)");
-        vsProjectFile.SetNodesValue("AdditionalDependencies", "plugin.lib", true,
-            pluginLibName + ".lib;paths.lib;" + dependencies + "%(AdditionalDependencies)");
-
         return vsProjectFile.Write("templates\\temp\\Project.vcxproj");
     }
 };

@@ -28,7 +28,7 @@ private:
     void on_minimizeButtonClicked(bool checked);
 
     void on_browsePluginSdkFolderButtonClicked(bool checked);
-    void on_browseDirectX8SdkFolderButtonClicked(bool checked);
+    void on_browseRwD3d9FolderButtonClicked(bool checked);
     void on_browseDirectXS9dkFolderButtonClicked(bool checked);
     void on_browseVisualStudioDocumentsFolderButtonClicked(bool checked);
     void on_browseSaAsiPluginsFolderButtonClicked(bool checked);
@@ -41,6 +41,7 @@ private:
     void on_browseIIICleoSdkFolderButtonClicked(bool checked);
     void on_browseIIICleoPluginsFolderButtonClicked(bool checked);
 
+    void on_useEnvironmentVariablesButtonClicked(bool checked);
     void on_generateButtonClicked(bool checked);
 
     bool bInsideWindowAreaWhenMousePressed;

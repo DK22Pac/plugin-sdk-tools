@@ -27,7 +27,7 @@ class Ui_ProjectWizardClass
 {
 public:
     QWidget *centralWidget;
-    QLabel *lbl_directX8SdkFolder;
+    QLabel *lbl_rwd3d9Folder;
     QLabel *lbl_title;
     QLabel *lbl_visualStudioDocumentsFolder;
     QLineEdit *le_directX9SdkFolder;
@@ -35,11 +35,11 @@ public:
     QPushButton *btn_browseDirectX9SdkFolder;
     QPushButton *btn_restore;
     QPushButton *btn_close;
-    QLineEdit *le_directX8SdkFolder;
+    QLineEdit *le_rwd3d9Folder;
     QLabel *lbl_icon;
-    QLabel *lbl_optionalDx8Sdk;
+    QLabel *lbl_optionalRwD3d9;
     QLineEdit *le_pluginSdkFolder;
-    QPushButton *btn_browseDirectX8SdkFolder;
+    QPushButton *btn_browseRwD3d9Folder;
     QLabel *lbl_directX9SdkFolder;
     QPushButton *btn_browsePluginSdkFolder;
     QPushButton *btn_browseVisualStudioDocumentsFolder;
@@ -84,6 +84,7 @@ public:
     QLabel *lbl_optionalIIICleoOutput;
     QLabel *lbl_optionalIIICleoSdk;
     QPushButton *btn_browseIIICleoSdkFolder;
+    QPushButton *btn_useEnvironmentVariables;
 
     void setupUi(QMainWindow *ProjectWizardClass)
     {
@@ -111,7 +112,7 @@ public:
 "    background-color: rgb(45,45,48);\n"
 "}\n"
 "\n"
-"QWidget#centralWidget {\n"
+"QWidget#centralWidget, QWidget#dialogWidget {\n"
 "   background: rgba(45,45,48, 255);\n"
 "}\n"
 "\n"
@@ -144,11 +145,11 @@ public:
 "}\n"
 "\n"
 "QLineEdit:focus {\n"
-"   border: 1px solid rgb(51,153,255);\n"
+"   border: 1px solid rgb(51,153,255"
+                        ");\n"
 "}\n"
 "\n"
-"QLin"
-                        "eEdit:disabled {\n"
+"QLineEdit:disabled {\n"
 "   color: rgb(81,101,92);\n"
 "   border: 1px solid rgb(67,67,70);\n"
 "   background: rgb(45,45,48);\n"
@@ -196,9 +197,9 @@ public:
 "    padding: 0 3px 0 3px;\n"
 "}\n"
 "\n"
-"QPushButton {\n"
-"    background-"
-                        "color: rgb(37,37,38);\n"
+"QPushButton"
+                        " {\n"
+"    background-color: rgb(37,37,38);\n"
 "    border: 1px solid rgb(100,100,110);\n"
 "    color: rgb(100,100,110);\n"
 "}\n"
@@ -237,9 +238,9 @@ public:
 "    background-image: url(resources/btn_restore.png);\n"
 "}\n"
 "\n"
-"QPushButton#btn_restore:disabled {\n"
-" "
-                        "   background-image: url(resources/btn_restore_inactive.png);\n"
+"QPushButton#btn_re"
+                        "store:disabled {\n"
+"    background-image: url(resources/btn_restore_inactive.png);\n"
 "}\n"
 "\n"
 "QPushButton#btn_restore:hover {\n"
@@ -278,9 +279,9 @@ public:
 "}\n"
 "\n"
 "QTabWidget::pane {}\n"
-"\n"
-"QTabBar::tab "
-                        "{\n"
+""
+                        "\n"
+"QTabBar::tab {\n"
 "    color: white;\n"
 "    background: rgb(37,37,38);\n"
 "    border: 1px solid rgb(37,37,38);\n"
@@ -309,9 +310,9 @@ public:
         centralWidget->setEnabled(true);
         centralWidget->setLayoutDirection(Qt::LeftToRight);
         centralWidget->setStyleSheet(QStringLiteral(""));
-        lbl_directX8SdkFolder = new QLabel(centralWidget);
-        lbl_directX8SdkFolder->setObjectName(QStringLiteral("lbl_directX8SdkFolder"));
-        lbl_directX8SdkFolder->setGeometry(QRect(29, 159, 281, 16));
+        lbl_rwd3d9Folder = new QLabel(centralWidget);
+        lbl_rwd3d9Folder->setObjectName(QStringLiteral("lbl_rwd3d9Folder"));
+        lbl_rwd3d9Folder->setGeometry(QRect(29, 159, 281, 16));
         lbl_title = new QLabel(centralWidget);
         lbl_title->setObjectName(QStringLiteral("lbl_title"));
         lbl_title->setGeometry(QRect(45, 7, 291, 16));
@@ -334,26 +335,26 @@ public:
         btn_close = new QPushButton(centralWidget);
         btn_close->setObjectName(QStringLiteral("btn_close"));
         btn_close->setGeometry(QRect(420, 0, 34, 26));
-        le_directX8SdkFolder = new QLineEdit(centralWidget);
-        le_directX8SdkFolder->setObjectName(QStringLiteral("le_directX8SdkFolder"));
-        le_directX8SdkFolder->setGeometry(QRect(29, 179, 361, 20));
+        le_rwd3d9Folder = new QLineEdit(centralWidget);
+        le_rwd3d9Folder->setObjectName(QStringLiteral("le_rwd3d9Folder"));
+        le_rwd3d9Folder->setGeometry(QRect(29, 179, 361, 20));
         lbl_icon = new QLabel(centralWidget);
         lbl_icon->setObjectName(QStringLiteral("lbl_icon"));
         lbl_icon->setGeometry(QRect(10, 6, 22, 22));
-        lbl_optionalDx8Sdk = new QLabel(centralWidget);
-        lbl_optionalDx8Sdk->setObjectName(QStringLiteral("lbl_optionalDx8Sdk"));
-        lbl_optionalDx8Sdk->setGeometry(QRect(329, 159, 61, 20));
+        lbl_optionalRwD3d9 = new QLabel(centralWidget);
+        lbl_optionalRwD3d9->setObjectName(QStringLiteral("lbl_optionalRwD3d9"));
+        lbl_optionalRwD3d9->setGeometry(QRect(329, 159, 61, 20));
         QFont font;
         font.setBold(true);
         font.setWeight(75);
-        lbl_optionalDx8Sdk->setFont(font);
-        lbl_optionalDx8Sdk->setStyleSheet(QStringLiteral("color: grey"));
+        lbl_optionalRwD3d9->setFont(font);
+        lbl_optionalRwD3d9->setStyleSheet(QStringLiteral("color: grey"));
         le_pluginSdkFolder = new QLineEdit(centralWidget);
         le_pluginSdkFolder->setObjectName(QStringLiteral("le_pluginSdkFolder"));
         le_pluginSdkFolder->setGeometry(QRect(29, 79, 361, 21));
-        btn_browseDirectX8SdkFolder = new QPushButton(centralWidget);
-        btn_browseDirectX8SdkFolder->setObjectName(QStringLiteral("btn_browseDirectX8SdkFolder"));
-        btn_browseDirectX8SdkFolder->setGeometry(QRect(399, 179, 33, 21));
+        btn_browseRwD3d9Folder = new QPushButton(centralWidget);
+        btn_browseRwD3d9Folder->setObjectName(QStringLiteral("btn_browseRwD3d9Folder"));
+        btn_browseRwD3d9Folder->setGeometry(QRect(399, 179, 33, 21));
         lbl_directX9SdkFolder = new QLabel(centralWidget);
         lbl_directX9SdkFolder->setObjectName(QStringLiteral("lbl_directX9SdkFolder"));
         lbl_directX9SdkFolder->setGeometry(QRect(29, 109, 281, 16));
@@ -565,6 +566,9 @@ public:
         btn_browseIIICleoSdkFolder->setObjectName(QStringLiteral("btn_browseIIICleoSdkFolder"));
         btn_browseIIICleoSdkFolder->setGeometry(QRect(350, 80, 33, 21));
         tabGames->addTab(tabIII, QString());
+        btn_useEnvironmentVariables = new QPushButton(centralWidget);
+        btn_useEnvironmentVariables->setObjectName(QStringLiteral("btn_useEnvironmentVariables"));
+        btn_useEnvironmentVariables->setGeometry(QRect(30, 490, 141, 26));
         ProjectWizardClass->setCentralWidget(centralWidget);
         QWidget::setTabOrder(btn_minimize, btn_restore);
         QWidget::setTabOrder(btn_restore, btn_close);
@@ -572,9 +576,9 @@ public:
         QWidget::setTabOrder(le_pluginSdkFolder, btn_browsePluginSdkFolder);
         QWidget::setTabOrder(btn_browsePluginSdkFolder, le_directX9SdkFolder);
         QWidget::setTabOrder(le_directX9SdkFolder, btn_browseDirectX9SdkFolder);
-        QWidget::setTabOrder(btn_browseDirectX9SdkFolder, le_directX8SdkFolder);
-        QWidget::setTabOrder(le_directX8SdkFolder, btn_browseDirectX8SdkFolder);
-        QWidget::setTabOrder(btn_browseDirectX8SdkFolder, tabGames);
+        QWidget::setTabOrder(btn_browseDirectX9SdkFolder, le_rwd3d9Folder);
+        QWidget::setTabOrder(le_rwd3d9Folder, btn_browseRwD3d9Folder);
+        QWidget::setTabOrder(btn_browseRwD3d9Folder, tabGames);
         QWidget::setTabOrder(tabGames, le_saAsiOutputFolder);
         QWidget::setTabOrder(le_saAsiOutputFolder, btn_browseSaAsiOutputFolder);
         QWidget::setTabOrder(btn_browseSaAsiOutputFolder, le_saCleoSdkFolder);
@@ -608,31 +612,31 @@ public:
     void retranslateUi(QMainWindow *ProjectWizardClass)
     {
         ProjectWizardClass->setWindowTitle(QApplication::translate("ProjectWizardClass", "Plugin-SDK Project Wizard", nullptr));
-        lbl_directX8SdkFolder->setText(QApplication::translate("ProjectWizardClass", "DirectX 8 SDK folder:", nullptr));
-        lbl_title->setText(QApplication::translate("ProjectWizardClass", "Plugin-SDK Project Wizard v.0.8", nullptr));
+        lbl_rwd3d9Folder->setText(QApplication::translate("ProjectWizardClass", "rwd3d9 folder:", nullptr));
+        lbl_title->setText(QApplication::translate("ProjectWizardClass", "Plugin-SDK Project Wizard v.0.9", nullptr));
         lbl_visualStudioDocumentsFolder->setText(QApplication::translate("ProjectWizardClass", "Visual Studio Documents folder:", nullptr));
 #ifndef QT_NO_TOOLTIP
         le_directX9SdkFolder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Projects/DXSDK/9.0c", nullptr));
 #endif // QT_NO_TOOLTIP
         le_directX9SdkFolder->setPlaceholderText(QString());
 #ifndef QT_NO_TOOLTIP
-        le_visualStudioDocumentsFolder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Documents/Visual Studio 2015", nullptr));
+        le_visualStudioDocumentsFolder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Documents/Visual Studio 2017", nullptr));
 #endif // QT_NO_TOOLTIP
         le_visualStudioDocumentsFolder->setPlaceholderText(QString());
         btn_browseDirectX9SdkFolder->setText(QApplication::translate("ProjectWizardClass", "...", nullptr));
         btn_restore->setText(QString());
         btn_close->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        le_directX8SdkFolder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Projects/DXSDK/8.0", nullptr));
+        le_rwd3d9Folder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Projects/rwd3d8to9", nullptr));
 #endif // QT_NO_TOOLTIP
-        le_directX8SdkFolder->setPlaceholderText(QString());
+        le_rwd3d9Folder->setPlaceholderText(QString());
         lbl_icon->setText(QString());
-        lbl_optionalDx8Sdk->setText(QApplication::translate("ProjectWizardClass", "OPTIONAL", nullptr));
+        lbl_optionalRwD3d9->setText(QApplication::translate("ProjectWizardClass", "OPTIONAL", nullptr));
 #ifndef QT_NO_TOOLTIP
         le_pluginSdkFolder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Projects/plugin-sdk", nullptr));
 #endif // QT_NO_TOOLTIP
         le_pluginSdkFolder->setPlaceholderText(QString());
-        btn_browseDirectX8SdkFolder->setText(QApplication::translate("ProjectWizardClass", "...", nullptr));
+        btn_browseRwD3d9Folder->setText(QApplication::translate("ProjectWizardClass", "...", nullptr));
         lbl_directX9SdkFolder->setText(QApplication::translate("ProjectWizardClass", "DirectX 9 SDK folder:", nullptr));
         btn_browsePluginSdkFolder->setText(QApplication::translate("ProjectWizardClass", "...", nullptr));
         btn_browseVisualStudioDocumentsFolder->setText(QApplication::translate("ProjectWizardClass", "...", nullptr));
@@ -703,6 +707,7 @@ public:
         lbl_optionalIIICleoSdk->setText(QApplication::translate("ProjectWizardClass", "OPTIONAL", nullptr));
         btn_browseIIICleoSdkFolder->setText(QApplication::translate("ProjectWizardClass", "...", nullptr));
         tabGames->setTabText(tabGames->indexOf(tabIII), QApplication::translate("ProjectWizardClass", "GTA III", nullptr));
+        btn_useEnvironmentVariables->setText(QApplication::translate("ProjectWizardClass", "Use environment variables", nullptr));
     } // retranslateUi
 
 };

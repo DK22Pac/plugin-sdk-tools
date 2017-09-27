@@ -4,8 +4,8 @@
 class AppSettings {
 public:
     QString pluginSdkFolder;
-    QString directX8SdkFolder;
     QString directX9SdkFolder;
+    QString rwd3d9Folder;
     QString vsDocumentsFolder;
 
     QString saAsiOutputFolder;

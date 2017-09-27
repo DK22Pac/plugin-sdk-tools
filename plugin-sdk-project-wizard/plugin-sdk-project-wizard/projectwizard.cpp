@@ -18,7 +18,7 @@ ProjectWizard::ProjectWizard(QWidget *parent)
     connect(ui.btn_minimize, &QPushButton::clicked, this, &ProjectWizard::on_minimizeButtonClicked);
 
     connect(ui.btn_browsePluginSdkFolder, &QPushButton::clicked, this, &ProjectWizard::on_browsePluginSdkFolderButtonClicked);
-    connect(ui.btn_browseDirectX8SdkFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseDirectX8SdkFolderButtonClicked);
+    connect(ui.btn_browseRwD3d9Folder, &QPushButton::clicked, this, &ProjectWizard::on_browseRwD3d9FolderButtonClicked);
     connect(ui.btn_browseDirectX9SdkFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseDirectXS9dkFolderButtonClicked);
     connect(ui.btn_browseVisualStudioDocumentsFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseVisualStudioDocumentsFolderButtonClicked);
     connect(ui.btn_browseSaAsiOutputFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseSaAsiPluginsFolderButtonClicked);
@@ -31,6 +31,7 @@ ProjectWizard::ProjectWizard(QWidget *parent)
     connect(ui.btn_browseIIICleoSdkFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseIIICleoSdkFolderButtonClicked);
     connect(ui.btn_browseIIICleoOutputFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseIIICleoPluginsFolderButtonClicked);
 
+    connect(ui.btn_useEnvironmentVariables, &QPushButton::clicked, this, &ProjectWizard::on_useEnvironmentVariablesButtonClicked);
     connect(ui.btn_generate, &QPushButton::clicked, this, &ProjectWizard::on_generateButtonClicked);
 
     QSettings settingsFile(QApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
@@ -38,8 +39,8 @@ ProjectWizard::ProjectWizard(QWidget *parent)
 
     if (!settings.pluginSdkFolder.isEmpty())
         ui.le_pluginSdkFolder->setText(settings.pluginSdkFolder);
-    if (!settings.directX8SdkFolder.isEmpty())
-        ui.le_directX8SdkFolder->setText(settings.directX8SdkFolder);
+    if (!settings.rwd3d9Folder.isEmpty())
+        ui.le_rwd3d9Folder->setText(settings.rwd3d9Folder);
     if (!settings.directX9SdkFolder.isEmpty())
         ui.le_directX9SdkFolder->setText(settings.directX9SdkFolder);
     if (!settings.vsDocumentsFolder.isEmpty())
@@ -64,14 +65,12 @@ ProjectWizard::ProjectWizard(QWidget *parent)
         ui.le_iiiCleoSdkFolder->setText(settings.iiiCleoSdkFolder);
 }
 
-ProjectWizard::~ProjectWizard()
-{
-
-}
+ProjectWizard::~ProjectWizard() {}
 
 void MakePathLine(QString &str) {
-    if (!str.endsWith('/') && !str.endsWith('\\'))
-        str.append('/');
+    str.replace('/', '\\');
+    if (!str.endsWith('\\'))
+        str.append('\\');
 }
 
 unsigned int GetVsVersionFromVSDocumentsPath(QString path) {
@@ -85,34 +84,36 @@ unsigned int GetVsVersionFromVSDocumentsPath(QString path) {
     return 0;
 }
 
-void ProjectWizard::on_generateButtonClicked(bool checked)
-{
+void ProjectWizard::on_useEnvironmentVariablesButtonClicked(bool checked) {
+    ui.le_pluginSdkFolder->setText("$(PLUGIN_SDK_DIR)");
+    ui.le_directX9SdkFolder->setText("$(DIRECTX9_SDK_DIR)");
+    ui.le_rwd3d9Folder->setText("$(RWD3D9_DIR)");
+    ui.le_saCleoSdkFolder->setText("$(CLEO_SDK_SA_DIR)");
+    ui.le_vcCleoSdkFolder->setText("$(CLEO_SDK_VC_DIR)");
+    ui.le_iiiCleoSdkFolder->setText("$(CLEO_SDK_III_DIR)");
+    ui.le_saAsiOutputFolder->setText("$(GTA_SA_ASI_DIR)");
+    ui.le_vcAsiOutputFolder->setText("$(GTA_VC_ASI_DIR)");
+    ui.le_iiiAsiOutputFolder->setText("$(GTA_III_ASI_DIR)");
+    ui.le_saCleoOutputFolder->setText("$(GTA_SA_CLEO_DIR)");
+    ui.le_vcCleoOutputFolder->setText("$(GTA_VC_CLEO_DIR)");
+    ui.le_iiiCleoOutputFolder->setText("$(GTA_III_CLEO_DIR)");
+}
+
+void ProjectWizard::on_generateButtonClicked(bool checked) {
     QSettings settingsFile(QApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
     settings.pluginSdkFolder = ui.le_pluginSdkFolder->text();
-    if (!ui.le_directX8SdkFolder->text().isEmpty())
-        settings.directX8SdkFolder = ui.le_directX8SdkFolder->text();
-    if (!ui.le_directX9SdkFolder->text().isEmpty())
-        settings.directX9SdkFolder = ui.le_directX9SdkFolder->text();
-    if (!ui.le_visualStudioDocumentsFolder->text().isEmpty() && QDir(ui.le_visualStudioDocumentsFolder->text()).exists())
-        settings.vsDocumentsFolder = ui.le_visualStudioDocumentsFolder->text();
-    if (!ui.le_saAsiOutputFolder->text().isEmpty())
-        settings.saAsiOutputFolder = ui.le_saAsiOutputFolder->text();
-    if (!ui.le_saCleoSdkFolder->text().isEmpty())
-        settings.saCleoSdkFolder = ui.le_saCleoSdkFolder->text();
-    if (!ui.le_saCleoOutputFolder->text().isEmpty())
-        settings.saCleoOutputFolder = ui.le_saCleoOutputFolder->text();
-    if (!ui.le_vcAsiOutputFolder->text().isEmpty())
-        settings.vcAsiOutputFolder = ui.le_vcAsiOutputFolder->text();
-    if (!ui.le_vcCleoSdkFolder->text().isEmpty())
-        settings.vcCleoSdkFolder = ui.le_vcCleoSdkFolder->text();
-    if (!ui.le_vcCleoOutputFolder->text().isEmpty())
-        settings.vcCleoOutputFolder = ui.le_vcCleoOutputFolder->text();
-    if (!ui.le_iiiAsiOutputFolder->text().isEmpty())
-        settings.iiiAsiOutputFolder = ui.le_iiiAsiOutputFolder->text();
-    if (!ui.le_iiiCleoSdkFolder->text().isEmpty())
-        settings.iiiCleoSdkFolder = ui.le_iiiCleoSdkFolder->text();
-    if (!ui.le_iiiCleoOutputFolder->text().isEmpty())
-        settings.iiiCleoOutputFolder = ui.le_iiiCleoOutputFolder->text();
+    settings.rwd3d9Folder = ui.le_rwd3d9Folder->text();
+    settings.directX9SdkFolder = ui.le_directX9SdkFolder->text();
+    settings.vsDocumentsFolder = ui.le_visualStudioDocumentsFolder->text();
+    settings.saAsiOutputFolder = ui.le_saAsiOutputFolder->text();
+    settings.saCleoSdkFolder = ui.le_saCleoSdkFolder->text();
+    settings.saCleoOutputFolder = ui.le_saCleoOutputFolder->text();
+    settings.vcAsiOutputFolder = ui.le_vcAsiOutputFolder->text();
+    settings.vcCleoSdkFolder = ui.le_vcCleoSdkFolder->text();
+    settings.vcCleoOutputFolder = ui.le_vcCleoOutputFolder->text();
+    settings.iiiAsiOutputFolder = ui.le_iiiAsiOutputFolder->text();
+    settings.iiiCleoSdkFolder = ui.le_iiiCleoSdkFolder->text();
+    settings.iiiCleoOutputFolder = ui.le_iiiCleoOutputFolder->text();
     settings.write(settingsFile);
 
     if (ui.le_pluginSdkFolder->text().isEmpty())
@@ -123,12 +124,12 @@ void ProjectWizard::on_generateButtonClicked(bool checked)
         MakePathLine(genSettings.vsDocumentsPath);
         genSettings.pluginSdkPath = ui.le_pluginSdkFolder->text();
         MakePathLine(genSettings.pluginSdkPath);
-        bool d3d8available = false;
+        bool rwd3d9available = false;
         bool d3d9available = false;
-        if (!ui.le_directX8SdkFolder->text().isEmpty()) {
-            genSettings.d3d8SdkPath = ui.le_directX8SdkFolder->text();
-            MakePathLine(genSettings.d3d8SdkPath);
-            d3d8available = true;
+        if (!ui.le_rwd3d9Folder->text().isEmpty()) {
+            genSettings.rwd3d9Path = ui.le_rwd3d9Folder->text();
+            MakePathLine(genSettings.rwd3d9Path);
+            rwd3d9available = true;
         }
         if (!ui.le_directX9SdkFolder->text().isEmpty()) {
             genSettings.d3d9SdkPath = ui.le_directX9SdkFolder->text();
@@ -149,16 +150,14 @@ void ProjectWizard::on_generateButtonClicked(bool checked)
             intVersion = DEFAULT_VS_VERSION;
         }
 
-        QString vsVersion = "vs" + QString::number(intVersion);
-
         if (!ui.le_saAsiOutputFolder->text().isEmpty()) {
             genSettings.saAsiOutputPath = ui.le_saAsiOutputFolder->text();
             MakePathLine(genSettings.saAsiOutputPath);
-            VS_ProjectTemplateGenerator::GenerateTemplate("GTASA", vsVersion, GTA_GAME_SA, 0, genSettings);
-            VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_1LA", vsVersion, GTA_GAME_SA, VSGEN_LA, genSettings);
+            VS_ProjectTemplateGenerator::GenerateTemplate("GTASA", intVersion, GTA_GAME_SA, 0, genSettings);
+            VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_1LA", intVersion, GTA_GAME_SA, VSGEN_LA, genSettings);
             if (d3d9available) {
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_D3D9", vsVersion, GTA_GAME_SA, VSGEN_D3D9, genSettings);
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_D3D9_1LA", vsVersion, GTA_GAME_SA, VSGEN_D3D9 | VSGEN_LA, genSettings);
+                VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_D3D9", intVersion, GTA_GAME_SA, VSGEN_D3D9, genSettings);
+                VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_D3D9_1LA", intVersion, GTA_GAME_SA, VSGEN_D3D9 | VSGEN_LA, genSettings);
             }
             if (!ui.le_saCleoSdkFolder->text().isEmpty()) {
                 genSettings.saCleoSdkPath = ui.le_saCleoSdkFolder->text();
@@ -166,28 +165,24 @@ void ProjectWizard::on_generateButtonClicked(bool checked)
                 if (!ui.le_saCleoOutputFolder->text().isEmpty()) {
                     genSettings.saCleoOutputPath = ui.le_saCleoOutputFolder->text();
                     MakePathLine(genSettings.saCleoOutputPath);
-                    VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO", vsVersion, GTA_GAME_SA, VSGEN_CLEO, genSettings);
-                    VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO_1LA", vsVersion, GTA_GAME_SA, VSGEN_CLEO | VSGEN_LA, genSettings);
+                    VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO", intVersion, GTA_GAME_SA, VSGEN_CLEO, genSettings);
+                    VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO_1LA", intVersion, GTA_GAME_SA, VSGEN_CLEO | VSGEN_LA, genSettings);
                     if (d3d9available) {
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO_D3D9", vsVersion, GTA_GAME_SA, VSGEN_CLEO | VSGEN_D3D9, genSettings);
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO_D3D9_1LA", vsVersion, GTA_GAME_SA, VSGEN_CLEO | VSGEN_D3D9 | VSGEN_LA, genSettings);
+                        VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO_D3D9", intVersion, GTA_GAME_SA, VSGEN_CLEO | VSGEN_D3D9, genSettings);
+                        VS_ProjectTemplateGenerator::GenerateTemplate("GTASA_CLEO_D3D9_1LA", intVersion, GTA_GAME_SA, VSGEN_CLEO | VSGEN_D3D9 | VSGEN_LA, genSettings);
                     }
                 }
             }
         }
-
+        
         if (!ui.le_vcAsiOutputFolder->text().isEmpty()) {
             genSettings.vcAsiOutputPath = ui.le_vcAsiOutputFolder->text();
             MakePathLine(genSettings.vcAsiOutputPath);
-            VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC", vsVersion, GTA_GAME_VC, 0, genSettings);
-            VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_1LA", vsVersion, GTA_GAME_VC, VSGEN_LA, genSettings);
-            if (d3d8available) {
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_D3D8", vsVersion, GTA_GAME_VC, VSGEN_D3D8, genSettings);
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_D3D8_1LA", vsVersion, GTA_GAME_VC, VSGEN_D3D8 | VSGEN_LA, genSettings);
-            }
-            if (d3d9available) {
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_D3D8toD3D9", vsVersion, GTA_GAME_VC, VSGEN_D3D9, genSettings);
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_D3D8toD3D9_1LA", vsVersion, GTA_GAME_VC, VSGEN_D3D9 | VSGEN_LA, genSettings);
+            VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC", intVersion, GTA_GAME_VC, 0, genSettings);
+            VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_1LA", intVersion, GTA_GAME_VC, VSGEN_LA, genSettings);
+            if (rwd3d9available && d3d9available) {
+                VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_D3D8toD3D9", intVersion, GTA_GAME_VC, VSGEN_D3D9, genSettings);
+                VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_D3D8toD3D9_1LA", intVersion, GTA_GAME_VC, VSGEN_D3D9 | VSGEN_LA, genSettings);
             }
             if (!ui.le_vcCleoSdkFolder->text().isEmpty()) {
                 genSettings.vcCleoSdkPath = ui.le_vcCleoSdkFolder->text();
@@ -195,15 +190,11 @@ void ProjectWizard::on_generateButtonClicked(bool checked)
                 if (!ui.le_vcCleoOutputFolder->text().isEmpty()) {
                     genSettings.vcCleoOutputPath = ui.le_vcCleoOutputFolder->text();
                     MakePathLine(genSettings.vcCleoOutputPath);
-                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO", vsVersion, GTA_GAME_VC, VSGEN_CLEO, genSettings);
-                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_1LA", vsVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_LA, genSettings);
-                    if (d3d8available) {
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_D3D8", vsVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_D3D8, genSettings);
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_D3D8_1LA", vsVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_D3D8 | VSGEN_LA, genSettings);
-                    }
-                    if (d3d9available) {
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_D3D8toD3D9", vsVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_D3D9, genSettings);
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_D3D8toD3D9_1LA", vsVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_D3D9 | VSGEN_LA, genSettings);
+                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO", intVersion, GTA_GAME_VC, VSGEN_CLEO, genSettings);
+                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_1LA", intVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_LA, genSettings);
+                    if (rwd3d9available && d3d9available) {
+                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_D3D8toD3D9", intVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_D3D9, genSettings);
+                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAVC_CLEO_D3D8toD3D9_1LA", intVersion, GTA_GAME_VC, VSGEN_CLEO | VSGEN_D3D9 | VSGEN_LA, genSettings);
                     }
                 }
             }
@@ -212,15 +203,11 @@ void ProjectWizard::on_generateButtonClicked(bool checked)
         if (!ui.le_iiiAsiOutputFolder->text().isEmpty()) {
             genSettings.iiiAsiOutputPath = ui.le_iiiAsiOutputFolder->text();
             MakePathLine(genSettings.iiiAsiOutputPath);
-            VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII", vsVersion, GTA_GAME_III, 0, genSettings);
-            VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_1LA", vsVersion, GTA_GAME_III, VSGEN_LA, genSettings);
-            if (d3d8available) {
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_D3D8", vsVersion, GTA_GAME_III, VSGEN_D3D8, genSettings);
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_D3D8_1LA", vsVersion, GTA_GAME_III, VSGEN_D3D8 | VSGEN_LA, genSettings);
-            }
-            if (d3d9available) {
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_D3D8toD3D9", vsVersion, GTA_GAME_III, VSGEN_D3D9, genSettings);
-                VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_D3D8toD3D9_1LA", vsVersion, GTA_GAME_III, VSGEN_D3D9 | VSGEN_LA, genSettings);
+            VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII", intVersion, GTA_GAME_III, 0, genSettings);
+            VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_1LA", intVersion, GTA_GAME_III, VSGEN_LA, genSettings);
+            if (rwd3d9available && d3d9available) {
+                VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_D3D8toD3D9", intVersion, GTA_GAME_III, VSGEN_D3D9, genSettings);
+                VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_D3D8toD3D9_1LA", intVersion, GTA_GAME_III, VSGEN_D3D9 | VSGEN_LA, genSettings);
             }
             if (!ui.le_iiiCleoSdkFolder->text().isEmpty()) {
                 genSettings.iiiCleoSdkPath = ui.le_iiiCleoSdkFolder->text();
@@ -228,34 +215,25 @@ void ProjectWizard::on_generateButtonClicked(bool checked)
                 if (!ui.le_iiiCleoOutputFolder->text().isEmpty()) {
                     genSettings.iiiCleoOutputPath = ui.le_iiiCleoOutputFolder->text();
                     MakePathLine(genSettings.iiiCleoOutputPath);
-                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO", vsVersion, GTA_GAME_III, VSGEN_CLEO, genSettings);
-                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_1LA", vsVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_LA, genSettings);
-                    if (d3d8available) {
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_D3D8", vsVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_D3D8, genSettings);
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_D3D8_1LA", vsVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_D3D8 | VSGEN_LA, genSettings);
-                    }
-                    if (d3d9available) {
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_D3D8toD3D9", vsVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_D3D9, genSettings);
-                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_D3D8toD3D9_1LA", vsVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_D3D9 | VSGEN_LA, genSettings);
+                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO", intVersion, GTA_GAME_III, VSGEN_CLEO, genSettings);
+                    VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_1LA", intVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_LA, genSettings);
+                    if (rwd3d9available && d3d9available) {
+                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_D3D8toD3D9", intVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_D3D9, genSettings);
+                        VS_ProjectTemplateGenerator::GenerateTemplate("GTAIII_CLEO_D3D8toD3D9_1LA", intVersion, GTA_GAME_III, VSGEN_CLEO | VSGEN_D3D9 | VSGEN_LA, genSettings);
                     }
                 }
             }
         }
     }
+    else
+        MESSAGE_ERROR("Visual Studio documents folder was not found");
 }
 
-bool ProjectWizard::isPointInsideWindowArea(QPoint point)
-{
+bool ProjectWizard::isPointInsideWindowArea(QPoint point) {
     return point.x() > 7 && point.y() > 7 && point.x() < 446 && point.y() < 692;
 }
 
-void ProjectWizard::mousePressEvent(QMouseEvent* event)
-{
-    //if (event->button() == Qt::LeftButton && isPointInsideWindowArea(event->pos())) {
-    //    dragPosition = event->globalPos() - frameGeometry().topLeft();
-    //    event->accept();
-    //    bInsideWindowAreaWhenMousePressed = true;
-    //}
+void ProjectWizard::mousePressEvent(QMouseEvent* event) {
     QWidget::mousePressEvent(event);
     if (!event->isAccepted()) {
 #ifdef Q_OS_WIN
@@ -298,11 +276,11 @@ void ProjectWizard::on_browsePluginSdkFolderButtonClicked(bool checked) {
     }
 }
 
-void ProjectWizard::on_browseDirectX8SdkFolderButtonClicked(bool checked) {
+void ProjectWizard::on_browseRwD3d9FolderButtonClicked(bool checked) {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select Directory"),
-        ui.le_directX8SdkFolder->text(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        ui.le_rwd3d9Folder->text(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (!dir.isEmpty()) {
-        ui.le_directX8SdkFolder->setText(dir);
+        ui.le_rwd3d9Folder->setText(dir);
     }
 }
 

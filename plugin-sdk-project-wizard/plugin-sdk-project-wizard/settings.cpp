@@ -6,8 +6,8 @@ QString getSettingsString(QSettings &settingsFile, QString parameter, QString de
 
 void AppSettings::read(QSettings &settingsFile) {
     pluginSdkFolder = getSettingsString(settingsFile, "PLUGIN_SDK_FOLDER", "");
-    directX8SdkFolder = getSettingsString(settingsFile, "DIRECTX9_SDK_FOLDER", "");
-    directX9SdkFolder = getSettingsString(settingsFile, "DIRECTX8_SDK_FOLDER", "");
+    directX9SdkFolder = getSettingsString(settingsFile, "DIRECTX9_SDK_FOLDER", "");
+    rwd3d9Folder = getSettingsString(settingsFile, "RWD3D9_FOLDER", "");
     vsDocumentsFolder = getSettingsString(settingsFile, "VS_DOCUMENTS_FOLDER", "");
     saAsiOutputFolder = getSettingsString(settingsFile, "SA/ASI_PLUGINS_OUTPUT_FOLDER", "");
     saCleoOutputFolder = getSettingsString(settingsFile, "SA/CLEO_PLUGINS_OUTPUT_FOLDER", "");
@@ -22,8 +22,8 @@ void AppSettings::read(QSettings &settingsFile) {
 
 void AppSettings::write(QSettings &settingsFile) {
     settingsFile.setValue("PLUGIN_SDK_FOLDER", pluginSdkFolder);
-    settingsFile.setValue("DIRECTX9_SDK_FOLDER", directX8SdkFolder);
-    settingsFile.setValue("DIRECTX8_SDK_FOLDER", directX9SdkFolder);
+    settingsFile.setValue("DIRECTX9_SDK_FOLDER", directX9SdkFolder);
+    settingsFile.setValue("RWD3D9_FOLDER", rwd3d9Folder);
     settingsFile.setValue("VS_DOCUMENTS_FOLDER", vsDocumentsFolder);
     settingsFile.setValue("SA/ASI_PLUGINS_OUTPUT_FOLDER", saAsiOutputFolder);
     settingsFile.setValue("SA/CLEO_PLUGINS_OUTPUT_FOLDER", saCleoOutputFolder);

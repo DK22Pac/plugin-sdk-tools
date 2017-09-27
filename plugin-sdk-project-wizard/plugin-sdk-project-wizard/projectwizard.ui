@@ -50,7 +50,7 @@ QMenu::item:selected {
     background-color: rgb(45,45,48);
 }
 
-QWidget#centralWidget {
+QWidget#centralWidget, QWidget#dialogWidget {
    background: rgba(45,45,48, 255);
 }
 
@@ -250,7 +250,7 @@ QTabBar::tab::last::selected {
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <widget class="QLabel" name="lbl_directX8SdkFolder">
+   <widget class="QLabel" name="lbl_rwd3d9Folder">
     <property name="geometry">
      <rect>
       <x>29</x>
@@ -260,7 +260,7 @@ QTabBar::tab::last::selected {
      </rect>
     </property>
     <property name="text">
-     <string>DirectX 8 SDK folder:</string>
+     <string>rwd3d9 folder:</string>
     </property>
    </widget>
    <widget class="QLabel" name="lbl_title">
@@ -273,7 +273,7 @@ QTabBar::tab::last::selected {
      </rect>
     </property>
     <property name="text">
-     <string>Plugin-SDK Project Wizard v.0.8</string>
+     <string>Plugin-SDK Project Wizard v.0.9</string>
     </property>
    </widget>
    <widget class="QLabel" name="lbl_visualStudioDocumentsFolder">
@@ -315,7 +315,7 @@ QTabBar::tab::last::selected {
      </rect>
     </property>
     <property name="toolTip">
-     <string>example: D:/Documents/Visual Studio 2015</string>
+     <string>example: D:/Documents/Visual Studio 2017</string>
     </property>
     <property name="placeholderText">
      <string/>
@@ -363,7 +363,7 @@ QTabBar::tab::last::selected {
      <string/>
     </property>
    </widget>
-   <widget class="QLineEdit" name="le_directX8SdkFolder">
+   <widget class="QLineEdit" name="le_rwd3d9Folder">
     <property name="geometry">
      <rect>
       <x>29</x>
@@ -373,7 +373,7 @@ QTabBar::tab::last::selected {
      </rect>
     </property>
     <property name="toolTip">
-     <string>example: D:/Projects/DXSDK/8.0</string>
+     <string>example: D:/Projects/rwd3d8to9</string>
     </property>
     <property name="placeholderText">
      <string/>
@@ -392,7 +392,7 @@ QTabBar::tab::last::selected {
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="lbl_optionalDx8Sdk">
+   <widget class="QLabel" name="lbl_optionalRwD3d9">
     <property name="geometry">
      <rect>
       <x>329</x>
@@ -430,7 +430,7 @@ QTabBar::tab::last::selected {
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_browseDirectX8SdkFolder">
+   <widget class="QPushButton" name="btn_browseRwD3d9Folder">
     <property name="geometry">
      <rect>
       <x>399</x>
@@ -1162,6 +1162,19 @@ QPushButton:pressed {
      </widget>
     </widget>
    </widget>
+   <widget class="QPushButton" name="btn_useEnvironmentVariables">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>490</y>
+      <width>141</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Use environment variables</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1173,8 +1186,8 @@ QPushButton:pressed {
   <tabstop>btn_browsePluginSdkFolder</tabstop>
   <tabstop>le_directX9SdkFolder</tabstop>
   <tabstop>btn_browseDirectX9SdkFolder</tabstop>
-  <tabstop>le_directX8SdkFolder</tabstop>
-  <tabstop>btn_browseDirectX8SdkFolder</tabstop>
+  <tabstop>le_rwd3d9Folder</tabstop>
+  <tabstop>btn_browseRwD3d9Folder</tabstop>
   <tabstop>tabGames</tabstop>
   <tabstop>le_saAsiOutputFolder</tabstop>
   <tabstop>btn_browseSaAsiOutputFolder</tabstop>
