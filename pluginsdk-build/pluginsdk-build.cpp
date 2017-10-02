@@ -289,6 +289,9 @@ int main(int argc, char *argv[]) {
             cout << "Compiling: object:    " << objFilePath << endl;
         }
 
+        // additional commands
+        if (!parameters.additional.empty())
+            command << parameters.additional << " ";
         // defines
         for (auto const &def : parameters.definitions)
             command << "-D" << '"' << def << '"' << " ";
@@ -299,9 +302,6 @@ int main(int argc, char *argv[]) {
         // include dirs
         for (auto const &includeDir : parameters.includeDirs)
             command << "-I" << '"' << canonical(includeDir) << '"' << " ";
-        // additional commands
-        if (!parameters.additional.empty())
-            command << parameters.additional;
 
         if (parameters.fulllog)
             cout << "Compiling: " << cppFilePath.filename() << " : " << command.str() << endl;
@@ -331,7 +331,10 @@ int main(int argc, char *argv[]) {
         if (!parameters.buildtype.compare("LIB"))
             command << "rcs ";
         else
-            command << "-shared -o ";
+            command << "-shared ";
+        if (!parameters.linkadditional.empty())
+            command << parameters.linkadditional << " ";
+        command << "-o ";
         path outputPath = canonical(parameters.outdir) / parameters.targetname;
         command << '"' << outputPath << '"' << " ";
         path objectsPath = canonical(parameters.intdir) / parameters.projectname / "*.o";
@@ -342,8 +345,6 @@ int main(int argc, char *argv[]) {
         // libraries
         for (auto const &library : parameters.libraries)
             command << "-l:" << '"' << library << '"' << " ";
-        if (!parameters.linkadditional.empty())
-            command << parameters.linkadditional;
 
         if (parameters.fulllog)
             cout << "Linking: " << command.str() << endl;

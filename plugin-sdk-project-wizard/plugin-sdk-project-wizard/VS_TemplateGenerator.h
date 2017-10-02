@@ -182,7 +182,6 @@ public:
             else
                 outDir = settings.saAsiOutputPath;
             AddValueToCSVLine(definitions, "GTASA");
-            AddValueToCSVLine(definitions, "plugin_header=\"plugin.h\"");
             AddValueToCSVLine(definitions, "GTAGAME_NAME=\"San Andreas\"");
             AddValueToCSVLine(definitions, "GTAGAME_ABBR=\"SA\"");
             AddValueToCSVLine(definitions, "GTAGAME_ABBRLOW=\"sa\"");
@@ -197,7 +196,6 @@ public:
             else
                 outDir = settings.vcAsiOutputPath;
             AddValueToCSVLine(definitions, "GTAVC");
-            AddValueToCSVLine(definitions, "plugin_header=\"plugin_vc.h\"");
             AddValueToCSVLine(definitions, "GTAGAME_NAME=\"Vice City\"");
             AddValueToCSVLine(definitions, "GTAGAME_ABBR=\"VC\"");
             AddValueToCSVLine(definitions, "GTAGAME_ABBRLOW=\"vc\"");
@@ -212,7 +210,6 @@ public:
             else
                 outDir = settings.iiiAsiOutputPath;
             AddValueToCSVLine(definitions, "GTA3");
-            AddValueToCSVLine(definitions, "plugin_header=\"plugin_iii.h\"");
             AddValueToCSVLine(definitions, "GTAGAME_NAME=\"3\"");
             AddValueToCSVLine(definitions, "GTAGAME_ABBR=\"3\"");
             AddValueToCSVLine(definitions, "GTAGAME_ABBRLOW=\"3\"");
