@@ -7,6 +7,7 @@ public:
     QString directX9SdkFolder;
     QString rwd3d9Folder;
     QString vsDocumentsFolder;
+    QString codeBlocksFolder;
 
     QString saAsiOutputFolder;
     QString saCleoOutputFolder;

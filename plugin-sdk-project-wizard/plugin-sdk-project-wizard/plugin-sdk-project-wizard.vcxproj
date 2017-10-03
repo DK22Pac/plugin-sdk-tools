@@ -44,6 +44,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BorderlessStyle.cpp" />
+    <ClCompile Include="CodeBlocksWizardInstaller.cpp" />
     <ClCompile Include="ErrorMessage.cpp" />
     <ClCompile Include="GeneratedFiles\qrc_projectwizard.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -53,6 +54,7 @@
     <ClCompile Include="GeneratedFiles\Release\moc_projectwizard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="projectwizard.cpp" />
+    <ClCompile Include="qtUtils.cpp" />
     <ClCompile Include="settings.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -79,8 +81,10 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <ClInclude Include="BorderlessStyle.h" />
+    <ClInclude Include="CodeBlocksWizardInstaller.h" />
     <ClInclude Include="GeneratedFiles\ui_messagebox.h" />
     <ClInclude Include="GeneratedFiles\ui_projectwizard.h" />
+    <ClInclude Include="qtUtils.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="VsProjectItemFile.h" />

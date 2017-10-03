@@ -1,5 +1,6 @@
 #include "projectwizard.h"
 #include "VS_TemplateGenerator.h"
+#include "CodeBlocksWizardInstaller.h"
 #include "BorderlessStyle.h"
 #include <QMouseEvent>
 #include <QGraphicsDropShadowEffect>
@@ -21,6 +22,7 @@ ProjectWizard::ProjectWizard(QWidget *parent)
     connect(ui.btn_browseRwD3d9Folder, &QPushButton::clicked, this, &ProjectWizard::on_browseRwD3d9FolderButtonClicked);
     connect(ui.btn_browseDirectX9SdkFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseDirectXS9dkFolderButtonClicked);
     connect(ui.btn_browseVisualStudioDocumentsFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseVisualStudioDocumentsFolderButtonClicked);
+    connect(ui.btn_browseCodeBlocksFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseCodeBlocksFolderButtonClicked);
     connect(ui.btn_browseSaAsiOutputFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseSaAsiPluginsFolderButtonClicked);
     connect(ui.btn_browseSaCleoSdkFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseSaCleoSdkFolderButtonClicked);
     connect(ui.btn_browseSaCleoOutputFolder, &QPushButton::clicked, this, &ProjectWizard::on_browseSaCleoPluginsFolderButtonClicked);
@@ -45,6 +47,8 @@ ProjectWizard::ProjectWizard(QWidget *parent)
         ui.le_directX9SdkFolder->setText(settings.directX9SdkFolder);
     if (!settings.vsDocumentsFolder.isEmpty())
         ui.le_visualStudioDocumentsFolder->setText(settings.vsDocumentsFolder);
+    if (!settings.codeBlocksFolder.isEmpty())
+        ui.le_codeBlocksFolder->setText(settings.codeBlocksFolder);
     if (!settings.saAsiOutputFolder.isEmpty())
         ui.le_saAsiOutputFolder->setText(settings.saAsiOutputFolder);
     if (!settings.saCleoOutputFolder.isEmpty())
@@ -105,6 +109,7 @@ void ProjectWizard::on_generateButtonClicked(bool checked) {
     settings.rwd3d9Folder = ui.le_rwd3d9Folder->text();
     settings.directX9SdkFolder = ui.le_directX9SdkFolder->text();
     settings.vsDocumentsFolder = ui.le_visualStudioDocumentsFolder->text();
+    settings.codeBlocksFolder = ui.le_codeBlocksFolder->text();
     settings.saAsiOutputFolder = ui.le_saAsiOutputFolder->text();
     settings.saCleoSdkFolder = ui.le_saCleoSdkFolder->text();
     settings.saCleoOutputFolder = ui.le_saCleoOutputFolder->text();
@@ -116,9 +121,9 @@ void ProjectWizard::on_generateButtonClicked(bool checked) {
     settings.iiiCleoOutputFolder = ui.le_iiiCleoOutputFolder->text();
     settings.write(settingsFile);
 
-    if (ui.le_pluginSdkFolder->text().isEmpty())
-        ui.le_pluginSdkFolder->setText("$(PLUGIN_SDK_DIR)");
     if (!ui.le_visualStudioDocumentsFolder->text().isEmpty() && QDir(ui.le_visualStudioDocumentsFolder->text()).exists()) {
+        if (ui.le_pluginSdkFolder->text().isEmpty())
+            ui.le_pluginSdkFolder->setText("$(PLUGIN_SDK_DIR)");
         VS_ProjectGenerationSettings genSettings;
         genSettings.vsDocumentsPath = ui.le_visualStudioDocumentsFolder->text();
         MakePathLine(genSettings.vsDocumentsPath);
@@ -225,8 +230,16 @@ void ProjectWizard::on_generateButtonClicked(bool checked) {
             }
         }
     }
-    else
-        MESSAGE_ERROR("Visual Studio documents folder was not found");
+
+    if (!ui.le_codeBlocksFolder->text().isEmpty() && QDir(ui.le_codeBlocksFolder->text()).exists()) {
+        QString codeBlocksDir = ui.le_codeBlocksFolder->text();
+        MakePathLine(codeBlocksDir);
+        QFileInfo scriptFile(codeBlocksDir + "share\\CodeBlocks\\templates\\wizard\\config.script");
+        if (scriptFile.exists() && scriptFile.isFile())
+            CodeBlocksWizardInstaller::Install(codeBlocksDir, "wizards\\codeblocks\\pluginsdk");
+        else
+            MESSAGE_ERROR("Unable to install Code::Blocks Wizard:\ncan't find config.script in \"share\\CodeBlocks\\templates\\wizard\"");
+    }
 }
 
 bool ProjectWizard::isPointInsideWindowArea(QPoint point) {
@@ -297,6 +310,14 @@ void ProjectWizard::on_browseVisualStudioDocumentsFolderButtonClicked(bool check
         ui.le_visualStudioDocumentsFolder->text(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (!dir.isEmpty()) {
         ui.le_visualStudioDocumentsFolder->setText(dir);
+    }
+}
+
+void ProjectWizard::on_browseCodeBlocksFolderButtonClicked(bool checked) {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Directory"),
+        ui.le_codeBlocksFolder->text(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty()) {
+        ui.le_codeBlocksFolder->setText(dir);
     }
 }
 

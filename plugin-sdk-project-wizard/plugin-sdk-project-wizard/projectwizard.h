@@ -31,6 +31,7 @@ private:
     void on_browseRwD3d9FolderButtonClicked(bool checked);
     void on_browseDirectXS9dkFolderButtonClicked(bool checked);
     void on_browseVisualStudioDocumentsFolderButtonClicked(bool checked);
+    void on_browseCodeBlocksFolderButtonClicked(bool checked);
     void on_browseSaAsiPluginsFolderButtonClicked(bool checked);
     void on_browseSaCleoSdkFolderButtonClicked(bool checked);
     void on_browseSaCleoPluginsFolderButtonClicked(bool checked);

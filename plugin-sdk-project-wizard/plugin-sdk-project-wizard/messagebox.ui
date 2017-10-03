@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>351</width>
-    <height>113</height>
+    <height>132</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -263,7 +263,7 @@ QTabBar::tab::last::selected {
      <x>10</x>
      <y>40</y>
      <width>333</width>
-     <height>61</height>
+     <height>81</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">

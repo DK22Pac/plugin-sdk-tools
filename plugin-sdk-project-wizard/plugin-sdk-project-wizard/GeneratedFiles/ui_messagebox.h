@@ -37,7 +37,7 @@ public:
     {
         if (dialogWidget->objectName().isEmpty())
             dialogWidget->setObjectName(QStringLiteral("dialogWidget"));
-        dialogWidget->resize(351, 113);
+        dialogWidget->resize(351, 132);
         dialogWidget->setStyleSheet(QLatin1String("QMenu {\n"
 "    color: white;\n"
 "    background-color: black;\n"
@@ -256,7 +256,7 @@ public:
         lbl_icon->setGeometry(QRect(14, 6, 22, 22));
         verticalLayoutWidget = new QWidget(dialogWidget);
         verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 40, 333, 61));
+        verticalLayoutWidget->setGeometry(QRect(10, 40, 333, 81));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
