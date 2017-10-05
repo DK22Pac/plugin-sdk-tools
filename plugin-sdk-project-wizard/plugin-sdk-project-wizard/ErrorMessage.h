@@ -5,6 +5,7 @@
 
 bool MESSAGE_ERROR(QString message);
 bool MESSAGE_WARNING(QString message);
+bool MESSAGE_INFO(QString message);
 
 class MessageDialog : public QDialog {
     Q_OBJECT

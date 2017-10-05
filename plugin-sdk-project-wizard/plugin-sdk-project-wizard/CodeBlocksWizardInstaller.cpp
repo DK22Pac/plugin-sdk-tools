@@ -6,8 +6,6 @@
 
 bool CodeBlocksWizardInstaller::Install(QString codeBlocksDir, QString wizardDir)
 {
-    // copy wizard folder to codeblocks wizards folder
-    CopyRecursively(wizardDir, codeBlocksDir + "share\\CodeBlocks\\templates\\wizard\\pluginsdk");
     // register wizard
     QFile file(codeBlocksDir + "share\\CodeBlocks\\templates\\wizard\\config.script");
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -43,10 +41,12 @@ bool CodeBlocksWizardInstaller::Install(QString codeBlocksDir, QString wizardDir
                 file.close();
             }
             else
-                MESSAGE_ERROR("Unable to install Code::Blocks Wizard:\ncan't open config.script file for writing");
+                return MESSAGE_ERROR("Unable to install Code::Blocks Wizard:\ncan't open config.script file for writing");
         }
     }
     else
-        MESSAGE_ERROR("Unable to install Code::Blocks Wizard:\ncan't open config.script file for reading");
-    return false;
+        return MESSAGE_ERROR("Unable to install Code::Blocks Wizard:\ncan't open config.script file for reading");
+
+    // copy wizard folder to codeblocks wizards folder
+    return CopyRecursively(wizardDir, codeBlocksDir + "share\\CodeBlocks\\templates\\wizard\\pluginsdk");
 }

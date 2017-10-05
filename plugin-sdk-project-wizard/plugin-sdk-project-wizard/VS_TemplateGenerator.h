@@ -144,6 +144,12 @@ public:
             line += ";" + value;
     }
 
+    static QString LibraryName(int vsVersion, QString const &name) {
+        if (vsVersion >= 2015)
+            return name + ".lib";
+        return name;
+    }
+
     static QString ToCSV(QString value, bool atBegin) {
         if (value.isEmpty())
             return "";
@@ -163,14 +169,15 @@ public:
 
         QString cppStd = "c++14";
 
-        if (vsVersion >= 2015)
+        if (vsVersion >= 2015) {
             AddValueToCSVLine(libFolders, settings.pluginSdkPath + "output\\lib\\");
+            AddValueToCSVLine(definitions, "_USING_V110_SDK71_");
+            AddValueToCSVLine(definitions, "_CRT_SECURE_NO_WARNINGS");
+            AddValueToCSVLine(definitions, "_CRT_NON_CONFORMING_SWPRINTFS");
+        }
         else
             AddValueToCSVLine(libFolders, settings.pluginSdkPath + "output\\mingw\\lib\\");
-
-        AddValueToCSVLine(definitions, "_USING_V110_SDK71_");
-        AddValueToCSVLine(definitions, "_CRT_SECURE_NO_WARNINGS");
-        AddValueToCSVLine(definitions, "_CRT_NON_CONFORMING_SWPRINTFS");
+        
         if (genFlags & VSGEN_LA)
             AddValueToCSVLine(definitions, "_PLUGIN_LA_COMP");
 
@@ -220,10 +227,10 @@ public:
         if (genFlags & VSGEN_D3D9) {
             AddValueToCSVLine(vcIncludes, settings.d3d9SdkPath + "Include\\");
             AddValueToCSVLine(vcLibraries, settings.d3d9SdkPath + "Lib\\x86\\");
-            AddValueToCSVLine(dependencies, "d3d9.lib");
-            AddValueToCSVLine(dependencies, "d3dx9.lib");
+            AddValueToCSVLine(dependencies, LibraryName(vsVersion, "d3d9"));
+            AddValueToCSVLine(dependencies, LibraryName(vsVersion, "d3dx9"));
             if (game != GTA_GAME_SA) {
-                AddValueToCSVLine(dependencies, "rwd3d9.lib");
+                AddValueToCSVLine(dependencies, LibraryName(vsVersion, "rwd3d9"));
                 AddValueToCSVLine(includeFolders, settings.rwd3d9Path + "source\\");
                 AddValueToCSVLine(libFolders, settings.rwd3d9Path + "libs\\");
             }
@@ -234,17 +241,17 @@ public:
             if (game == GTA_GAME_SA) {
                 AddValueToCSVLine(includeFolders, settings.saCleoSdkPath);
                 AddValueToCSVLine(libFolders, settings.saCleoSdkPath);
-                AddValueToCSVLine(dependencies, "cleo.lib");
+                AddValueToCSVLine(dependencies, LibraryName(vsVersion, "cleo"));
             }
             else if (game == GTA_GAME_VC) {
                 AddValueToCSVLine(includeFolders, settings.vcCleoSdkPath);
                 AddValueToCSVLine(libFolders, settings.vcCleoSdkPath);
-                AddValueToCSVLine(dependencies, "VC.CLEO.lib");
+                AddValueToCSVLine(dependencies, LibraryName(vsVersion, "VC.CLEO"));
             }
             else {
                 AddValueToCSVLine(includeFolders, settings.iiiCleoSdkPath);
                 AddValueToCSVLine(libFolders, settings.iiiCleoSdkPath);
-                AddValueToCSVLine(dependencies, "III.CLEO.lib");
+                AddValueToCSVLine(dependencies, LibraryName(vsVersion, "III.CLEO"));
             }
         }
         else
@@ -303,9 +310,10 @@ public:
             QString nmLibrariesDebug = "libraries:\"(libpaths_d.a;lib" + pluginLibName + "_d.a" + ToCSV(dependencies, true) + ")\" ";
             QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
             QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
-            QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -Os)\"";
-            QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32)\"";
-            QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease;
+            QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\"";
+            QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32 -g -fpermissive)\"";
+            QString nmLinkAdditionalRelease = "linkadditional:\"(-s)\"";
+            QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease + nmLinkAdditionalRelease;
             QString nmDirsAndOptionsDebug = nmIncludeDirs + nmLibraryDirs + nmLibrariesDebug + nmDefinitionsDebug + nmAdditionalDebug;
 
             vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineRelease$", true,

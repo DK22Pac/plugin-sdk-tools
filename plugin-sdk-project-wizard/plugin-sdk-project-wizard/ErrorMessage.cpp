@@ -41,3 +41,10 @@ bool MESSAGE_WARNING(QString message) {
     msgBox.exec();
     return false;
 }
+
+bool MESSAGE_INFO(QString message) {
+    MessageDialog msgBox;
+    msgBox.Setup("Info", message);
+    msgBox.exec();
+    return false;
+}

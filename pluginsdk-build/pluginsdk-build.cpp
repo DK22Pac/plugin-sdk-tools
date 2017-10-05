@@ -116,7 +116,6 @@ int main(int argc, char *argv[]) {
     };
 
     for (int i = 2; i < argc; i++) {
-        //MessageBox(0, argv[i], 0, 0);
 
         // read parameters and fill BuildParameters structure
 
