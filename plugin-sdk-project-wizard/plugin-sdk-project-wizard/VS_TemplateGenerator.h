@@ -306,8 +306,8 @@ public:
             AddValueToCSVLine(allLibraryDirs, vcLibraries);
             AddValueToCSVLine(allLibraryDirs, libFolders);
             QString nmLibraryDirs = "libraryDirs:\"(" + allLibraryDirs + ")\" ";
-            QString nmLibrariesRelease = "libraries:\"(libpaths.a;lib" + pluginLibName +  ".a" + ToCSV(dependencies, true) + ")\" ";
-            QString nmLibrariesDebug = "libraries:\"(libpaths_d.a;lib" + pluginLibName + "_d.a" + ToCSV(dependencies, true) + ")\" ";
+            QString nmLibrariesRelease = "libraries:\"(paths;" + pluginLibName + ToCSV(dependencies, true) + ")\" ";
+            QString nmLibrariesDebug = "libraries:\"(paths_d;" + pluginLibName + "_d" + ToCSV(dependencies, true) + ")\" ";
             QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
             QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
             QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\"";

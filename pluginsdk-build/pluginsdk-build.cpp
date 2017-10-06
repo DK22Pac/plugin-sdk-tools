@@ -9,7 +9,7 @@
 using namespace std;
 using namespace experimental::filesystem;
 
-#define _PLUGIN_SDK_BUILD_VER_ "1.0.0"
+#define _PLUGIN_SDK_BUILD_VER_ "1.1.0"
 
 int main(int argc, char *argv[]) {
     cout << ">>> Plugin-SDK Build Tool v." << _PLUGIN_SDK_BUILD_VER_ << " <<<" << endl;
@@ -294,13 +294,13 @@ int main(int argc, char *argv[]) {
         // defines
         for (auto const &def : parameters.definitions)
             command << "-D" << '"' << def << '"' << " ";
-        // compile
-        command << "-c " << '"' << cppFilePath << '"' << " ";
-        // output
-        command << "-o " << '"' << objFilePath << '"' << " ";
         // include dirs
         for (auto const &includeDir : parameters.includeDirs)
             command << "-I" << '"' << canonical(includeDir) << '"' << " ";
+        // compile
+        command << "-c " << '"' << cppFilePath << '"' << " ";
+        // output
+        command << "-o " << '"' << objFilePath << '"';
 
         if (parameters.fulllog)
             cout << "Compiling: " << cppFilePath.filename() << " : " << command.str() << endl;
@@ -330,7 +330,7 @@ int main(int argc, char *argv[]) {
         if (!parameters.buildtype.compare("LIB"))
             command << "rcs ";
         else
-            command << "-shared ";
+            command << "-shared -Wl,--dll ";
         if (!parameters.linkadditional.empty())
             command << parameters.linkadditional << " ";
         command << "-o ";
@@ -343,15 +343,18 @@ int main(int argc, char *argv[]) {
             command << "-L" << '"' << canonical(libraryDir) << '"' << " ";
         // libraries
         for (auto const &library : parameters.libraries)
-            command << "-l:" << '"' << library << '"' << " ";
+            command << "-l" << '"' << library << '"' << " ";
 
         if (parameters.fulllog)
             cout << "Linking: " << command.str() << endl;
 
         if (executeCommand(!parameters.buildtype.compare("LIB") ? "ar" : "g++", command.str().c_str()) != 0)
             cout << "Error: failed to link objects (command: " << command.str() << ")" << endl;
-        else
-            cout << parameters.projectname << ".vcxproj -> " << outputPath << endl;
+        else {
+            static char sizestr[32];
+            sprintf_s(sizestr, "%.2f KB", static_cast<float>(file_size(outputPath))/1024.0f);
+            cout << parameters.projectname << ".vcxproj -> " << outputPath << " (" << sizestr << ")" << endl;
+        }
     }
 
     return 0;
