@@ -310,7 +310,7 @@ public:
             QString nmLibrariesDebug = "libraries:\"(paths_d;" + pluginLibName + "_d" + ToCSV(dependencies, true) + ")\" ";
             QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
             QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
-            QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\"";
+            QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\" ";
             QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32 -g -fpermissive)\"";
             QString nmLinkAdditionalRelease = "linkadditional:\"(-s)\"";
             QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease + nmLinkAdditionalRelease;
