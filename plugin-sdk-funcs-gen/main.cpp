@@ -599,14 +599,22 @@ int _tmain(int argc, _TCHAR* argv[])
             {
             case FUNC_THISCALL:
                 hasParameters = true;
-                if (functions[i].isReturn)
-                    fprintf(f, "reinterpret_cast<%s(__thiscall *)(%s *", _getTypeCorrectName(functions[i].retTypeName), functions[i].className);
+                if (functions[i].isReturn) {
+                    if (_isTypeDefault(_getTypeCorrectName(functions[i].retTypeName)))
+                        fprintf(f, "reinterpret_cast<%s(__thiscall *)(%s *", _getTypeCorrectName(functions[i].retTypeName), functions[i].className);
+                    else
+                        fprintf(f, "reinterpret_cast<void(__thiscall *)(%s *", functions[i].className);
+                }
                 else
                     fprintf(f, "reinterpret_cast<void(__thiscall *)(%s *", functions[i].className);
                 break;
             case FUNC_CDECL:
-                if (functions[i].isReturn)
-                    fprintf(f, "reinterpret_cast<%s(__cdecl *)(", _getTypeCorrectName(functions[i].retTypeName));
+                if (functions[i].isReturn) {
+                    if (_isTypeDefault(_getTypeCorrectName(functions[i].retTypeName)))
+                        fprintf(f, "reinterpret_cast<%s(__cdecl *)(", _getTypeCorrectName(functions[i].retTypeName));
+                    else
+                        fprintf(f, "reinterpret_cast<void(__cdecl *)(");
+                }
                 else
                     fprintf(f, "reinterpret_cast<void(__cdecl *)(");
             }
@@ -632,21 +640,33 @@ int _tmain(int argc, _TCHAR* argv[])
             {
             case FUNC_THISCALL:
                 if (i < numVtableFunctions) {
-                    if (functions[i].isReturn)
-                        fprintf(f, "plugin::CallVirtualMethodAndReturn<%s, %s, %s *", _getTypeCorrectName(functions[i].retTypeName), functions[i].address, functions[i].className);
+                    if (functions[i].isReturn) {
+                        if (_isTypeDefault(_getTypeCorrectName(functions[i].retTypeName)))
+                            fprintf(f, "plugin::CallVirtualMethodAndReturn<%s, %s, %s *", _getTypeCorrectName(functions[i].retTypeName), functions[i].address, functions[i].className);
+                        else
+                            fprintf(f, "plugin::CallVirtualMethod<%s, %s *", functions[i].address, functions[i].className);
+                    }
                     else
                         fprintf(f, "plugin::CallVirtualMethod<%s, %s *", functions[i].address, functions[i].className);
                 }
                 else {
-                    if (functions[i].isReturn)
-                        fprintf(f, "plugin::CallMethodAndReturn<%s, %s, %s *", _getTypeCorrectName(functions[i].retTypeName), functions[i].address, functions[i].className);
+                    if (functions[i].isReturn) {
+                        if (_isTypeDefault(_getTypeCorrectName(functions[i].retTypeName)))
+                            fprintf(f, "plugin::CallMethodAndReturn<%s, %s, %s *", _getTypeCorrectName(functions[i].retTypeName), functions[i].address, functions[i].className);
+                        else
+                            fprintf(f, "plugin::CallMethod<%s, %s *", functions[i].address, functions[i].className);
+                    }
                     else
                         fprintf(f, "plugin::CallMethod<%s, %s *", functions[i].address, functions[i].className);
                 }
                 break;
             case FUNC_CDECL:
-                if (functions[i].isReturn)
-                    fprintf(f, "plugin::CallAndReturn<%s, %s", _getTypeCorrectName(functions[i].retTypeName), functions[i].address);
+                if (functions[i].isReturn) {
+                    if (_isTypeDefault(_getTypeCorrectName(functions[i].retTypeName)))
+                        fprintf(f, "plugin::CallAndReturn<%s, %s", _getTypeCorrectName(functions[i].retTypeName), functions[i].address);
+                    else
+                        fprintf(f, "plugin::Call<%s", functions[i].address);
+                }
                 else
                     fprintf(f, "plugin::Call<%s", functions[i].address);
             }
