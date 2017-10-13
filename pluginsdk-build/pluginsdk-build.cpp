@@ -202,7 +202,6 @@ int main(int argc, char *argv[]) {
                     size_t pathEnd = line.find_first_of('"', lineBegin + 20);
                     if (pathEnd != string::npos) {
                         string cppFileProjPath = line.substr(lineBegin + 20, pathEnd - 20 - lineBegin);
-                        size_t lastSlash = cppFileProjPath.find_last_of("\\/");
                         cppFiles.push_back(cppFileProjPath);
                     }
                 }
@@ -336,8 +335,8 @@ int main(int argc, char *argv[]) {
         command << "-o ";
         path outputPath = canonical(parameters.outdir) / parameters.targetname;
         command << '"' << outputPath << '"' << " ";
-        path objectsPath = canonical(parameters.intdir) / parameters.projectname / "*.o";
-        command << '"' << objectsPath << '"' << " ";
+        path lnkObjsPath = canonical(parameters.intdir) / parameters.projectname / "*.o";
+        command << '"' << lnkObjsPath << '"' << " ";
         // library dirs
         for (auto const &libraryDir : parameters.libraryDirs)
             command << "-L" << '"' << canonical(libraryDir) << '"' << " ";
