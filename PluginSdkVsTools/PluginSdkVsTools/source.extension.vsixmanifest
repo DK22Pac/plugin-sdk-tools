@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="PluginSdkVSTools.ae8caae3-b338-4fb4-9a8c-505425687c53" Version="0.7.0.1" Language="en-US" Publisher="Plugin-SDK" />
+        <DisplayName>Plugin-SDK Visual Studio Tools</DisplayName>
+        <Description xml:space="preserve">Plugin-SDK Visual Studio Tools for creating plugins (ASI/CLEO/MoonLoader) for Grand Theft Auto.</Description>
+        <MoreInfo>https://github.com/DK22Pac/plugin-sdk</MoreInfo>
+        <Icon>packageicon.png</Icon>
+        <Tags>GTA, Grand Theft Auto, GTASA, GTAVC, GTA3, plugin, pluginSDK, plugin-SDK, plugin SDK, ASI, CLEO, MoonLoader</Tags>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,16.0)" />
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+    </Dependencies>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="PluginSdkProject.en" d:TargetPath="|PluginSdkProject.en;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
+        <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="PluginSdkProject.ru" d:TargetPath="|PluginSdkProject.ru;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="PluginSdkWizard" Path="|PluginSdkWizard|" AssemblyName="|PluginSdkWizard;AssemblyName|" />
+    </Assets>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+</PackageManifest>

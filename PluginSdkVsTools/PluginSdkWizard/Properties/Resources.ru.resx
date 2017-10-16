@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="strAdd" xml:space="preserve">
+    <value>Добавить...</value>
+  </data>
+  <data name="strAdditionalDefs" xml:space="preserve">
+    <value>Доп.
+команды</value>
+  </data>
+  <data name="strAdditionalIncDirs" xml:space="preserve">
+    <value>Доп. папки
+заголовков</value>
+  </data>
+  <data name="strAdditionalLibDirs" xml:space="preserve">
+    <value>Доп. папки
+библиотек</value>
+  </data>
+  <data name="strAdditionalLibs" xml:space="preserve">
+    <value>Доп.
+библиотеки</value>
+  </data>
+  <data name="strBasicSetup" xml:space="preserve">
+    <value>Базовые настройки</value>
+  </data>
+  <data name="strCancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="strClassName" xml:space="preserve">
+    <value>Название класса:</value>
+  </data>
+  <data name="strDebugConfigurationSettings" xml:space="preserve">
+    <value>Настройки для режима Отладки</value>
+  </data>
+  <data name="strDirectX9Sdk" xml:space="preserve">
+    <value>DirectX 9 SDK</value>
+  </data>
+  <data name="strFinish" xml:space="preserve">
+    <value>Готово</value>
+  </data>
+  <data name="strGameFolder" xml:space="preserve">
+    <value>Папка игры</value>
+  </data>
+  <data name="strIIIGameDir" xml:space="preserve">
+    <value>Папка GTA 3</value>
+  </data>
+  <data name="strIIICleoSdk" xml:space="preserve">
+    <value>GTA 3 CLEO SDK</value>
+  </data>
+  <data name="strLaCompatibility" xml:space="preserve">
+    <value>Совместимость с LA</value>
+  </data>
+  <data name="strLaCompatibilityDescr" xml:space="preserve">
+    <value>Сделать плагин совместимым с Limit Adjuster</value>
+  </data>
+  <data name="strNext" xml:space="preserve">
+    <value>Далее</value>
+  </data>
+  <data name="strOutputDir" xml:space="preserve">
+    <value>Выходная папка:</value>
+  </data>
+  <data name="strPluginName" xml:space="preserve">
+    <value>Название плагина:</value>
+  </data>
+  <data name="strPluginSdkFolder" xml:space="preserve">
+    <value>папка plugin-sdk</value>
+  </data>
+  <data name="strPluginType" xml:space="preserve">
+    <value>Тип плагина:</value>
+  </data>
+  <data name="strPrev" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="strProjectFolder" xml:space="preserve">
+    <value>Папка проекта</value>
+  </data>
+  <data name="strReleaseConfigurationSettings" xml:space="preserve">
+    <value>Настройки для режима Выпуска</value>
+  </data>
+  <data name="strRwD3d9Folder" xml:space="preserve">
+    <value>папка rwd3d9</value>
+  </data>
+  <data name="strSaGameDir" xml:space="preserve">
+    <value>Папка GTA SA</value>
+  </data>
+  <data name="strSaCleoPlugins" xml:space="preserve">
+    <value>GTA SA cleo плагины</value>
+  </data>
+  <data name="strSaCleoSdk" xml:space="preserve">
+    <value>GTA SA CLEO SDK</value>
+  </data>
+  <data name="strSameAsRelease" xml:space="preserve">
+    <value>Так же, как для режима Выпуска</value>
+  </data>
+  <data name="strSelectFolder" xml:space="preserve">
+    <value>Выберите папку</value>
+  </data>
+  <data name="strSelectGame" xml:space="preserve">
+    <value>Выберите игру:</value>
+  </data>
+  <data name="strSetupPaths" xml:space="preserve">
+    <value>Настройка путей</value>
+  </data>
+  <data name="strTypeAsi" xml:space="preserve">
+    <value>ASI Плагин</value>
+  </data>
+  <data name="strTypeCleo" xml:space="preserve">
+    <value>CLEO Плагин</value>
+  </data>
+  <data name="strTypeDll" xml:space="preserve">
+    <value>DLL Библиотека</value>
+  </data>
+  <data name="strTypeMoonLoader" xml:space="preserve">
+    <value>MoonLoader Модуль</value>
+  </data>
+  <data name="strUseDirectXSdk" xml:space="preserve">
+    <value>Исп. DirectX SDK</value>
+  </data>
+  <data name="strUseDirectXSdkDescr" xml:space="preserve">
+    <value>Включить заголовочные файлы и библиотеки DirectX SDK</value>
+  </data>
+  <data name="strVcGameDir" xml:space="preserve">
+    <value>Папка GTA VC</value>
+  </data>
+  <data name="strVcCleoSdk" xml:space="preserve">
+    <value>GTA VC CLEO SDK</value>
+  </data>
+  <data name="strWizardTitle" xml:space="preserve">
+    <value>Добро пожаловать в Мастер Проекта Plugin-SDK</value>
+  </data>
+  <data name="strTestFunction" xml:space="preserve">
+    <value>тестовая функция</value>
+  </data>
+  <data name="strMoonLoaderSdkDir" xml:space="preserve">
+    <value>MoonLoader SDK</value>
+  </data>
+  <data name="strWarning" xml:space="preserve">
+    <value>Предупреждение</value>
+  </data>
+  <data name="strMoonLoaderWarn1" xml:space="preserve">
+    <value>MoonLoader Module может быть создан только для GTA San Andreas</value>
+  </data>
+  <data name="strMoonLoaderWarn2" xml:space="preserve">
+    <value>MoonLoader Module не может быть создан для GTA 3</value>
+  </data>
+  <data name="strMoonLoaderWarn3" xml:space="preserve">
+    <value>MoonLoader Module не может быть создан для GTA Vice City</value>
+  </data>
+  <data name="strMoonLoaderWarn4" xml:space="preserve">
+    <value>MoonLoader Module не может быть создан для GTA 3 и GTA Vice City</value>
+  </data>
+  <data name="strUseEnvVars" xml:space="preserve">
+    <value>Исп. переменные среды</value>
+  </data>
+  <data name="strEmptyPathNote" xml:space="preserve">
+    <value>ПРИМЕЧАНИЕ: Используется '{0}' вместо пустой строки</value>
+  </data>
+  <data name="strWarnUnfinishedVar" xml:space="preserve">
+    <value>ПРЕДУПРЕЖДЕНИЕ: Незаконченное имя переменной среды: $({0}</value>
+  </data>
+  <data name="strEnvVarNotFound" xml:space="preserve">
+    <value>ПРЕДУПРЕЖДЕНИЕ: Не найдена переменная среды '{0}'</value>
+  </data>
+</root>

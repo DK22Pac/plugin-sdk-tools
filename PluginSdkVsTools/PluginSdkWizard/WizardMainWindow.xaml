@@ -1,0 +1,353 @@
+﻿<ui:DialogWindow
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.14.0"        
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="PluginSdkWizard.WizardMainWindow"
+        xmlns:res="clr-namespace:PluginSdkWizard.Properties"
+        Title="Plugin-SDK Project Wizard" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" SizeToContent="WidthAndHeight"
+        Style="{DynamicResource ThemedDialogStyle}">
+    <ui:DialogWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/PluginSdkWizard;component/Themes/Main.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ui:DialogWindow.Resources>
+    <Grid Width="600" Height="450">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid >
+                <Grid.Background>
+                    <ImageBrush ImageSource="Icons/side.png"/>
+                </Grid.Background>
+                <Image Margin="0,24,0,0" Source="Icons/altsdklogo.png" Width="104" VerticalAlignment="Top"/>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="46"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label x:Name="lblTitle" Content="{x:Static res:Resources.strWizardTitle}" Margin="10,14,0,0" FontSize="16" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" Padding="5"/>
+                <TabControl x:Name="tcTabs" Grid.Row="1" VerticalAlignment="Top" Padding="0">
+                    <TabItem Header="Basic setup" Visibility="Hidden" Margin="0" Width="0" Height="0" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="{x:Static res:Resources.strBasicSetup}" Margin="15,0,0,0" HorizontalContentAlignment="Stretch" FontSize="14" VerticalContentAlignment="Stretch" Padding="0"/>
+                            <Grid Margin="20,0" Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="110"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Top">
+                                    <Label x:Name="lblSelectGame" Content="{x:Static res:Resources.strSelectGame}" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Center" Padding="0,0,0,5"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0">
+                                        <CheckBox x:Name="cbSA" Content="CheckBox" ToolTip="GTA San Andreas" Style="{DynamicResource Game}" IsThreeState="False" Width="81" Height="81">
+                                            <CheckBox.Background>
+                                                <ImageBrush ImageSource="Icons/gtasa.png"/>
+                                            </CheckBox.Background>
+                                        </CheckBox>
+                                        <CheckBox x:Name="cbVC" Content="CheckBox" ToolTip="GTA Vice City" Style="{DynamicResource Game}" Width="81">
+                                            <CheckBox.Background>
+                                                <ImageBrush ImageSource="Icons/gtavc.png"/>
+                                            </CheckBox.Background>
+                                        </CheckBox>
+                                        <CheckBox x:Name="cbIII" Content="CheckBox" ToolTip="GTA III" Style="{DynamicResource Game}" Width="81">
+                                            <CheckBox.Background>
+                                                <ImageBrush ImageSource="Icons/gta3.png"/>
+                                            </CheckBox.Background>
+                                        </CheckBox>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Grid x:Name="grdBasicOptions" Grid.Row="1" IsEnabled="False">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <DockPanel Grid.Row="0" Margin="0">
+                                        <Label x:Name="lblPluginName" Content="{x:Static res:Resources.strPluginType}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
+                                        <ComboBox x:Name="cmbProjectType" Height="23"/>
+                                    </DockPanel>
+                                    <DockPanel Grid.Row="1" Margin="0">
+                                        <Label Content="{x:Static res:Resources.strPluginName}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
+                                        <Grid>
+                                            <TextBox x:Name="tbTargetName" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" VerticalAlignment="Center" Text="$projectname$.$game$" Tag="$projectname$.$game$" />
+                                            <Image x:Name="errTargetName" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" Margin="0,5,1,0" IsHitTestVisible="False" IsEnabled="False" />
+                                        </Grid>
+                                    </DockPanel>
+                                    <DockPanel Grid.Row="2" Margin="0">
+                                        <Label Content="{x:Static res:Resources.strClassName}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
+                                        <Grid>
+                                            <TextBox x:Name="tbBaseClassName" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" VerticalAlignment="Center" Text="$projectname$" Tag="$projectname$" />
+                                            <Image x:Name="errBaseClassName" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" Margin="0,5,1,0" IsEnabled="False" />
+                                        </Grid>
+                                    </DockPanel>
+                                    <Grid Margin="0" Grid.Row="3" VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="cbUseDirectXSdk" Content="{x:Static res:Resources.strUseDirectXSdk}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strUseDirectXSdkDescr}" Padding="4,-1,0,0"/>
+                                        <CheckBox x:Name="cbLimitAdjusterCompatibilityMode" Content="{x:Static res:Resources.strLaCompatibility}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strLaCompatibilityDescr}" Padding="4,-1,0,0" Grid.Column="1"/>
+                                    </Grid>
+                                    <Grid Margin="0" Grid.Row="4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="{x:Static res:Resources.strOutputDir}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
+                                        <Grid  Grid.Column="1">
+                                            <TextBox x:Name="tbOutputFolder" Text="$gamedir$\$outdirname$" Tag="$projectdir$\output" />
+                                            <Image x:Name="errOutputFolder" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" Margin="0,5,1,0" IsEnabled="False" />
+                                        </Grid>
+                                        <Button x:Name="btnOutputGameDir" VerticalAlignment="Center" Style="{DynamicResource SmallIconButtonStyle}" ToolTip="{x:Static res:Resources.strGameFolder}" HorizontalAlignment="Left" Grid.Column="2">
+                                            <Image Source="Icons/output_game.png" />
+                                        </Button>
+                                        <Button x:Name="btnOutputProjectDir" VerticalAlignment="Center" Style="{DynamicResource SmallIconButtonStyle}" ToolTip="{x:Static res:Resources.strProjectFolder}" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Grid.Column="3">
+                                            <Image Source="Icons/output_proj.png" />
+                                        </Button>
+                                        <Button x:Name="btnBrowseOutputFolder" VerticalAlignment="Center" Style="{DynamicResource SmallBrowseButtonStyle}" HorizontalAlignment="Left" Grid.Column="4"/>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Release configuration settings" Visibility="Hidden" Width="0" Height="0" Margin="0" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="{x:Static res:Resources.strReleaseConfigurationSettings}" Margin="15,0,0,0" HorizontalContentAlignment="Stretch" FontSize="14" VerticalContentAlignment="Stretch" Padding="0"/>
+                            <Grid x:Name="grdReleaseOptions" Margin="20,0" Grid.Row="3">
+                                <FrameworkElement.Resources>
+                                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource TextBoxMultiLine}"/>
+                                </FrameworkElement.Resources>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="80"/>
+                                    <RowDefinition Height="80"/>
+                                    <RowDefinition Height="60"/>
+                                    <RowDefinition Height="60"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Padding="0" Margin="0,0,5,10">
+                                    <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalIncDirs}"/>
+                                </Label>
+                                <TextBox  Grid.Column="1" x:Name="tbRelAdditionalIncDirs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" Margin="0,0,5,10"/>
+                                <Button Grid.Column="2" x:Name="btnRelAddAdditionalIncDir" VerticalAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Right" VerticalContentAlignment="Center" Margin="0,0,0,10" Content="{x:Static res:Resources.strAdd}" Height="23" Padding="5,1" MinWidth="23"/>
+                                <Label Grid.Row="1" Padding="0" Margin="0,0,5,10">
+                                    <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalLibDirs}"/>
+                                </Label>
+                                <TextBox Grid.Column="1" Grid.Row="1" x:Name="tbRelAdditionalLibDirs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,5,10"/>
+                                <Button Grid.Column="2" Grid.Row="1" x:Name="btnRelAddAdditionalLibDir" VerticalAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Right" VerticalContentAlignment="Center" Margin="0,0,0,10" Content="{x:Static res:Resources.strAdd}" Height="23" Padding="5,1" MinWidth="23"/>
+                                <Label Grid.Row="2" Padding="0" Margin="0,0,5,10">
+                                    <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalLibs}"/>
+                                </Label>
+                                <TextBox Grid.Column="1" Grid.Row="2" x:Name="tbRelAdditionalLibs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,5,10" Padding="0"/>
+                                <Label Grid.Row="3" Padding="0" Margin="0,0,5,0">
+                                    <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalDefs}"/>
+                                </Label>
+                                <TextBox Grid.Column="1" Grid.Row="3" x:Name="tbRelAdditionalDefs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,5,10" Padding="0"/>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Debug configuration settings" Visibility="Hidden" Width="0" Height="0" Margin="0" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="{x:Static res:Resources.strDebugConfigurationSettings}" Margin="15,0,0,0" HorizontalContentAlignment="Stretch" FontSize="14" VerticalContentAlignment="Stretch" Padding="0"/>
+                            <Grid Margin="20,0" Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <CheckBox x:Name="cbDbgConfigSameAsRel" Content="{x:Static res:Resources.strSameAsRelease}" HorizontalAlignment="Left" Margin="0,0,0,10" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0" IsChecked="True"/>
+                                <Grid x:Name="grdDebugOptions" Margin="0" Grid.Row="1" IsEnabled="False">
+                                    <FrameworkElement.Resources>
+                                        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource TextBoxMultiLine}"/>
+                                    </FrameworkElement.Resources>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="80"/>
+                                        <RowDefinition Height="80"/>
+                                        <RowDefinition Height="60"/>
+                                        <RowDefinition Height="60"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Padding="0" Margin="0,0,5,10">
+                                        <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalIncDirs}"/>
+                                    </Label>
+                                    <TextBox  Grid.Column="1" x:Name="tbDbgAdditionalIncDirs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" Margin="0,0,5,10"/>
+                                    <Button Grid.Column="2" x:Name="btnDbgAddAdditionalIncDir" VerticalAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Right" VerticalContentAlignment="Center" Margin="0,0,0,10" Content="{x:Static res:Resources.strAdd}" Height="23" Padding="5,1" MinWidth="23"/>
+                                    <Label Grid.Row="1" Padding="0" Margin="0,0,5,10">
+                                        <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalLibDirs}"/>
+                                    </Label>
+                                    <TextBox Grid.Column="1" Grid.Row="1" x:Name="tbDbgAdditionalLibDirs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,5,10"/>
+                                    <Button Grid.Column="2" Grid.Row="1" x:Name="btnDbgAddAdditionalLibDir" VerticalAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Right" VerticalContentAlignment="Center" Margin="0,0,0,10" Content="{x:Static res:Resources.strAdd}" Height="23" Padding="5,1" MinWidth="23"/>
+                                    <Label Grid.Row="2" Padding="0" Margin="0,0,5,10">
+                                        <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalLibs}"/>
+                                    </Label>
+                                    <TextBox Grid.Column="1" Grid.Row="2" x:Name="tbDbgAdditionalLibs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,5,10"/>
+                                    <Label Grid.Row="3" Padding="0" Margin="0,0,5,0">
+                                        <AccessText TextWrapping="Wrap" Text="{x:Static res:Resources.strAdditionalDefs}"/>
+                                    </Label>
+                                    <TextBox Grid.Column="1" Grid.Row="3" x:Name="tbDbgAdditionalDefs" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,5,10" Padding="0"/>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Setup paths" Visibility="Hidden" Width="0" Height="0" Margin="0" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="{x:Static res:Resources.strSetupPaths}" Margin="15,0,0,0" HorizontalContentAlignment="Stretch" FontSize="14" VerticalContentAlignment="Stretch" Padding="0"/>
+                            <Grid Margin="20,0" Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <FrameworkElement.Resources>
+                                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource SmallBrowseButtonStyle}">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Margin" Value="0,0,0,4"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                    <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0,0,5,4"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                    </Style>
+                                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Margin" Value="0,0,5,4"/>
+                                    </Style>
+                                </FrameworkElement.Resources>
+                                <Label x:Name="lblPluginSdkDir" Content="{x:Static res:Resources.strPluginSdkFolder}"/>
+                                <Grid x:Name="grdPluginSdkDir" Grid.Column="1">
+                                    <TextBox  x:Name="tbPluginSdkDir" Text="$(PLUGIN_SDK_DIR)" Tag="$(PLUGIN_SDK_DIR)"/>
+                                    <Image x:Name="errPluginSdkDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" x:Name="btnBrowsePluginSdkDir" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" x:Name="lblSaDir" Content="{x:Static res:Resources.strSaGameDir}" IsEnabled="False"/>
+                                <Grid  x:Name="grdSaDir" IsEnabled="False" Grid.Column="1" Grid.Row="1">
+                                    <TextBox x:Name="tbSaDir" Text="$(GTA_SA_DIR)" Tag="$(GTA_SA_DIR)"/>
+                                    <Image x:Name="errSaDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="1" x:Name="btnBrowseSaDir" IsEnabled="False"/>
+                                <Label Grid.Row="2" x:Name="lblSaCleoSdkDir" Content="{x:Static res:Resources.strSaCleoSdk}" IsEnabled="False"/>
+                                <Grid x:Name="grdSaCleoSdkDir" IsEnabled="False" Grid.Column="1" Grid.Row="2">
+                                    <TextBox x:Name="tbSaCleoSdkDir" Text="$(CLEO_SDK_SA_DIR)" Tag="$(CLEO_SDK_SA_DIR)"/>
+                                    <Image x:Name="errSaCleoSdkDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="2" x:Name="btnBrowseSaCleoSdkDir" IsEnabled="False"/>
+                                <Label Grid.Row="3" x:Name="lblVcDir" Content="{x:Static res:Resources.strVcGameDir}" IsEnabled="False"/>
+                                <Grid x:Name="grdVcDir" IsEnabled="False" Grid.Column="1" Grid.Row="3">
+                                    <TextBox x:Name="tbVcDir" Text="$(GTA_VC_DIR)" Tag="$(GTA_VC_DIR)"/>
+                                    <Image x:Name="errVcDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="3" x:Name="btnBrowseVcDir" IsEnabled="False"/>
+                                <Label Grid.Row="4" x:Name="lblVcCleoSdkDir" Content="{x:Static res:Resources.strVcCleoSdk}" IsEnabled="False"/>
+                                <Grid x:Name="grdVcCleoSdkDir" IsEnabled="False" Grid.Column="1" Grid.Row="4">
+                                    <TextBox x:Name="tbVcCleoSdkDir" Text="$(CLEO_SDK_VC_DIR)" Tag="$(CLEO_SDK_VC_DIR)"/>
+                                    <Image x:Name="errVcCleoSdkDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="4" x:Name="btnBrowseVcCleoSdkDir" IsEnabled="False"/>
+                                <Label Grid.Row="5" x:Name="lblIIIDir" Content="{x:Static res:Resources.strIIIGameDir}" IsEnabled="False"/>
+                                <Grid x:Name="grdIIIDir" IsEnabled="False" Grid.Column="1" Grid.Row="5">
+                                    <TextBox x:Name="tbIIIDir" Text="$(GTA_III_DIR)" Tag="$(GTA_III_DIR)"/>
+                                    <Image x:Name="errIIIDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="5" x:Name="btnBrowseIIIDir" IsEnabled="False"/>
+                                <Label Grid.Row="6" x:Name="lblIIICleoSdkDir" Content="{x:Static res:Resources.strIIICleoSdk}" IsEnabled="False"/>
+                                <Grid x:Name="grdIIICleoSdkDir" IsEnabled="False" Grid.Column="1" Grid.Row="6">
+                                    <TextBox x:Name="tbIIICleoSdkDir" Text="$(CLEO_SDK_III_DIR)" Tag="$(CLEO_SDK_III_DIR)"/>
+                                    <Image x:Name="errIIICleoSdkDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="6" x:Name="btnBrowseIIICleoSdkDir" IsEnabled="False"/>
+                                <Label Grid.Row="7" x:Name="lblMoonLoaderSdkDir" Content="{x:Static res:Resources.strMoonLoaderSdkDir}" IsEnabled="False"/>
+                                <Grid x:Name="grdMoonLoaderSdkDir" IsEnabled="False" Grid.Column="1" Grid.Row="7">
+                                    <TextBox x:Name="tbMoonLoaderSdkDir" Text="$(MOONLOADER_SDK_SA_DIR)" Tag="$(MOONLOADER_SDK_SA_DIR)"/>
+                                    <Image x:Name="errMoonLoaderSdkDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="7" x:Name="btnBrowseMoonLoaderSdkDir" IsEnabled="False"/>
+                                <Label Grid.Row="8" x:Name="lblDirectX9SdkDir" Content="{x:Static res:Resources.strDirectX9Sdk}" IsEnabled="False"/>
+                                <Grid x:Name="grdDirectX9SdkDir" IsEnabled="False" Grid.Column="1" Grid.Row="8">
+                                    <TextBox x:Name="tbDirectX9SdkDir" Text="$(DIRECTX9_SDK_DIR)" Tag="$(DIRECTX9_SDK_DIR)"/>
+                                    <Image x:Name="errDirectX9SdkDir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="8" x:Name="btnBrowseDirectX9SdkDir" IsEnabled="False"/>
+                                <Label Grid.Row="9" x:Name="lblRwD3d9Dir" Content="{x:Static res:Resources.strRwD3d9Folder}" IsEnabled="False"/>
+                                <Grid x:Name="grdRwD3d9Dir" IsEnabled="False" Grid.Column="1" Grid.Row="9">
+                                    <TextBox x:Name="tbRwD3d9Dir" Text="$(RWD3D9_DIR)" Tag="$(RWD3D9_DIR)"/>
+                                    <Image x:Name="errRwD3d9Dir" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" IsEnabled="False" />
+                                </Grid>
+                                <Button Grid.Column="2" Grid.Row="9" x:Name="btnBrowseRwD3d9Dir" IsEnabled="False"/>
+                            </Grid>
+                            <Button Grid.Row="2" x:Name="btnUseEnvVars" Style="{DynamicResource ActionButtonStyle}" Content="{x:Static res:Resources.strUseEnvVars}" HorizontalAlignment="Right" Margin="0,5,20,0" Padding="8,1"/>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+
+        <Grid Margin="0" Grid.Row="2" Style="{DynamicResource FooterStyle}">
+            <StackPanel Margin="0,0,20,20" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <FrameworkElement.Resources>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ActionButtonStyle}"/>
+                </FrameworkElement.Resources>
+                <Button x:Name="btnPrev" Content="{x:Static res:Resources.strPrev}" IsEnabled="False"/>
+                <Button x:Name="btnNext" Content="{x:Static res:Resources.strNext}" IsEnabled="False"/>
+                <Button x:Name="btnFinish" Content="{x:Static res:Resources.strFinish}" IsEnabled="False"/>
+                <Button x:Name="btnCancel" Content="{x:Static res:Resources.strCancel}" IsCancel="True"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</ui:DialogWindow>

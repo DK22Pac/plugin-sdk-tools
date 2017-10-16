@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="strAdd" xml:space="preserve">
+    <value>Add...</value>
+  </data>
+  <data name="strAdditionalDefs" xml:space="preserve">
+    <value>Additional
+preprocessor
+definitions</value>
+  </data>
+  <data name="strAdditionalIncDirs" xml:space="preserve">
+    <value>Additional
+include
+directories</value>
+  </data>
+  <data name="strAdditionalLibDirs" xml:space="preserve">
+    <value>Additional
+library
+directories</value>
+  </data>
+  <data name="strAdditionalLibs" xml:space="preserve">
+    <value>Additional
+libraries</value>
+  </data>
+  <data name="strBasicSetup" xml:space="preserve">
+    <value>Basic setup</value>
+  </data>
+  <data name="strCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="strClassName" xml:space="preserve">
+    <value>Class name:</value>
+  </data>
+  <data name="strDebugConfigurationSettings" xml:space="preserve">
+    <value>Debug configuration settings</value>
+  </data>
+  <data name="strDirectX9Sdk" xml:space="preserve">
+    <value>DirectX 9 SDK</value>
+  </data>
+  <data name="strFinish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="strGameFolder" xml:space="preserve">
+    <value>Game folder</value>
+  </data>
+  <data name="strIIIGameDir" xml:space="preserve">
+    <value>GTA 3 folder</value>
+  </data>
+  <data name="strIIICleoSdk" xml:space="preserve">
+    <value>GTA 3 CLEO SDK</value>
+  </data>
+  <data name="strLaCompatibility" xml:space="preserve">
+    <value>LA compatibility</value>
+  </data>
+  <data name="strLaCompatibilityDescr" xml:space="preserve">
+    <value>Make plugin compatible with Limit Adjuster</value>
+  </data>
+  <data name="strNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="strOutputDir" xml:space="preserve">
+    <value>Output dir:</value>
+  </data>
+  <data name="strPluginName" xml:space="preserve">
+    <value>Plugin name:</value>
+  </data>
+  <data name="strPluginSdkFolder" xml:space="preserve">
+    <value>plugin-sdk folder</value>
+  </data>
+  <data name="strPluginType" xml:space="preserve">
+    <value>Plugin type:</value>
+  </data>
+  <data name="strPrev" xml:space="preserve">
+    <value>Prev</value>
+  </data>
+  <data name="strProjectFolder" xml:space="preserve">
+    <value>Project folder</value>
+  </data>
+  <data name="strReleaseConfigurationSettings" xml:space="preserve">
+    <value>Release configuration settings</value>
+  </data>
+  <data name="strRwD3d9Folder" xml:space="preserve">
+    <value>rwd3d9 folder</value>
+  </data>
+  <data name="strSaGameDir" xml:space="preserve">
+    <value>GTA SA folder</value>
+  </data>
+  <data name="strSaCleoPlugins" xml:space="preserve">
+    <value>GTA SA cleo plugins</value>
+  </data>
+  <data name="strSaCleoSdk" xml:space="preserve">
+    <value>GTA SA CLEO SDK</value>
+  </data>
+  <data name="strSameAsRelease" xml:space="preserve">
+    <value>Same as Release</value>
+  </data>
+  <data name="strSelectFolder" xml:space="preserve">
+    <value>Select folder</value>
+  </data>
+  <data name="strSelectGame" xml:space="preserve">
+    <value>Select game:</value>
+  </data>
+  <data name="strSetupPaths" xml:space="preserve">
+    <value>Setup paths</value>
+  </data>
+  <data name="strTypeAsi" xml:space="preserve">
+    <value>ASI Plugin</value>
+  </data>
+  <data name="strTypeCleo" xml:space="preserve">
+    <value>CLEO Plugin</value>
+  </data>
+  <data name="strTypeDll" xml:space="preserve">
+    <value>DLL Library</value>
+  </data>
+  <data name="strTypeMoonLoader" xml:space="preserve">
+    <value>MoonLoader Module</value>
+  </data>
+  <data name="strUseDirectXSdk" xml:space="preserve">
+    <value>Use DirectX SDK</value>
+  </data>
+  <data name="strUseDirectXSdkDescr" xml:space="preserve">
+    <value>Include DirectX SDK headers/libraries</value>
+  </data>
+  <data name="strVcGameDir" xml:space="preserve">
+    <value>GTA VC folder</value>
+  </data>
+  <data name="strVcCleoSdk" xml:space="preserve">
+    <value>GTA VC CLEO SDK</value>
+  </data>
+  <data name="strWizardTitle" xml:space="preserve">
+    <value>Welcome to Plugin-SDK Project Wizard</value>
+  </data>
+  <data name="strTestFunction" xml:space="preserve">
+    <value>test function</value>
+  </data>
+  <data name="strMoonLoaderSdkDir" xml:space="preserve">
+    <value>MoonLoader SDK</value>
+  </data>
+  <data name="strWarning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="strMoonLoaderWarn1" xml:space="preserve">
+    <value>MoonLoader Module can be created for GTA San Andreas only</value>
+  </data>
+  <data name="strMoonLoaderWarn2" xml:space="preserve">
+    <value>MoonLoader Module can't be created for GTA 3</value>
+  </data>
+  <data name="strMoonLoaderWarn3" xml:space="preserve">
+    <value>MoonLoader Module can't be created for GTA Vice City</value>
+  </data>
+  <data name="strMoonLoaderWarn4" xml:space="preserve">
+    <value>MoonLoader Module can't be created for GTA 3 and GTA Vice City</value>
+  </data>
+  <data name="strUseEnvVars" xml:space="preserve">
+    <value>Use environment variables</value>
+  </data>
+  <data name="strEmptyPathNote" xml:space="preserve">
+    <value>NOTE: Using '{0}' instead of empty path</value>
+  </data>
+  <data name="strWarnUnfinishedVar" xml:space="preserve">
+    <value>WARNING: Unfinished definition of environment variable: $({0}</value>
+  </data>
+  <data name="strEnvVarNotFound" xml:space="preserve">
+    <value>WARNING: Environment variable '{0}' was not found</value>
+  </data>
+</root>
