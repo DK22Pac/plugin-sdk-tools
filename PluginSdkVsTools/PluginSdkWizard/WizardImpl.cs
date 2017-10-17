@@ -32,7 +32,13 @@ namespace PluginSdkWizard {
 
             bool usesD3d = window.cbUseDirectXSdk.IsChecked == true;
 
-            string gameDir = VsUtility.GetName(window.tbSaDir.Text, "$(GTA_" + gameId + "_DIR)");
+            string gameDir = "";
+            if (gameId == "SA")
+                gameDir = VsUtility.GetName(window.tbSaDir.Text, "$(GTA_SA_DIR)");
+            else if (gameId == "VC")
+                gameDir = VsUtility.GetName(window.tbVcDir.Text, "$(GTA_VC_DIR)");
+            else
+                gameDir = VsUtility.GetName(window.tbIIIDir.Text, "$(GTA_III_DIR)");
             string outputDir = VsUtility.FormatName(window.tbOutputFolder.Text, "$(SolutionDir)\\output", window.safeProjectName,
                 "$(ProjectDir)", "$(SolutionDir)", gameId, gameDir, outDirName, config);
             outputDir = VsUtility.NormalisePath(outputDir);
