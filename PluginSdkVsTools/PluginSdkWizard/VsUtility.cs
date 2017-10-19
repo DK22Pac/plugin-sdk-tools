@@ -184,12 +184,16 @@ namespace PluginSdkWizard {
             return result;
         }
         
-        public static string NormalisePath(string path) {
+        public static string NormalisePath(string path, bool fixProjSolutionDirs = true) {
             string newPath = path;
-            newPath.Replace("/", "\\");
+            StringReplace(ref newPath, "/", "\\");
             if (newPath.Length > 0) {
                 if (newPath[newPath.Length - 1] != '\\')
                     newPath += '\\';
+            }
+            if (fixProjSolutionDirs) {
+                StringReplace(ref newPath, "$(SolutionDir)\\", "$(SolutionDir)");
+                StringReplace(ref newPath, "$(ProjectDir)\\", "$(ProjectDir)");
             }
             return newPath;
         }

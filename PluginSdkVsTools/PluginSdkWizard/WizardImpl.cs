@@ -203,7 +203,7 @@ namespace PluginSdkWizard {
 
             VsUtility.AddLine(ref pgd, "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + config + " " + gameName + "|Win32'\">");
             VsUtility.AddLine(ref pgd, "    <OutDir>" + outputDir + "</OutDir>");
-            VsUtility.AddLine(ref pgd, "    <IntDir>$(ProjectDir)obj\\" + gameName + "\\" + config + "\\</IntDir>");
+            VsUtility.AddLine(ref pgd, "    <IntDir>$(ProjectDir).obj\\" + gameName + "\\" + config + "\\</IntDir>");
             VsUtility.AddLine(ref pgd, "    <TargetName>" + targetName + "</TargetName>");
             VsUtility.AddLine(ref pgd, "    <TargetExt>." + targetExt + "</TargetExt>");
             if (usesD3d) {
@@ -269,7 +269,7 @@ namespace PluginSdkWizard {
             }
         }
 
-            public void RunStarted(object automationObject, Dictionary<string, string> replacementsDictionary, WizardRunKind runKind,
+        public void RunStarted(object automationObject, Dictionary<string, string> replacementsDictionary, WizardRunKind runKind,
             object[] customParams)
         {
             dte = automationObject as DTE;
@@ -293,18 +293,6 @@ namespace PluginSdkWizard {
                 pluginType = window.cmbProjectType.SelectedIndex;
 
                 bOnlySa = window.IsSaSelected() && !window.IsVcOrIIISelected();
-
-                string outDirName = window.GetOutputDirName();
-
-                bool usesD3d = window.cbUseDirectXSdk.IsChecked == true;
-                string d3dInludePath = "";
-                string d3dLibraryPath = "";
-                if (usesD3d) {
-                    string dxSdkDir = VsUtility.GetName(window.tbDirectX9SdkDir.Text, "$(DIRECTX9_SDK_DIR)");
-                    dxSdkDir = VsUtility.NormalisePath(dxSdkDir);
-                    d3dInludePath = dxSdkDir + "Include\\";
-                    d3dLibraryPath = dxSdkDir + "Lib\\x86\\";
-                }
 
                 string projectConfigurations = "";
                 string propertyGroupConfigurations = "";
