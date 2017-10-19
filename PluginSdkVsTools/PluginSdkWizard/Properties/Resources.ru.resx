@@ -122,7 +122,8 @@
   </data>
   <data name="strAdditionalDefs" xml:space="preserve">
     <value>Доп.
-команды</value>
+команды
+препроц.</value>
   </data>
   <data name="strAdditionalIncDirs" xml:space="preserve">
     <value>Доп. папки
@@ -146,7 +147,7 @@
     <value>Название класса:</value>
   </data>
   <data name="strDebugConfigurationSettings" xml:space="preserve">
-    <value>Настройки для режима Отладки</value>
+    <value>Настройки конфигурации Отладки</value>
   </data>
   <data name="strDirectX9Sdk" xml:space="preserve">
     <value>DirectX 9 SDK</value>
@@ -191,7 +192,7 @@
     <value>Папка проекта</value>
   </data>
   <data name="strReleaseConfigurationSettings" xml:space="preserve">
-    <value>Настройки для режима Выпуска</value>
+    <value>Настройки конфигурации Выпуска</value>
   </data>
   <data name="strRwD3d9Folder" xml:space="preserve">
     <value>папка rwd3d9</value>
