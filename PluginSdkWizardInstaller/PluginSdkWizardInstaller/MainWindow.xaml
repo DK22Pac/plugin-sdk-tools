@@ -1,0 +1,258 @@
+﻿<Window x:Class="PluginSdkWizardInstaller.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PluginSdkWizardInstaller"
+        mc:Ignorable="d"
+        Title="Plugin-SDK Installer v0.5.0" Height="640" Width="860" MinWidth="860" MinHeight="640" Icon="Icons/packageicon.ico">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Content="Install Plugin-SDK Wizard/Templates" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+            <Grid Grid.Row="1" Margin="15,0">
+                <Grid.Resources >
+                    <Style TargetType="Button" >
+                        <Setter Property="Margin" Value="5,5,5,5" />
+                        <Setter Property="Padding" Value="10,6" />
+                    </Style>
+                    <Style TargetType="Image" >
+                        <Setter Property="Width" Value="20" />
+                        <Setter Property="Height" Value="20" />
+                    </Style>
+                    <Style TargetType="Label" >
+                        <Setter Property="Padding" Value="5,5,0,5" />
+                        <Setter Property="FontSize" Value="16" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Grid.Row="0" Source="Icons/vs2017.png" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2017" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Grid.Row="0" Source="Icons/vs2015.png" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2015" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Grid.Row="0" Source="Icons/vs2013.png" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2013" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Grid.Row="0" Source="Icons/vs2012.png" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2012" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Grid.Row="0" Source="Icons/vs2010.png" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2010" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Grid.Row="0" Source="Icons/cb.png" Width="20" Height="20" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="Code::Blocks" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Content="Setup Plugin-SDK environment variables" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+            <Grid Grid.Row="1" Margin="15,0">
+                <Grid.Resources >
+                    <Style TargetType="Button" >
+                        <Setter Property="Width" Value="30" />
+                        <Setter Property="Height" Value="23" />
+                        <Setter Property="Margin" Value="2,2,2,2" />
+                    </Style>
+                    <Style TargetType="Image" >
+                        <Setter Property="Width" Value="16" />
+                        <Setter Property="Height" Value="16" />
+                    </Style>
+                    <Style TargetType="Label" >
+                        <Setter Property="Padding" Value="5,5,5,5" />
+                    </Style>
+                    <Style TargetType="TextBox" >
+                        <Setter Property="Height" Value="23" />
+                        <Setter Property="Margin" Value="2,2,2,2" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Label Grid.Row="0" Content="Plugin-SDK folder (PLUGIN_SDK_DIR)" />
+                <Label Grid.Row="1" Content="GTA San Andreas folder (GTA_SA_DIR)" />
+                <Label Grid.Row="2" Content="GTA Vice City folder (GTA_VC_DIR)" />
+                <Label Grid.Row="3" Content="GTA 3 folder (GTA_III_DIR)" />
+                <Label Grid.Row="4" Content="DirectX9 SDK folder (DIRECTX9_SDK_DIR)" />
+                <Label Grid.Row="5" Content="rwd3d9 folder (RWD3D9_DIR)" />
+                <Label Grid.Row="6" Content="CLEO SDK (GTA SA) folder (CLEO_SDK_SA_DIR)" />
+                <Label Grid.Row="7" Content="CLEO SDK (GTA VC) folder (CLEO_SDK_VC_DIR)" />
+                <Label Grid.Row="8" Content="CLEO SDK (GTA 3) folder (CLEO_SDK_III_DIR)" />
+                <Label Grid.Row="9" Content="MoonLoader SDK folder (MOONLOADER_SDK_SA_DIR)" />
+
+                <TextBox Grid.Row="0" Grid.Column="1" />
+                <TextBox Grid.Row="1" Grid.Column="1" />
+                <TextBox Grid.Row="2" Grid.Column="1" />
+                <TextBox Grid.Row="3" Grid.Column="1" />
+                <TextBox Grid.Row="4" Grid.Column="1" />
+                <TextBox Grid.Row="5" Grid.Column="1" />
+                <TextBox Grid.Row="6" Grid.Column="1" />
+                <TextBox Grid.Row="7" Grid.Column="1" />
+                <TextBox Grid.Row="8" Grid.Column="1" />
+                <TextBox Grid.Row="9" Grid.Column="1" />
+
+                <Button Grid.Row="4" Grid.Column="2" ToolTip="Get more information about DirectX9 SDK" >
+                    <Image Source="Icons/info.png" />
+                </Button>
+                <Button Grid.Row="5" Grid.Column="2" ToolTip="Get more information about rwd3d9">
+                    <Image Source="Icons/info.png" />
+                </Button>
+                <Button Grid.Row="6" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA San Andreas">
+                    <Image Source="Icons/info.png" />
+                </Button>
+                <Button Grid.Row="7" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA Vice City">
+                    <Image Source="Icons/info.png" />
+                </Button>
+                <Button Grid.Row="8" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA 3">
+                    <Image Source="Icons/info.png" />
+                </Button>
+                <Button Grid.Row="9" Grid.Column="2" ToolTip="Get more information about MoonLoader SDK">
+                    <Image Source="Icons/info.png" />
+                </Button>
+
+                <Button Grid.Row="0" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="1" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="2" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="3" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="4" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="5" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="6" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="7" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="8" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button Grid.Row="9" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+
+                <Button Grid.Row="0" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="1" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="2" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="3" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="4" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="5" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="6" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="7" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="8" Grid.Column="4" Content="..." ToolTip="Browse..." />
+                <Button Grid.Row="9" Grid.Column="4" Content="..." ToolTip="Browse..." />
+
+                <Button Grid.Row="0" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="1" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="2" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="3" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="4" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="5" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="6" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="7" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="8" Grid.Column="5" Content="Set" Width="50" />
+                <Button Grid.Row="9" Grid.Column="5" Content="Set" Width="50" />
+
+                <Image Grid.Row="0" Grid.Column="6"/>
+                <Image Grid.Row="1" Grid.Column="6"/>
+                <Image Grid.Row="2" Grid.Column="6"/>
+                <Image Grid.Row="3" Grid.Column="6"/>
+                <Image Grid.Row="4" Grid.Column="6"/>
+                <Image Grid.Row="5" Grid.Column="6"/>
+                <Image Grid.Row="6" Grid.Column="6"/>
+                <Image Grid.Row="7" Grid.Column="6"/>
+                <Image Grid.Row="8" Grid.Column="6"/>
+                <Image Grid.Row="9" Grid.Column="6"/>
+            </Grid>
+            <Grid Grid.Row="2" Margin="15,0">
+                <Grid.Resources >
+                    <Style TargetType="Button" >
+                        <Setter Property="Height" Value="25" />
+                        <Setter Property="Margin" Value="4,4,4,4" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="Auto-detect all" />
+                <Button Grid.Column="1" Content="Clear all" />
+                <Button Grid.Column="2" Content="Set all" />
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Content="Generate Plugin-SDK solution/workspace" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+            <Grid Grid.Row="1"  Margin="15,0,20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Generate for:" Margin="0,2,0,0" />
+                <ComboBox Grid.Column="1" Margin="2,2,5,0" >
+                    <ComboBoxItem Content="Visual Studio 2017"/>
+                    <ComboBoxItem Content="Visual Studio 2015"/>
+                    <ComboBoxItem Content="Visual Studio 2013"/>
+                    <ComboBoxItem Content="Visual Studio 2012"/>
+                    <ComboBoxItem Content="Visual Studio 2010"/>
+                    <ComboBoxItem Content="Code::Blocks"/>
+                </ComboBox>
+                <Button Grid.Column="2" Width="100" Height="25" Content="Generate" Margin="5,2,0,0" IsEnabled="False" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
