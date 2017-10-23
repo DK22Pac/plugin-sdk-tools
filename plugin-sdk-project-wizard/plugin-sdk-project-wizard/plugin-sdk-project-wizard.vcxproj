@@ -22,9 +22,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(PLUGIN_SDK_DIR)\tools\plugin-sdk-project-wizard\</OutDir>
+    <OutDir>$(SolutionDir)output\$(Platform)\</OutDir>
     <TargetName>plugin-sdk-project-wizard</TargetName>
-    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir).obj\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
