@@ -70,13 +70,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(PLUGIN_SDK_DIR)\tools\pluginsdk-build\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(Configuration)\</IntDir>
+    <OutDir>$(PLUGIN_SDK_DIR)\tools\general\</OutDir>
+    <IntDir>$(SolutionDir).obj\$(Configuration)\</IntDir>
     <TargetName>pluginsdk-build</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(PLUGIN_SDK_DIR)\tools\pluginsdk-build\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)output\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir).obj\$(Configuration)\</IntDir>
     <TargetName>pluginsdk-build</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

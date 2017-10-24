@@ -12,7 +12,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Diagnostics;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Ookii.Dialogs.Wpf;
 using System.ComponentModel;
 
 namespace PluginSdkWizardInstaller {
@@ -159,11 +159,12 @@ namespace PluginSdkWizardInstaller {
             Button btn = sender as Button;
             TextBox tbx = GetElement(sender, "tbx") as TextBox;
             Label lbl = GetElement(sender, "lbl") as Label;
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.Title = String.Format("Select location: {0}", lbl.Content);
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && !String.IsNullOrEmpty(dialog.FileName))
-                tbx.Text = dialog.FileName;
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+            dialog.ShowNewFolderButton = true;
+            dialog.Description = String.Format("Select location: {0}", lbl.Content);
+            dialog.UseDescriptionForTitle = true;
+            if (dialog.ShowDialog() == true && !String.IsNullOrEmpty(dialog.SelectedPath))
+                tbx.Text = dialog.SelectedPath;
         }
 
         private void setBtn_Click(object sender, RoutedEventArgs e) {

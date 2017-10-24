@@ -9,7 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Ookii.Dialogs.Wpf;
 
 namespace PluginSdkWizardInstaller {
     public partial class FolderInputWindow : Window {
@@ -24,11 +24,12 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e) {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.Title = Title;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                txbFolder.Text = dialog.FileName;
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+            dialog.ShowNewFolderButton = true;
+            dialog.Description = Title;
+            dialog.UseDescriptionForTitle = true;
+            if (dialog.ShowDialog() == true)
+                txbFolder.Text = dialog.SelectedPath;
         }
 
         private void txbFolder_TextChanged(object sender, TextChangedEventArgs e) {

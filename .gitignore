@@ -456,6 +456,7 @@ ENV/
 
 #
 *.i-*
+*.pfx
 
 # User settings
 user.settings
