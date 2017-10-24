@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("PluginSdkWizardInstaller")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Plugin-SDK")]
 [assembly: AssemblyProduct("PluginSdkWizardInstaller")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]

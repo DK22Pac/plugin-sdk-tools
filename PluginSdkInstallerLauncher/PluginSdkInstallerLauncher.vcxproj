@@ -9,7 +9,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{E190AFAB-7C28-42EF-80BB-09E22A9A22A6}</ProjectGuid>
-    <RootNamespace>PluginSdkInstallerLauncer</RootNamespace>
+    <RootNamespace>PluginSdkInstallerLauncher</RootNamespace>
     <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -51,13 +51,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PluginSdkInstallerLauncer.cpp" />
+    <ClCompile Include="PluginSdkInstallerLauncher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="PluginSdkInstallerLauncer.rc" />
+    <ResourceCompile Include="PluginSdkInstallerLauncher.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="icon.ico" />

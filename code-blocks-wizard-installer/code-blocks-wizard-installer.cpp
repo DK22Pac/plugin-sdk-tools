@@ -13,14 +13,14 @@ int main(int argc, char *argv[]) {
         return ErrorCode(1, "Error: Code::Blocks directory ('%s') does not exist", codeBlocksDir.string().c_str());
     path codeBlocksScriptFile = codeBlocksDir / "share" / "CodeBlocks" / "templates" / "wizard" / "config.script";
     if (!is_regular_file(codeBlocksScriptFile))
-        return ErrorCode(1, "Error: Code::Blocks script file ('%s') does not exist", codeBlocksScriptFile.c_str());
+        return ErrorCode(1, "Error: Code::Blocks script file ('%s') does not exist", codeBlocksScriptFile.string().c_str());
     char *pluginSdkPathVar = getenv("PLUGIN_SDK_DIR");
     if (!pluginSdkPathVar)
         return ErrorCode(1, "Error: Can't find plugin-sdk directory (PLUGIN_SDK_DIR environment variable is not set");
     path pluginSdkDir = pluginSdkPathVar;
     path wizardDir = pluginSdkDir / "tools" / "templates" / "codeblocks" / "pluginsdk";
     if (!is_directory(wizardDir))
-        return ErrorCode(1, "Error: Wizard directory ('%s') does not exist", wizardDir.c_str());
+        return ErrorCode(1, "Error: Wizard directory ('%s') does not exist", wizardDir.string().c_str());
     path codeBlocksPluginSdkDir = codeBlocksDir / "share" / "CodeBlocks" / "templates" / "wizard" / "pluginsdk";
     error_code ec;
     copy(wizardDir, codeBlocksPluginSdkDir, copy_options::recursive | copy_options::overwrite_existing, ec);

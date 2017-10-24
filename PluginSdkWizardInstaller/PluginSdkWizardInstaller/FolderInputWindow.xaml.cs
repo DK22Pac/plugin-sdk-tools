@@ -24,7 +24,7 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e) {
-            var dialog = new CommonOpenFileDialog();
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
             dialog.Title = Title;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)

@@ -71,8 +71,9 @@ namespace PluginSdkWizardInstaller {
 
         private void SetTextBoxTextToOsVariable(TextBox tbx) {
             bool isSdk = tbx.Name == "tbxSDK";
+            Button setBtn = GetElement(tbx, "set") as Button;
             Image img = GetElement(tbx, "img") as Image;
-            string envVar = GetOsVariable(tbx.Tag.ToString());
+            string envVar = GetOsVariable(setBtn.Tag.ToString());
             tbx.Tag = envVar;
             tbx.Text = envVar;
             if (envVar == "") {
@@ -152,6 +153,27 @@ namespace PluginSdkWizardInstaller {
                         MessageBox.Show(String.Format("Can't find '{0}'", installerPath));
                 }
             }
+        }
+
+        private void brwBtn_Click(object sender, RoutedEventArgs e) {
+            Button btn = sender as Button;
+            TextBox tbx = GetElement(sender, "tbx") as TextBox;
+            Label lbl = GetElement(sender, "lbl") as Label;
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            dialog.Title = String.Format("Select location: {0}", lbl.Content);
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && !String.IsNullOrEmpty(dialog.FileName))
+                tbx.Text = dialog.FileName;
+        }
+
+        private void setBtn_Click(object sender, RoutedEventArgs e) {
+            Button btn = sender as Button;
+            TextBox tbx = GetElement(sender, "tbx") as TextBox;
+            Image img = GetElement(sender, "img") as Image;
+            Environment.SetEnvironmentVariable(btn.Tag.ToString(), tbx.Text, EnvironmentVariableTarget.Machine);
+            tbx.Tag = tbx.Text;
+            img.Source = iconOk;
+            btn.IsEnabled = false;
         }
     }
 }
