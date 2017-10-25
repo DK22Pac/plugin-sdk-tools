@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.5.0" Height="640" Width="860" MinWidth="860" MinHeight="640" Icon="Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
+        Title="Plugin-SDK Installer v0.5.0" Height="640" Width="860" MinWidth="860" MinHeight="640" Icon="pack://application:,,,/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -44,38 +44,38 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="btnVs2017" Click="installVsWizard_Click">
                     <StackPanel Orientation="Horizontal">
-                        <Image Grid.Row="0" Source="Icons/vs2017.png" />
-                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2017" />
+                        <Image Source="/Icons/vs2017.png" />
+                        <Label Content="Visual Studio 2017" />
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnVs2015" Grid.Column="1" Click="installVsWizard_Click">
                     <StackPanel Orientation="Horizontal">
-                        <Image Grid.Row="0" Source="Icons/vs2015.png" />
-                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2015" />
+                        <Image Source="/Icons/vs2015.png" />
+                        <Label Grid.Column="1" Content="Visual Studio 2015" />
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnVs2013" Grid.Column="2" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
-                        <Image Grid.Row="0" Source="Icons/vs2013.png" />
-                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2013" />
+                        <Image Source="/Icons/vs2013.png" />
+                        <Label Content="Visual Studio 2013" />
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnVs2012" Grid.Row="1" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
-                        <Image Grid.Row="0" Source="Icons/vs2012.png" />
-                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2012" />
+                        <Image Source="/Icons/vs2012.png" />
+                        <Label Content="Visual Studio 2012" />
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnVs2010" Grid.Row="1" Grid.Column="1" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
-                        <Image Grid.Row="0" Source="Icons/vs2010.png" />
-                        <Label Grid.Row="0" Grid.Column="1" Content="Visual Studio 2010" />
+                        <Image Source="/Icons/vs2010.png" />
+                        <Label Content="Visual Studio 2010" />
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnCB" Grid.Row="1" Grid.Column="2" Click="installCB_Click">
                     <StackPanel Orientation="Horizontal">
-                        <Image Grid.Row="0" Source="Icons/cb.png" Width="20" Height="20" />
-                        <Label Grid.Row="0" Grid.Column="1" Content="Code::Blocks" />
+                        <Image Source="/Icons/cb.png" Width="20" Height="20" />
+                        <Label Content="Code::Blocks" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -151,22 +151,22 @@
                 <TextBox x:Name="tbxMOONSDK" Grid.Row="9" Grid.Column="1" TextChanged="tbx_TextChanged" />
 
                 <Button x:Name="infDX9" Grid.Row="4" Grid.Column="2" ToolTip="Get more information about DirectX9 SDK" Tag="https://www.microsoft.com/en-us/download/details.aspx?id=6812" Click="inf_Click" >
-                    <Image Source="Icons/info.png" />
+                    <Image Source="/Icons/info.png" />
                 </Button>
                 <Button x:Name="infRWD3D9" Grid.Row="5" Grid.Column="2" ToolTip="Get more information about rwd3d9" Tag="http://gtaforums.com/topic/819551-rwd3d9-d3d9-extension-for-rw/" Click="inf_Click" >
-                    <Image Source="Icons/info.png" />
+                    <Image Source="/Icons/info.png" />
                 </Button>
                 <Button x:Name="infCLEOSA" Grid.Row="6" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA San Andreas" Tag="http://cleo.li/download.html" Click="inf_Click" >
-                    <Image Source="Icons/info.png" />
+                    <Image Source="/Icons/info.png" />
                 </Button>
                 <Button x:Name="infCLEOVC" Grid.Row="7" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA Vice City" Tag="http://gtaforums.com/topic/807185-cleo-20/" Click="inf_Click" >
-                    <Image Source="Icons/info.png" />
+                    <Image Source="/Icons/info.png" />
                 </Button>
                 <Button x:Name="infCLEOIII" Grid.Row="8" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA 3" Tag="http://gtaforums.com/topic/807185-cleo-20/" Click="inf_Click" >
-                    <Image Source="Icons/info.png" />
+                    <Image Source="/Icons/info.png" />
                 </Button>
                 <Button x:Name="infMOONSDK" Grid.Row="9" Grid.Column="2" ToolTip="Get more information about MoonLoader SDK" Tag="https://blast.hk/threads/18061/" Click="inf_Click" >
-                    <Image Source="Icons/info.png" />
+                    <Image Source="/Icons/info.png" />
                 </Button>
 
                 <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
@@ -225,12 +225,12 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="Auto-detect all" />
-                <Button Grid.Column="1" Content="Clear all" />
-                <Button Grid.Column="2" Content="Set all" />
+                <Button x:Name="btnAutoDetectAll" Grid.Column="0" Content="Auto-detect all" />
+                <Button x:Name="btnUnsetAll" Grid.Column="1" Content="Unset all" Click="btnUnsetAll_Click" />
+                <Button x:Name="btnSetAll" Grid.Column="2" Content="Set all" Click="btnSetAll_Click" />
             </Grid>
         </Grid>
-        <Grid Grid.Row="2" IsEnabled="False">
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -243,7 +243,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Generate for:" Margin="0,2,0,0" />
-                <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,2,5,0" >
+                <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,2,5,0" SelectionChanged="cmbGenerateSlnFor_SelectionChanged" >
                     <ComboBoxItem Content="Visual Studio 2017"/>
                     <ComboBoxItem Content="Visual Studio 2015"/>
                     <ComboBoxItem Content="Visual Studio 2013"/>
@@ -251,7 +251,7 @@
                     <ComboBoxItem Content="Visual Studio 2010"/>
                     <ComboBoxItem Content="Code::Blocks"/>
                 </ComboBox>
-                <Button x:Name="btnGenerateSln" Grid.Column="2" Width="100" Height="25" Content="Generate" Margin="5,2,0,0" IsEnabled="False" />
+                <Button x:Name="btnGenerateSln" Grid.Column="2" Width="100" Height="25" Content="Generate" Margin="5,2,0,0" IsEnabled="False" Click="btnGenerateSln_Click" />
             </Grid>
         </Grid>
     </Grid>

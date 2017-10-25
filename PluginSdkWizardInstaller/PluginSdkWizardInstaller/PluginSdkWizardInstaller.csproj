@@ -53,7 +53,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icons\packageicon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -83,12 +84,6 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.WindowsAPICodePack.Core.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.WindowsAPICodePack.Shell.1.1.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
-    </Reference>
     <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
       <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
     </Reference>
@@ -152,33 +147,25 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\cb.png" />
-    <Resource Include="Icons\vs2010.png" />
-    <Resource Include="Icons\vs2012.png" />
-    <Resource Include="Icons\vs2013.png" />
-    <Resource Include="Icons\vs2015.png" />
-    <Resource Include="Icons\vs2017.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\packageicon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\info.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\error.png" />
-    <Resource Include="Icons\notset.png" />
-    <Resource Include="Icons\ok.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\nothing.png" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\cb.png" />
+    <Resource Include="Icons\error.png" />
+    <Resource Include="Icons\info.png" />
+    <Resource Include="Icons\nothing.png" />
+    <Resource Include="Icons\notset.png" />
+    <Resource Include="Icons\ok.png" />
+    <Resource Include="Icons\packageicon.ico" />
+    <Resource Include="Icons\vs2010.png" />
+    <Resource Include="Icons\vs2012.png" />
+    <Resource Include="Icons\vs2013.png" />
+    <Resource Include="Icons\vs2015.png" />
+    <Resource Include="Icons\vs2017.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

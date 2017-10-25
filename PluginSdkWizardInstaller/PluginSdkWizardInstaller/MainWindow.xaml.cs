@@ -24,10 +24,10 @@ namespace PluginSdkWizardInstaller {
 
         public MainWindow() {
             InitializeComponent();
-            iconError = GetIcon("error.png");
-            iconOk = GetIcon("ok.png");
-            iconNothing = GetIcon("nothing.png");
-            iconNotSet = GetIcon("notset.png");
+            //iconError = GetIcon("error.png");
+            //iconOk = GetIcon("ok.png");
+            //iconNothing = GetIcon("nothing.png");
+            //iconNotSet = GetIcon("notset.png");
             SetTextBoxTextToOsVariable(tbxSDK);
             SetTextBoxTextToOsVariable(tbxSA);
             SetTextBoxTextToOsVariable(tbxVC);
@@ -52,11 +52,11 @@ namespace PluginSdkWizardInstaller {
         }
 
         private BitmapImage GetIcon(string iconName) {
-            return new BitmapImage(new Uri("pack://application:,,,/PluginSdkWizardInstaller;component/Icons/" + iconName, UriKind.Absolute));
+            return new BitmapImage(new Uri("/Icons/" + iconName, UriKind.RelativeOrAbsolute));
         }
 
         private string GetOsVariable(string varName) {
-            string envVar = Environment.GetEnvironmentVariable(varName);
+            string envVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine);
             if (envVar != null)
                 return envVar;
             return "";
@@ -120,6 +120,7 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void installVsWizard_Click(object sender, RoutedEventArgs e) {
+            Button vsBtn = sender as Button;
             string sdkDir = GetPluginSdkDir();
             if (sdkDir != "") {
                 string vsixPath = sdkDir + "\\tools\\general\\PluginSdkVsTools.vsix";
@@ -128,6 +129,10 @@ namespace PluginSdkWizardInstaller {
                 else
                     MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
             }
+            if (vsBtn.Name == "btnVs2017")
+                cmbGenerateSlnFor.SelectedIndex = 0;
+            else if (vsBtn.Name == "btnVs2015")
+                cmbGenerateSlnFor.SelectedIndex = 1;
         }
 
         private void installCB_Click(object sender, RoutedEventArgs e) {
@@ -153,6 +158,7 @@ namespace PluginSdkWizardInstaller {
                         MessageBox.Show(String.Format("Can't find '{0}'", installerPath));
                 }
             }
+            cmbGenerateSlnFor.SelectedIndex = 5;
         }
 
         private void brwBtn_Click(object sender, RoutedEventArgs e) {
@@ -175,6 +181,66 @@ namespace PluginSdkWizardInstaller {
             tbx.Tag = tbx.Text;
             img.Source = iconOk;
             btn.IsEnabled = false;
+            if (tbx.Name == "tbxSDK") {
+                grdWizTmplButtons.IsEnabled = true;
+                grdGenerateSolution.IsEnabled = true;
+            }
+        }
+
+        private void UnsetEnvVarAndControls(TextBox tbx) {
+            Button setBtn = GetElement(tbx, "set") as Button;
+            Image errImg = GetElement(tbx, "img") as Image;
+            Environment.SetEnvironmentVariable(setBtn.Tag.ToString(), null, EnvironmentVariableTarget.Machine);
+            tbx.Text = "";
+            tbx.Tag = "";
+            setBtn.IsEnabled = false;
+            if (tbx.Name == "tbxSDK") {
+                errImg.Source = iconError;
+                grdWizTmplButtons.IsEnabled = false;
+                grdGenerateSolution.IsEnabled = false;
+            }
+            else
+                errImg.Source = iconNothing;
+        }
+
+        private void btnUnsetAll_Click(object sender, RoutedEventArgs e) {
+            UnsetEnvVarAndControls(tbxSDK);
+            UnsetEnvVarAndControls(tbxSA);
+            UnsetEnvVarAndControls(tbxVC);
+            UnsetEnvVarAndControls(tbxIII);
+            UnsetEnvVarAndControls(tbxDX9);
+            UnsetEnvVarAndControls(tbxRWD3D9);
+            UnsetEnvVarAndControls(tbxCLEOSA);
+            UnsetEnvVarAndControls(tbxCLEOVC);
+            UnsetEnvVarAndControls(tbxCLEOIII);
+            UnsetEnvVarAndControls(tbxMOONSDK);
+        }
+
+        private void ClickSetButtonIfEnabled(Button btn) {
+            if (btn.IsEnabled)
+                setBtn_Click(btn, null);
+        }
+
+        private void btnSetAll_Click(object sender, RoutedEventArgs e) {
+            ClickSetButtonIfEnabled(setSDK);
+            ClickSetButtonIfEnabled(setSA);
+            ClickSetButtonIfEnabled(setVC);
+            ClickSetButtonIfEnabled(setIII);
+            ClickSetButtonIfEnabled(setDX9);
+            ClickSetButtonIfEnabled(setRWD3D9);
+            ClickSetButtonIfEnabled(setCLEOSA);
+            ClickSetButtonIfEnabled(setCLEOVC);
+            ClickSetButtonIfEnabled(setCLEOIII);
+            ClickSetButtonIfEnabled(setMOONSDK);
+        }
+
+        private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            ComboBox cmb = sender as ComboBox;
+            btnGenerateSln.IsEnabled = cmb.SelectedIndex != -1;
+        }
+
+        private void btnGenerateSln_Click(object sender, RoutedEventArgs e) {
+
         }
     }
 }

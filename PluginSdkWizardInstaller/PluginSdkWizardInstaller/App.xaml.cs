@@ -23,7 +23,7 @@ namespace PluginSdkWizardInstaller {
             }
             if (!isAdmin) {
                 MessageBox.Show("This application requires admin rights to run");
-                //Shutdown();
+                Shutdown();
             }
         }
     }
