@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Select folder" Height="130" Width="470" ResizeMode="NoResize" Icon="Icons/packageicon.ico" WindowStartupLocation="CenterOwner">
+        Title="Select folder" Height="130" Width="470" ResizeMode="NoResize" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterOwner">
     <Grid>
         <StackPanel Margin="5,2,5,0">
             <Label x:Name="lblSelectFolder" Content="Select folder:" />

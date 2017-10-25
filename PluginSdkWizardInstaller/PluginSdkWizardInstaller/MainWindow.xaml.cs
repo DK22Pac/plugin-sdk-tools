@@ -24,10 +24,10 @@ namespace PluginSdkWizardInstaller {
 
         public MainWindow() {
             InitializeComponent();
-            //iconError = GetIcon("error.png");
-            //iconOk = GetIcon("ok.png");
-            //iconNothing = GetIcon("nothing.png");
-            //iconNotSet = GetIcon("notset.png");
+            iconError = GetIcon("error.png");
+            iconOk = GetIcon("ok.png");
+            iconNothing = GetIcon("nothing.png");
+            iconNotSet = GetIcon("notset.png");
             SetTextBoxTextToOsVariable(tbxSDK);
             SetTextBoxTextToOsVariable(tbxSA);
             SetTextBoxTextToOsVariable(tbxVC);
