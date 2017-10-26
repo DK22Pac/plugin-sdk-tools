@@ -169,16 +169,16 @@
                     <Image Source="/Icons/info.png" />
                 </Button>
 
-                <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autSA"      Grid.Row="1" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autVC"      Grid.Row="2" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autIII"     Grid.Row="3" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autDX9"     Grid.Row="4" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autRWD3D9"  Grid.Row="5" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autCLEOSA"  Grid.Row="6" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autCLEOVC"  Grid.Row="7" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autCLEOIII" Grid.Row="8" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
-                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" ToolTip="Auto-detect" />
+                <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autSA"      Grid.Row="1" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autVC"      Grid.Row="2" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autIII"     Grid.Row="3" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autDX9"     Grid.Row="4" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autRWD3D9"  Grid.Row="5" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autCLEOSA"  Grid.Row="6" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autCLEOVC"  Grid.Row="7" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autCLEOIII" Grid.Row="8" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
 
                 <Button x:Name="brwSDK"     Grid.Row="0" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwSA"      Grid.Row="1" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
@@ -225,7 +225,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="btnAutoDetectAll" Grid.Column="0" Content="Auto-detect all" />
+                <Button x:Name="btnAutoDetectAll" Grid.Column="0" Content="Auto-detect all" IsEnabled="False" />
                 <Button x:Name="btnUnsetAll" Grid.Column="1" Content="Unset all" Click="btnUnsetAll_Click" />
                 <Button x:Name="btnSetAll" Grid.Column="2" Content="Set all" Click="btnSetAll_Click" />
             </Grid>

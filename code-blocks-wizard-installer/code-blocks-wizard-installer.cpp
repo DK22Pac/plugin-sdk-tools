@@ -7,17 +7,14 @@ using namespace experimental::filesystem;
 
 int main(int argc, char *argv[]) {
     if (argc < 2)
-        return ErrorCode(1, "Error: Not enough parameters (%d, expected 2)", argc);
+        return ErrorCode(1, "Error: Not enough parameters (%d, expected 3)", argc);
     path codeBlocksDir = argv[1]; // Code::Blocks folder
+    path pluginSdkDir = argv[2]; // plugin-sdk folder;
     if (!is_directory(codeBlocksDir))
         return ErrorCode(1, "Error: Code::Blocks directory ('%s') does not exist", codeBlocksDir.string().c_str());
     path codeBlocksScriptFile = codeBlocksDir / "share" / "CodeBlocks" / "templates" / "wizard" / "config.script";
     if (!is_regular_file(codeBlocksScriptFile))
         return ErrorCode(1, "Error: Code::Blocks script file ('%s') does not exist", codeBlocksScriptFile.string().c_str());
-    char *pluginSdkPathVar = getenv("PLUGIN_SDK_DIR");
-    if (!pluginSdkPathVar)
-        return ErrorCode(1, "Error: Can't find plugin-sdk directory (PLUGIN_SDK_DIR environment variable is not set");
-    path pluginSdkDir = pluginSdkPathVar;
     path wizardDir = pluginSdkDir / "tools" / "templates" / "codeblocks" / "pluginsdk";
     if (!is_directory(wizardDir))
         return ErrorCode(1, "Error: Wizard directory ('%s') does not exist", wizardDir.string().c_str());

@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.IO;
 using System.Diagnostics;
 using Ookii.Dialogs.Wpf;
@@ -203,8 +196,8 @@ namespace PluginSdkWizardInstaller {
                     string installerPath = Path.Combine(sdkDir, "tools\\general\\code-blocks-wizard-installer.exe");
                     if (File.Exists(installerPath)) {
                         ProcessStartInfo info = new ProcessStartInfo(installerPath);
-                        info.Arguments = "\"" + dlg.txbFolder.Text + "\"";
-                        info.UseShellExecute = true;
+                        info.Arguments = '"' + dlg.txbFolder.Text + '"' + ' ' + '"' + sdkDir + '"';
+                        info.UseShellExecute = false;
                         info.Verb = "runas";
                         try {
                             Process.Start(info);
@@ -332,8 +325,8 @@ namespace PluginSdkWizardInstaller {
                     info.Arguments = "codeblocks";
                     break;
             }
-            info.Arguments += " --file=\"" + premakeScriptPath + "\"";
-            info.UseShellExecute = true;
+            info.Arguments += " --file=" + '"' + premakeScriptPath + '"' + " --pluginsdkdir=" + '"' + pluginSdkDir + '"';
+            info.UseShellExecute = false;
             info.Verb = "runas";
             try {
                 Process.Start(info);
