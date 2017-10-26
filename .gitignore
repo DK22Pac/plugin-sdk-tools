@@ -460,3 +460,8 @@ ENV/
 
 # User settings
 user.settings
+
+plugin-sdk-project-wizard/tool/templates/temp/Main.cpp
+plugin-sdk-project-wizard/tool/templates/temp/MyTemplate.vstemplate
+plugin-sdk-project-wizard/tool/templates/temp/Project.vcxproj
+plugin-sdk-project-wizard/tool/settings.ini
