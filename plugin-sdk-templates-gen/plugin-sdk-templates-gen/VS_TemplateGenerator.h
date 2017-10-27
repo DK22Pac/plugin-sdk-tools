@@ -292,7 +292,7 @@ public:
                 vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", vcIncludes + ";" + includeFolders + ";$(NMakeIncludeSearchPath)");
             else
                 vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", includeFolders + ";$(NMakeIncludeSearchPath)");
-            QString nmToolCmd = "\"$(PLUGIN_SDK_DIR)\\tools\\pluginsdk-build\\pluginsdk-build.exe\" ";
+            QString nmToolCmd = "\"$(PLUGIN_SDK_DIR)\\tools\\general\\pluginsdk-build.exe\" ";
             QString nmBuildConfig = "buildtype:(DLL) ";
             QString nmProjConfig = "projectdir:\"($(ProjectDir))\" projectname:\"($(ProjectName))\" ";
             QString nmOutDirs = "outdir:\"(" + outDir + ")\" intdir:\"($(ProjectDir).obj\\$(Configuration)\\)\" ";
