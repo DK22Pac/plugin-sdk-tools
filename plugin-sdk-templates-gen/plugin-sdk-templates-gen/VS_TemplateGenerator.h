@@ -312,10 +312,11 @@ public:
             QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
             QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
             QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\" ";
-            QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32 -g -fpermissive)\"";
-            QString nmLinkAdditionalRelease = "linkadditional:\"(-s)\"";
+            QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32 -g -fpermissive)\" ";
+            QString nmLinkAdditionalRelease = "linkadditional:\"(-s -static-libgcc -static-libstdc++)\"";
+            QString nmLinkAdditionalDebug = "linkadditional:\"(-static-libgcc -static-libstdc++)\"";
             QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease + nmLinkAdditionalRelease;
-            QString nmDirsAndOptionsDebug = nmIncludeDirs + nmLibraryDirs + nmLibrariesDebug + nmDefinitionsDebug + nmAdditionalDebug;
+            QString nmDirsAndOptionsDebug = nmIncludeDirs + nmLibraryDirs + nmLibrariesDebug + nmDefinitionsDebug + nmAdditionalDebug + nmLinkAdditionalDebug;
 
             vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineRelease$", true,
                 nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirs + nmDirsAndOptionsRelease);
