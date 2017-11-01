@@ -18,9 +18,12 @@ namespace PluginSdkWizardInstaller {
             catch (Exception) {
                 isAdmin = false;
             }
-            if (!isAdmin) {
-                MessageBox.Show("This application requires admin rights to run");
-                Shutdown();
+            // TODO: not required tbh.
+            if (false) {
+                if (!isAdmin) {
+                    MessageBox.Show("This application requires admin rights to run");
+                    Shutdown();
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Diagnostics;
+using System.Security;
 using Ookii.Dialogs.Wpf;
 using System.ComponentModel;
 
@@ -32,26 +33,12 @@ namespace PluginSdkWizardInstaller {
             SetTextBoxTextToOsVariable(tbxMOONSDK);
         }
 
-        private string GetPluginSdkDir() {
-            string sdkDir = GetOsVariable("PLUGIN_SDK_DIR");
-            if (sdkDir == "")
-                MessageBox.Show("Can't find plugin-sdk directory (PLUGIN_SDK_DIR)");
-            return sdkDir;
-        }
-
         private bool CompareLowerCase(string strA, string strB) {
             return strA.ToLower() == strB.ToLower();
         }
 
         private BitmapImage GetIcon(string iconName) {
             return new BitmapImage(new Uri("/Icons/" + iconName, UriKind.RelativeOrAbsolute));
-        }
-
-        private string GetOsVariable(string varName) {
-            string envVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine);
-            if (envVar != null)
-                return envVar;
-            return "";
         }
 
         private object GetElement(object baseElement, string name) {
@@ -65,7 +52,7 @@ namespace PluginSdkWizardInstaller {
             bool isSdk = tbx.Name == "tbxSDK";
             Button setBtn = GetElement(tbx, "set") as Button;
             Image img = GetElement(tbx, "img") as Image;
-            string envVar = GetOsVariable(setBtn.Tag.ToString());
+            string envVar = PathLogic.GetOsVariable(setBtn.Tag.ToString());
             tbx.Tag = envVar;
             tbx.Text = envVar;
             if (envVar == "") {
@@ -186,6 +173,14 @@ namespace PluginSdkWizardInstaller {
                 cmbGenerateSlnFor.SelectedIndex = 4;
         }
 
+        static private string GetPluginSdkDir()
+        {
+            string sdkDir = PathLogic.GetOsVariable("PLUGIN_SDK_DIR");
+            if (sdkDir == "")
+                MessageBox.Show("Can't find plugin-sdk directory (PLUGIN_SDK_DIR)");
+            return sdkDir;
+        }
+
         private void installCB_Click(object sender, RoutedEventArgs e) {
             FolderInputWindow dlg = new FolderInputWindow("Select Code::Blocks folder");
             dlg.Owner = this;
@@ -224,11 +219,39 @@ namespace PluginSdkWizardInstaller {
                 tbx.Text = dialog.SelectedPath;
         }
 
+        private static EnvironmentVariableTarget GetEnvVarRecommendedTarget( string envVarName )
+        {
+            // We want to target the highest place at which the environment variable is already set at.
+
+            // Try system level.
+            {
+                string sysValue = Environment.GetEnvironmentVariable( envVarName, EnvironmentVariableTarget.Machine );
+
+                if ( sysValue != null )
+                {
+                    return EnvironmentVariableTarget.Machine;
+                }
+            }
+
+            // We just put it at the user level.
+            return EnvironmentVariableTarget.User;
+        }
+
         private void setBtn_Click(object sender, RoutedEventArgs e) {
             Button btn = sender as Button;
             TextBox tbx = GetElement(sender, "tbx") as TextBox;
             Image img = GetElement(sender, "img") as Image;
-            Environment.SetEnvironmentVariable(btn.Tag.ToString(), tbx.Text, EnvironmentVariableTarget.Machine);
+            string envVarName = btn.Tag.ToString();
+            EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
+            try
+            {
+                Environment.SetEnvironmentVariable(envVarName, tbx.Text, envTarget);
+            }
+            catch( SecurityException )
+            {
+                MessageBox.Show( "Failed to set system env var \"" + envVarName + "\" (requires admin rights)" );
+                return;
+            }
             tbx.Tag = tbx.Text;
             img.Source = iconOk;
             btn.IsEnabled = false;
@@ -241,7 +264,17 @@ namespace PluginSdkWizardInstaller {
         private void UnsetEnvVarAndControls(TextBox tbx) {
             Button setBtn = GetElement(tbx, "set") as Button;
             Image errImg = GetElement(tbx, "img") as Image;
-            Environment.SetEnvironmentVariable(setBtn.Tag.ToString(), null, EnvironmentVariableTarget.Machine);
+            string envVarName = setBtn.Tag.ToString();
+            EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
+            try
+            {
+                Environment.SetEnvironmentVariable(envVarName, null, envTarget);
+            }
+            catch( SecurityException )
+            {
+                MessageBox.Show("Failed to set system env var \"" + envVarName + "\" (requires admin rights)" );
+                return;
+            }
             tbx.Text = "";
             tbx.Tag = "";
             setBtn.IsEnabled = false;
@@ -332,6 +365,71 @@ namespace PluginSdkWizardInstaller {
                 Process.Start(info);
             }
             catch (Win32Exception) {
+            }
+        }
+
+        private void btnAutoDetectAll_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO: CLEO_SDK variables, MOONLOADER SDK variable.
+
+            // PLUGIN_SDK_DIR.
+            {
+                string plugin_sdk_dir = SDKFolders.FindPluginSdkDir();
+                
+                if ( plugin_sdk_dir != null )
+                {
+                    this.tbxSDK.Text = plugin_sdk_dir;
+                }
+            }
+
+            // DIRECTX9_SDK_DIR.
+            {
+                string dx9_sdk_dir = SDKFolders.FindDirectX9SdkDir();
+
+                if ( dx9_sdk_dir != null )
+                {
+                    this.tbxDX9.Text = dx9_sdk_dir;
+                }
+            }
+
+            // RWD3D9_DIR.
+            {
+                string rwd3d9_dir = SDKFolders.FindRWD3D9SdkDir();
+
+                if ( rwd3d9_dir != null )
+                {
+                    this.tbxRWD3D9.Text = rwd3d9_dir;
+                }
+            }
+
+            // GTA_SA_DIR.
+            {
+                string gta_sa_dir = PathLogic.ScanGTASAGameDirectory();
+
+                if ( gta_sa_dir != null )
+                {
+                    this.tbxSA.Text = gta_sa_dir;
+                }
+            }
+
+            // GTA_VC_DIR.
+            {
+                string gta_vc_dir = PathLogic.ScanGTAVCGameDirectory();
+
+                if ( gta_vc_dir != null )
+                {
+                    this.tbxVC.Text = gta_vc_dir;
+                }
+            }
+
+            // GTA_III_DIR.
+            {
+                string gta_iii_dir = PathLogic.ScanGTA3GameDirectory();
+
+                if ( gta_iii_dir != null )
+                {
+                    this.tbxIII.Text = gta_iii_dir;
+                }
             }
         }
     }

@@ -128,16 +128,16 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="lblSDK"     Grid.Row="0" Content="Plugin-SDK folder (PLUGIN_SDK_DIR)" />
-                <Label x:Name="lblSA"      Grid.Row="1" Content="GTA San Andreas folder (GTA_SA_DIR)" />
-                <Label x:Name="lblVC"      Grid.Row="2" Content="GTA Vice City folder (GTA_VC_DIR)" />
-                <Label x:Name="lblIII"     Grid.Row="3" Content="GTA 3 folder (GTA_III_DIR)" />
-                <Label x:Name="lblDX9"     Grid.Row="4" Content="DirectX9 SDK folder (DIRECTX9_SDK_DIR)" />
-                <Label x:Name="lblRWD3D9"  Grid.Row="5" Content="rwd3d9 folder (RWD3D9_DIR)" />
-                <Label x:Name="lblCLEOSA"  Grid.Row="6" Content="CLEO SDK (GTA SA) folder (CLEO_SDK_SA_DIR)" />
-                <Label x:Name="lblCLEOVC"  Grid.Row="7" Content="CLEO SDK (GTA VC) folder (CLEO_SDK_VC_DIR)" />
-                <Label x:Name="lblCLEOIII" Grid.Row="8" Content="CLEO SDK (GTA 3) folder (CLEO_SDK_III_DIR)" />
-                <Label x:Name="lblMOONSDK" Grid.Row="9" Content="MoonLoader SDK folder (MOONLOADER_SDK_SA_DIR)" />
+                <Label x:Name="lblSDK"     Grid.Row="0" Content="Plugin-SDK folder (PLUGIN__SDK__DIR)" />
+                <Label x:Name="lblSA"      Grid.Row="1" Content="GTA San Andreas folder (GTA__SA__DIR)" />
+                <Label x:Name="lblVC"      Grid.Row="2" Content="GTA Vice City folder (GTA__VC__DIR)" />
+                <Label x:Name="lblIII"     Grid.Row="3" Content="GTA 3 folder (GTA__III__DIR)" />
+                <Label x:Name="lblDX9"     Grid.Row="4" Content="DirectX9 SDK folder (DIRECTX9__SDK__DIR)" />
+                <Label x:Name="lblRWD3D9"  Grid.Row="5" Content="rwd3d9 folder (RWD3D9__DIR)" />
+                <Label x:Name="lblCLEOSA"  Grid.Row="6" Content="CLEO SDK (GTA SA) folder (CLEO__SDK__SA__DIR)" />
+                <Label x:Name="lblCLEOVC"  Grid.Row="7" Content="CLEO SDK (GTA VC) folder (CLEO__SDK__VC__DIR)" />
+                <Label x:Name="lblCLEOIII" Grid.Row="8" Content="CLEO SDK (GTA 3) folder (CLEO__SDK__III__DIR)" />
+                <Label x:Name="lblMOONSDK" Grid.Row="9" Content="MoonLoader SDK folder (MOONLOADER__SDK__SA__DIR)" />
 
                 <TextBox x:Name="tbxSDK"     Grid.Row="0" Grid.Column="1" TextChanged="tbx_TextChanged" />
                 <TextBox x:Name="tbxSA"      Grid.Row="1" Grid.Column="1" TextChanged="tbx_TextChanged" />
@@ -225,7 +225,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="btnAutoDetectAll" Grid.Column="0" Content="Auto-detect all" IsEnabled="False" />
+                <Button x:Name="btnAutoDetectAll" Grid.Column="0" Content="Auto-detect all" IsEnabled="True" Click="btnAutoDetectAll_Click" />
                 <Button x:Name="btnUnsetAll" Grid.Column="1" Content="Unset all" Click="btnUnsetAll_Click" />
                 <Button x:Name="btnSetAll" Grid.Column="2" Content="Set all" Click="btnSetAll_Click" />
             </Grid>
