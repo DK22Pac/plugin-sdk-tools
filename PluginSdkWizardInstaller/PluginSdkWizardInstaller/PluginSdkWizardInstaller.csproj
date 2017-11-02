@@ -73,16 +73,17 @@
     <AssemblyOriginatorKeyFile>PluginSDK.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>CE84DF1FC89A5436687417918E9C714941F651AC</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>D11393050BBF2F3DF2683BC112DCE98CF10F7512</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>PluginSDK.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PluginSdkWizardInstaller_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
-  <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup />
   <ItemGroup>
     <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
       <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
@@ -100,6 +101,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SDKFolders.cs" />
     <Page Include="FolderInputWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -121,6 +123,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PathLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

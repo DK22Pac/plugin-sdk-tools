@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Diagnostics;
+using System.Security;
 using Ookii.Dialogs.Wpf;
 using System.ComponentModel;
 
@@ -14,29 +15,43 @@ namespace PluginSdkWizardInstaller {
         private BitmapImage iconNothing;
         private BitmapImage iconNotSet;
 
+        private string[] varIdents =
+        {
+            "SDK",
+            "SA", "VC", "III",
+            "DX9", "RWD3D9",
+            "CLEOSA", "CLEOVC", "CLEOIII",
+            "MOONSDK"
+        };
+
+        private class PathConfigRow
+        {
+            public TextBox tbx;
+            public Button aut;
+            public Button set;
+        };
+        private PathConfigRow[] pathConfigs;
+
         public MainWindow() {
             InitializeComponent();
             iconError = GetIcon("error.png");
             iconOk = GetIcon("ok.png");
             iconNothing = GetIcon("nothing.png");
             iconNotSet = GetIcon("notset.png");
-            SetTextBoxTextToOsVariable(tbxSDK);
-            SetTextBoxTextToOsVariable(tbxSA);
-            SetTextBoxTextToOsVariable(tbxVC);
-            SetTextBoxTextToOsVariable(tbxIII);
-            SetTextBoxTextToOsVariable(tbxDX9);
-            SetTextBoxTextToOsVariable(tbxRWD3D9);
-            SetTextBoxTextToOsVariable(tbxCLEOSA);
-            SetTextBoxTextToOsVariable(tbxCLEOVC);
-            SetTextBoxTextToOsVariable(tbxCLEOIII);
-            SetTextBoxTextToOsVariable(tbxMOONSDK);
-        }
-
-        private string GetPluginSdkDir() {
-            string sdkDir = GetOsVariable("PLUGIN_SDK_DIR");
-            if (sdkDir == "")
-                MessageBox.Show("Can't find plugin-sdk directory (PLUGIN_SDK_DIR)");
-            return sdkDir;
+            pathConfigs = new PathConfigRow[varIdents.Length];
+            int n = 0;
+            foreach ( string ident in varIdents )
+            {
+                PathConfigRow row = new PathConfigRow();
+                row.tbx = FindName( "tbx" + ident ) as TextBox;
+                row.aut = FindName( "aut" + ident ) as Button;
+                row.set = FindName( "set" + ident ) as Button;
+                pathConfigs[ n++ ] = row;
+            }
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                SetTextBoxTextToOsVariable(row.tbx);
+            }
         }
 
         private bool CompareLowerCase(string strA, string strB) {
@@ -45,13 +60,6 @@ namespace PluginSdkWizardInstaller {
 
         private BitmapImage GetIcon(string iconName) {
             return new BitmapImage(new Uri("/Icons/" + iconName, UriKind.RelativeOrAbsolute));
-        }
-
-        private string GetOsVariable(string varName) {
-            string envVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine);
-            if (envVar != null)
-                return envVar;
-            return "";
         }
 
         private object GetElement(object baseElement, string name) {
@@ -65,7 +73,7 @@ namespace PluginSdkWizardInstaller {
             bool isSdk = tbx.Name == "tbxSDK";
             Button setBtn = GetElement(tbx, "set") as Button;
             Image img = GetElement(tbx, "img") as Image;
-            string envVar = GetOsVariable(setBtn.Tag.ToString());
+            string envVar = PathLogic.GetOsVariable(setBtn.Tag.ToString());
             tbx.Tag = envVar;
             tbx.Text = envVar;
             if (envVar == "") {
@@ -186,6 +194,14 @@ namespace PluginSdkWizardInstaller {
                 cmbGenerateSlnFor.SelectedIndex = 4;
         }
 
+        static private string GetPluginSdkDir()
+        {
+            string sdkDir = PathLogic.GetOsVariable("PLUGIN_SDK_DIR");
+            if (sdkDir == "")
+                MessageBox.Show("Can't find plugin-sdk directory (PLUGIN_SDK_DIR)");
+            return sdkDir;
+        }
+
         private void installCB_Click(object sender, RoutedEventArgs e) {
             FolderInputWindow dlg = new FolderInputWindow("Select Code::Blocks folder");
             dlg.Owner = this;
@@ -224,11 +240,39 @@ namespace PluginSdkWizardInstaller {
                 tbx.Text = dialog.SelectedPath;
         }
 
+        private static EnvironmentVariableTarget GetEnvVarRecommendedTarget( string envVarName )
+        {
+            // We want to target the highest place at which the environment variable is already set at.
+
+            // Try system level.
+            {
+                string sysValue = Environment.GetEnvironmentVariable( envVarName, EnvironmentVariableTarget.Machine );
+
+                if ( sysValue != null )
+                {
+                    return EnvironmentVariableTarget.Machine;
+                }
+            }
+
+            // We just put it at the user level.
+            return EnvironmentVariableTarget.User;
+        }
+
         private void setBtn_Click(object sender, RoutedEventArgs e) {
             Button btn = sender as Button;
             TextBox tbx = GetElement(sender, "tbx") as TextBox;
             Image img = GetElement(sender, "img") as Image;
-            Environment.SetEnvironmentVariable(btn.Tag.ToString(), tbx.Text, EnvironmentVariableTarget.Machine);
+            string envVarName = btn.Tag.ToString();
+            EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
+            try
+            {
+                Environment.SetEnvironmentVariable(envVarName, tbx.Text, envTarget);
+            }
+            catch( SecurityException )
+            {
+                MessageBox.Show( "Failed to set system env var \"" + envVarName + "\" (requires admin rights)" );
+                return;
+            }
             tbx.Tag = tbx.Text;
             img.Source = iconOk;
             btn.IsEnabled = false;
@@ -241,7 +285,17 @@ namespace PluginSdkWizardInstaller {
         private void UnsetEnvVarAndControls(TextBox tbx) {
             Button setBtn = GetElement(tbx, "set") as Button;
             Image errImg = GetElement(tbx, "img") as Image;
-            Environment.SetEnvironmentVariable(setBtn.Tag.ToString(), null, EnvironmentVariableTarget.Machine);
+            string envVarName = setBtn.Tag.ToString();
+            EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
+            try
+            {
+                Environment.SetEnvironmentVariable(envVarName, null, envTarget);
+            }
+            catch( SecurityException )
+            {
+                MessageBox.Show("Failed to set system env var \"" + envVarName + "\" (requires admin rights)" );
+                return;
+            }
             tbx.Text = "";
             tbx.Tag = "";
             setBtn.IsEnabled = false;
@@ -255,16 +309,10 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void btnUnsetAll_Click(object sender, RoutedEventArgs e) {
-            UnsetEnvVarAndControls(tbxSDK);
-            UnsetEnvVarAndControls(tbxSA);
-            UnsetEnvVarAndControls(tbxVC);
-            UnsetEnvVarAndControls(tbxIII);
-            UnsetEnvVarAndControls(tbxDX9);
-            UnsetEnvVarAndControls(tbxRWD3D9);
-            UnsetEnvVarAndControls(tbxCLEOSA);
-            UnsetEnvVarAndControls(tbxCLEOVC);
-            UnsetEnvVarAndControls(tbxCLEOIII);
-            UnsetEnvVarAndControls(tbxMOONSDK);
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                UnsetEnvVarAndControls(row.tbx);
+            }
         }
 
         private void ClickSetButtonIfEnabled(Button btn) {
@@ -273,16 +321,10 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void btnSetAll_Click(object sender, RoutedEventArgs e) {
-            ClickSetButtonIfEnabled(setSDK);
-            ClickSetButtonIfEnabled(setSA);
-            ClickSetButtonIfEnabled(setVC);
-            ClickSetButtonIfEnabled(setIII);
-            ClickSetButtonIfEnabled(setDX9);
-            ClickSetButtonIfEnabled(setRWD3D9);
-            ClickSetButtonIfEnabled(setCLEOSA);
-            ClickSetButtonIfEnabled(setCLEOVC);
-            ClickSetButtonIfEnabled(setCLEOIII);
-            ClickSetButtonIfEnabled(setMOONSDK);
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                ClickSetButtonIfEnabled(row.set);
+            }
         }
 
         private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -332,6 +374,55 @@ namespace PluginSdkWizardInstaller {
                 Process.Start(info);
             }
             catch (Win32Exception) {
+            }
+        }
+
+        private void btnBuildSln_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO: build logic to find Visual Studio installation folder; then find environment shell script;
+            // then execute msbuild.
+        }
+
+        static private string FindDirByVariableName(string varName)
+        {
+            switch( varName )
+            {
+            case "PLUGIN_SDK_DIR":      return SDKFolders.FindPluginSdkDir();
+            case "DIRECTX9_SDK_DIR":    return SDKFolders.FindDirectX9SdkDir();
+            case "RWD3D9_DIR":          return SDKFolders.FindRWD3D9SdkDir();
+            case "GTA_SA_DIR":          return PathLogic.ScanGTASAGameDirectory();
+            case "GTA_VC_DIR":          return PathLogic.ScanGTAVCGameDirectory();
+            case "GTA_III_DIR":         return PathLogic.ScanGTA3GameDirectory();
+            }
+
+            return null;
+        }
+
+        private void autBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            Button setBtn = GetElement(sender, "set") as Button;
+            string envVarName = setBtn.Tag.ToString();
+            string pathToVariable = FindDirByVariableName(envVarName);
+
+            if (pathToVariable != null)
+            {
+                TextBox tbx = GetElement(sender, "tbx") as TextBox;
+                tbx.Text = pathToVariable;
+            }
+        }
+
+        private void btnAutoDetectAll_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO: CLEO_SDK variables, MOONLOADER SDK variable.
+
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                if (row.aut.IsEnabled)
+                {
+                    // Perform click.
+                    autBtn_Click(row.aut, e);
+                }
             }
         }
     }
