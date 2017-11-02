@@ -73,7 +73,7 @@
     <AssemblyOriginatorKeyFile>PluginSDK.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>6C6C14F126B5C9BF8FC8ADCBD82342D215DB894A</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>D11393050BBF2F3DF2683BC112DCE98CF10F7512</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>PluginSdkWizardInstaller_TemporaryKey.pfx</ManifestKeyFile>

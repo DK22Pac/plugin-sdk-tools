@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.6.5" Height="640" Width="860" MinWidth="860" MinHeight="640" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
-    <Grid>
+        Title="Plugin-SDK Installer v0.6.5" Height="651.666" Width="860" MinWidth="860" MinHeight="640" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
+    <Grid Margin="0,0,0.333,0.667">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -169,17 +169,18 @@
                     <Image Source="/Icons/info.png" />
                 </Button>
 
-                <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autSA"      Grid.Row="1" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autVC"      Grid.Row="2" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autIII"     Grid.Row="3" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autDX9"     Grid.Row="4" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autRWD3D9"  Grid.Row="5" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autCLEOSA"  Grid.Row="6" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autCLEOVC"  Grid.Row="7" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autCLEOIII" Grid.Row="8" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
-                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" ToolTip="Auto-detect" IsEnabled="False" />
+                <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autSA"      Grid.Row="1" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autVC"      Grid.Row="2" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autIII"     Grid.Row="3" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autDX9"     Grid.Row="4" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autRWD3D9"  Grid.Row="5" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autCLEOSA"  Grid.Row="6" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autCLEOVC"  Grid.Row="7" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autCLEOIII" Grid.Row="8" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" Margin="1.667,0,2.333,1.667" VerticalAlignment="Bottom" />
 
+                
                 <Button x:Name="brwSDK"     Grid.Row="0" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwSA"      Grid.Row="1" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwVC"      Grid.Row="2" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
@@ -252,6 +253,7 @@
                     <ComboBoxItem Content="Code::Blocks"/>
                 </ComboBox>
                 <Button x:Name="btnGenerateSln" Grid.Column="2" Width="100" Height="25" Content="Generate" Margin="5,2,0,0" IsEnabled="False" Click="btnGenerateSln_Click" />
+                <Button x:Name="btnBuildSln" Grid.Column="2" Width="100" Height="25" Content="Build" Margin="4.667,32,0.667,-29" IsEnabled="False" Click="btnBuildSln_Click" />
             </Grid>
         </Grid>
     </Grid>

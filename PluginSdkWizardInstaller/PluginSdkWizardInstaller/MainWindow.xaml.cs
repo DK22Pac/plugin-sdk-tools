@@ -15,22 +15,43 @@ namespace PluginSdkWizardInstaller {
         private BitmapImage iconNothing;
         private BitmapImage iconNotSet;
 
+        private string[] varIdents =
+        {
+            "SDK",
+            "SA", "VC", "III",
+            "DX9", "RWD3D9",
+            "CLEOSA", "CLEOVC", "CLEOIII",
+            "MOONSDK"
+        };
+
+        private class PathConfigRow
+        {
+            public TextBox tbx;
+            public Button aut;
+            public Button set;
+        };
+        private PathConfigRow[] pathConfigs;
+
         public MainWindow() {
             InitializeComponent();
             iconError = GetIcon("error.png");
             iconOk = GetIcon("ok.png");
             iconNothing = GetIcon("nothing.png");
             iconNotSet = GetIcon("notset.png");
-            SetTextBoxTextToOsVariable(tbxSDK);
-            SetTextBoxTextToOsVariable(tbxSA);
-            SetTextBoxTextToOsVariable(tbxVC);
-            SetTextBoxTextToOsVariable(tbxIII);
-            SetTextBoxTextToOsVariable(tbxDX9);
-            SetTextBoxTextToOsVariable(tbxRWD3D9);
-            SetTextBoxTextToOsVariable(tbxCLEOSA);
-            SetTextBoxTextToOsVariable(tbxCLEOVC);
-            SetTextBoxTextToOsVariable(tbxCLEOIII);
-            SetTextBoxTextToOsVariable(tbxMOONSDK);
+            pathConfigs = new PathConfigRow[varIdents.Length];
+            int n = 0;
+            foreach ( string ident in varIdents )
+            {
+                PathConfigRow row = new PathConfigRow();
+                row.tbx = FindName( "tbx" + ident ) as TextBox;
+                row.aut = FindName( "aut" + ident ) as Button;
+                row.set = FindName( "set" + ident ) as Button;
+                pathConfigs[ n++ ] = row;
+            }
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                SetTextBoxTextToOsVariable(row.tbx);
+            }
         }
 
         private bool CompareLowerCase(string strA, string strB) {
@@ -288,16 +309,10 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void btnUnsetAll_Click(object sender, RoutedEventArgs e) {
-            UnsetEnvVarAndControls(tbxSDK);
-            UnsetEnvVarAndControls(tbxSA);
-            UnsetEnvVarAndControls(tbxVC);
-            UnsetEnvVarAndControls(tbxIII);
-            UnsetEnvVarAndControls(tbxDX9);
-            UnsetEnvVarAndControls(tbxRWD3D9);
-            UnsetEnvVarAndControls(tbxCLEOSA);
-            UnsetEnvVarAndControls(tbxCLEOVC);
-            UnsetEnvVarAndControls(tbxCLEOIII);
-            UnsetEnvVarAndControls(tbxMOONSDK);
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                UnsetEnvVarAndControls(row.tbx);
+            }
         }
 
         private void ClickSetButtonIfEnabled(Button btn) {
@@ -306,16 +321,10 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void btnSetAll_Click(object sender, RoutedEventArgs e) {
-            ClickSetButtonIfEnabled(setSDK);
-            ClickSetButtonIfEnabled(setSA);
-            ClickSetButtonIfEnabled(setVC);
-            ClickSetButtonIfEnabled(setIII);
-            ClickSetButtonIfEnabled(setDX9);
-            ClickSetButtonIfEnabled(setRWD3D9);
-            ClickSetButtonIfEnabled(setCLEOSA);
-            ClickSetButtonIfEnabled(setCLEOVC);
-            ClickSetButtonIfEnabled(setCLEOIII);
-            ClickSetButtonIfEnabled(setMOONSDK);
+            foreach ( PathConfigRow row in pathConfigs )
+            {
+                ClickSetButtonIfEnabled(row.set);
+            }
         }
 
         private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -368,67 +377,51 @@ namespace PluginSdkWizardInstaller {
             }
         }
 
+        private void btnBuildSln_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO: build logic to find Visual Studio installation folder; then find environment shell script;
+            // then execute msbuild.
+        }
+
+        static private string FindDirByVariableName(string varName)
+        {
+            switch( varName )
+            {
+            case "PLUGIN_SDK_DIR":      return SDKFolders.FindPluginSdkDir();
+            case "DIRECTX9_SDK_DIR":    return SDKFolders.FindDirectX9SdkDir();
+            case "RWD3D9_DIR":          return SDKFolders.FindRWD3D9SdkDir();
+            case "GTA_SA_DIR":          return PathLogic.ScanGTASAGameDirectory();
+            case "GTA_VC_DIR":          return PathLogic.ScanGTAVCGameDirectory();
+            case "GTA_III_DIR":         return PathLogic.ScanGTA3GameDirectory();
+            }
+
+            return null;
+        }
+
+        private void autBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            Button setBtn = GetElement(sender, "set") as Button;
+            string envVarName = setBtn.Tag.ToString();
+            string pathToVariable = FindDirByVariableName(envVarName);
+
+            if (pathToVariable != null)
+            {
+                TextBox tbx = GetElement(sender, "tbx") as TextBox;
+                tbx.Text = pathToVariable;
+            }
+        }
+
         private void btnAutoDetectAll_Click(object sender, RoutedEventArgs e)
         {
             //TODO: CLEO_SDK variables, MOONLOADER SDK variable.
 
-            // PLUGIN_SDK_DIR.
+            foreach ( PathConfigRow row in pathConfigs )
             {
-                string plugin_sdk_dir = SDKFolders.FindPluginSdkDir();
-                
-                if ( plugin_sdk_dir != null )
+                if (row.aut.IsEnabled)
                 {
-                    this.tbxSDK.Text = plugin_sdk_dir;
-                }
-            }
-
-            // DIRECTX9_SDK_DIR.
-            {
-                string dx9_sdk_dir = SDKFolders.FindDirectX9SdkDir();
-
-                if ( dx9_sdk_dir != null )
-                {
-                    this.tbxDX9.Text = dx9_sdk_dir;
-                }
-            }
-
-            // RWD3D9_DIR.
-            {
-                string rwd3d9_dir = SDKFolders.FindRWD3D9SdkDir();
-
-                if ( rwd3d9_dir != null )
-                {
-                    this.tbxRWD3D9.Text = rwd3d9_dir;
-                }
-            }
-
-            // GTA_SA_DIR.
-            {
-                string gta_sa_dir = PathLogic.ScanGTASAGameDirectory();
-
-                if ( gta_sa_dir != null )
-                {
-                    this.tbxSA.Text = gta_sa_dir;
-                }
-            }
-
-            // GTA_VC_DIR.
-            {
-                string gta_vc_dir = PathLogic.ScanGTAVCGameDirectory();
-
-                if ( gta_vc_dir != null )
-                {
-                    this.tbxVC.Text = gta_vc_dir;
-                }
-            }
-
-            // GTA_III_DIR.
-            {
-                string gta_iii_dir = PathLogic.ScanGTA3GameDirectory();
-
-                if ( gta_iii_dir != null )
-                {
-                    this.tbxIII.Text = gta_iii_dir;
+                    // Perform click.
+                    autBtn_Click(row.aut, e);
                 }
             }
         }
