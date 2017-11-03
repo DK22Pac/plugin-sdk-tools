@@ -253,7 +253,8 @@ namespace PluginSdkWizardInstaller
         {
             try
             {
-                foreach ( string dirName in Directory.EnumerateDirectories(dirLoc) )
+                var directoryNames = Directory.GetDirectories(dirLoc);
+                foreach ( string dirName in directoryNames )
                 {
                     // Notify.
                     cb( dirName );
@@ -290,8 +291,11 @@ namespace PluginSdkWizardInstaller
                 }
             };
 
-            string programFilesFolder = Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86 );
-
+#if NETFW_4
+            string programFilesFolder = Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86);
+#else
+            string programFilesFolder = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+#endif
             ForAllFolders( programFilesFolder, false, findIterCB );
 
             if ( theFolder == null )

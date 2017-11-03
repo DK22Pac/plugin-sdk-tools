@@ -21,7 +21,10 @@ namespace PluginSdkWizardInstaller
                         "D:\\plugin-sdk",
                         "D:\\Projects\\plugin-sdk",
                         Environment.GetFolderPath( Environment.SpecialFolder.ProgramFiles ) + "\\plugin-sdk"
-                    };
+#if NETFW_4
+                        , Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86 ) + "\\plugin-sdk"
+#endif
+                };
 
                     foreach ( string tryLoc in likelyFolders )
                     {
@@ -55,7 +58,11 @@ namespace PluginSdkWizardInstaller
         {
             try
             {
-                string progFilesPath = Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86 );
+#if NETFW_4
+                string progFilesPath = Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86);
+#else
+                string progFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+#endif
 
                 // Check common folders first.
                 {
