@@ -18,6 +18,8 @@ namespace PluginSdkWizardInstaller
                     string[] likelyFolders =
                     {
                         desktopFolder + "\\plugin-sdk",
+                        "C:\\plugin-sdk",
+                        "C:\\Projects\\plugin-sdk",
                         "D:\\plugin-sdk",
                         "D:\\Projects\\plugin-sdk",
                         Environment.GetFolderPath( Environment.SpecialFolder.ProgramFiles ) + "\\plugin-sdk"
