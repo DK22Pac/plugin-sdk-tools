@@ -7,21 +7,6 @@ namespace PluginSdkWizardInstaller
 {
     class SDKFolders
     {
-        private class FoundFolderException : Exception
-        {
-            public FoundFolderException(string theFolder)
-            {
-                this.theFolder = theFolder;
-            }
-
-            public string GetFolder()
-            {
-                return theFolder;
-            }
-
-            private string theFolder;
-        };
-
         static public string FindPluginSdkDir()
         {
             try
@@ -42,7 +27,7 @@ namespace PluginSdkWizardInstaller
                     {
                         if ( PathLogic.IsPluginSDKDirectory( tryLoc ) )
                         {
-                            throw new FoundFolderException( tryLoc );
+                            throw new PathLogic.FoundFolderException( tryLoc );
                         }
                     }
                 }
@@ -52,12 +37,12 @@ namespace PluginSdkWizardInstaller
                     (tryLoc) => {
                         if ( PathLogic.IsPluginSDKDirectory( tryLoc ) )
                         {
-                            throw new FoundFolderException( tryLoc );
+                            throw new PathLogic.FoundFolderException( tryLoc );
                         }
                     }
                 );
             }
-            catch( FoundFolderException except )
+            catch(PathLogic.FoundFolderException except )
             {
                 return except.GetFolder();
             }
@@ -77,6 +62,7 @@ namespace PluginSdkWizardInstaller
                     string[] likelyFolders =
                     {
                         "D:\\Projects\\DXSDK\\9.0",
+                        "D:\\Projects\\DXSDK\\9.0c",
                         progFilesPath + "\\Microsoft DirectX SDK (June 2010)"
                     };
 
@@ -84,7 +70,7 @@ namespace PluginSdkWizardInstaller
                     {
                         if ( PathLogic.IsDirectX9Directory( tryLoc ) )
                         {
-                            throw new FoundFolderException( tryLoc );
+                            throw new PathLogic.FoundFolderException( tryLoc );
                         }
                     }
                 }
@@ -95,12 +81,12 @@ namespace PluginSdkWizardInstaller
                     {
                         if ( PathLogic.IsDirectX9Directory(tryLoc) )
                         {
-                            throw new FoundFolderException( tryLoc );
+                            throw new PathLogic.FoundFolderException( tryLoc );
                         }
                     }
                 );
             }
-            catch( FoundFolderException except )
+            catch(PathLogic.FoundFolderException except )
             {
                 return except.GetFolder();
             }
@@ -112,8 +98,6 @@ namespace PluginSdkWizardInstaller
         {
             try
             {
-                //TODO: we have no idea how the RWD3D9 sdk looks like, yet. Please adjust.
-
                 string desktopFolder = Environment.GetFolderPath( Environment.SpecialFolder.Desktop );
 
                 // Try common locations of RWD3D9 first.
@@ -128,13 +112,41 @@ namespace PluginSdkWizardInstaller
                     {
                         if ( PathLogic.IsRWD3D9Directory( tryLoc ) )
                         {
-                            throw new FoundFolderException( tryLoc );
+                            throw new PathLogic.FoundFolderException( tryLoc );
                         }
                     }
                 }
             }
-            catch( FoundFolderException except )
+            catch(PathLogic.FoundFolderException except )
             {
+                return except.GetFolder();
+            }
+
+            return null;
+        }
+
+        static public string FindMoonLoaderSdkDir() {
+            try {
+                string desktopFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                // Try common locations of MoonLoader SDK first.
+                {
+                    string[] likelyFolders =
+                    {
+                        desktopFolder + "\\moonloader_module_sdk",
+                        desktopFolder + "\\moonloader_sdk",
+                        "D:\\Projects\\moonloader_module_sdk",
+                        "D:\\Projects\\moonloader_sdk"
+                    };
+
+                    foreach (string tryLoc in likelyFolders) {
+                        if (PathLogic.IsMoonLoaderSdkDirectory(tryLoc)) {
+                            throw new PathLogic.FoundFolderException(tryLoc);
+                        }
+                    }
+                }
+            }
+            catch (PathLogic.FoundFolderException except) {
                 return except.GetFolder();
             }
 

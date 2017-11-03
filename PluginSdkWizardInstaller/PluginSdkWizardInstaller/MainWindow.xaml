@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.6.5" Height="651.666" Width="860" MinWidth="860" MinHeight="640" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
+        Title="Plugin-SDK Installer v0.6.5" Height="635" Width="880" MinWidth="880" MinHeight="635" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
     <Grid Margin="0,0,0.333,0.667">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -17,7 +17,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label x:Name="lblWizTmplButtons" Content="Install Plugin-SDK Wizard/Templates" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+            <Label x:Name="lblWizTmplButtons" Content="Install Plugin-SDK Wizard/Templates" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
             <Grid Grid.Row="1" Margin="15,0">
                 <Grid.Resources >
                     <Style TargetType="Button" >
@@ -86,7 +86,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label x:Name="lblSetupEnvVars" Content="Setup Plugin-SDK environment variables" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+            <Label x:Name="lblSetupEnvVars" Content="Setup Plugin-SDK environment variables" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
             <Grid x:Name="grdEnvVars" Grid.Row="1" Margin="15,0">
                 <Grid.Resources >
                     <Style TargetType="Button" >
@@ -236,15 +236,20 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label x:Name="lblGenerateSolution" Content="Generate Plugin-SDK solution/workspace" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+            <Label x:Name="lblSdkSolution" Content="Plugin-SDK solution/workspace" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
             <Grid x:Name="grdGenerateSolution" Grid.Row="1"  Margin="15,0,20,0" IsEnabled="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" Content="Generate for:" Margin="0,2,0,0" />
-                <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,2,5,0" SelectionChanged="cmbGenerateSlnFor_SelectionChanged" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Label Grid.Column="0" Content="Development Environment:" Margin="0,5" />
+                <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,5,5,5" SelectionChanged="cmbGenerateSlnFor_SelectionChanged" Height="27" Padding="6,5,5,0" >
                     <ComboBoxItem Content="Visual Studio 2017"/>
                     <ComboBoxItem Content="Visual Studio 2015"/>
                     <ComboBoxItem Content="Visual Studio 2013"/>
@@ -252,8 +257,8 @@
                     <ComboBoxItem Content="Visual Studio 2010"/>
                     <ComboBoxItem Content="Code::Blocks"/>
                 </ComboBox>
-                <Button x:Name="btnGenerateSln" Grid.Column="2" Width="100" Height="25" Content="Generate" Margin="5,2,0,0" IsEnabled="False" Click="btnGenerateSln_Click" />
-                <Button x:Name="btnBuildSln" Grid.Column="2" Width="100" Height="25" Content="Build" Margin="4.667,32,0.667,-29" IsEnabled="False" Click="btnBuildSln_Click" />
+                <Button x:Name="btnGenerateSln" Grid.Column="2" Width="100" Height="27" Content="Generate" Margin="5" IsEnabled="False" Click="btnGenerateSln_Click" />
+                <Button x:Name="btnBuildSln" Grid.Column="3" Width="100" Height="27" Content="Build" Margin="5,5,0,5" IsEnabled="False" Click="btnBuildSln_Click" />
             </Grid>
         </Grid>
     </Grid>

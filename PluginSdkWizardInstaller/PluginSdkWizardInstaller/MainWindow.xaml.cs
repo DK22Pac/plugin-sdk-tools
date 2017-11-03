@@ -387,12 +387,13 @@ namespace PluginSdkWizardInstaller {
         {
             switch( varName )
             {
-            case "PLUGIN_SDK_DIR":      return SDKFolders.FindPluginSdkDir();
-            case "DIRECTX9_SDK_DIR":    return SDKFolders.FindDirectX9SdkDir();
-            case "RWD3D9_DIR":          return SDKFolders.FindRWD3D9SdkDir();
-            case "GTA_SA_DIR":          return PathLogic.ScanGTASAGameDirectory();
-            case "GTA_VC_DIR":          return PathLogic.ScanGTAVCGameDirectory();
-            case "GTA_III_DIR":         return PathLogic.ScanGTA3GameDirectory();
+            case "PLUGIN_SDK_DIR":        return SDKFolders.FindPluginSdkDir();
+            case "DIRECTX9_SDK_DIR":      return SDKFolders.FindDirectX9SdkDir();
+            case "RWD3D9_DIR":            return SDKFolders.FindRWD3D9SdkDir();
+            case "MOONLOADER_SDK_SA_DIR": return SDKFolders.FindMoonLoaderSdkDir();
+            case "GTA_SA_DIR":            return PathLogic.ScanGTASAGameDirectory();
+            case "GTA_VC_DIR":            return PathLogic.ScanGTAVCGameDirectory();
+            case "GTA_III_DIR":           return PathLogic.ScanGTA3GameDirectory();
             }
 
             return null;

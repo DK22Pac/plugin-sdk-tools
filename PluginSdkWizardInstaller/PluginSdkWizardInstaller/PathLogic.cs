@@ -3,11 +3,24 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace PluginSdkWizardInstaller
 {
     class PathLogic
     {
+        public class FoundFolderException : Exception {
+            public FoundFolderException(string theFolder) {
+                this.theFolder = theFolder;
+            }
+
+            public string GetFolder() {
+                return theFolder;
+            }
+
+            private string theFolder;
+        };
+
         // Translated code from C++ config tool.
         static private bool checkFolderConfiguration(
             string dirLoc,
@@ -82,8 +95,19 @@ namespace PluginSdkWizardInstaller
 
         static public bool IsRWD3D9Directory(string dirLoc)
         {
-            //TODO.
-            return checkFolderConfiguration(dirLoc, null, null);
+            string[] requiredFiles =
+            {
+                "libs\\rwd3d9.lib",
+                "source\\rwd3d9.h"
+            };
+
+            string[] requiredFolders =
+            {
+                "libs",
+                "source"
+            };
+
+            return checkFolderConfiguration(dirLoc, requiredFiles, requiredFolders);
         }
 
         static public bool IsCLEO_SDK_Directory(string dirLoc)
@@ -95,6 +119,26 @@ namespace PluginSdkWizardInstaller
             };
 
             return checkFolderConfiguration(dirLoc, requiredFiles, null);
+        }
+
+        static public bool IsMoonLoaderSdkDirectory(string dirLoc)
+        {
+            string[] requiredFiles =
+            {
+                "src\\lua_module.h",
+                "src\\pch.h",
+                "src\\pch.cpp"
+            };
+
+            string[] requiredFolders =
+            {
+                "src",
+                "src\\libs",
+                "src\\libs\\lua",
+                "src\\libs\\sol2"
+            };
+
+            return checkFolderConfiguration(dirLoc, requiredFiles, requiredFolders);
         }
 
         static public bool IsGTA3Directory(string dirLoc)
@@ -217,11 +261,15 @@ namespace PluginSdkWizardInstaller
                     if ( recursive )
                     {
                         // Go into that directory.
-                        ForAllFolders( dirName, recursive, cb );
+                        DirectoryInfo dir = new DirectoryInfo(dirName);
+                        if ((dir.Attributes & FileAttributes.Hidden) == 0)
+                        {
+                            ForAllFolders(dirName, recursive, cb);
+                        }
                     }
                 }
             }
-            catch( DirectoryNotFoundException )
+            catch( Exception )
             {
                 return;
             }
@@ -238,6 +286,7 @@ namespace PluginSdkWizardInstaller
                 if ( cb( findLoc ) )
                 {
                     theFolder = findLoc;
+                    throw new FoundFolderException(findLoc);
                 }
             };
 
@@ -264,7 +313,7 @@ namespace PluginSdkWizardInstaller
             if ( theFolder == null )
             {
                 // Should also scan inside the D: drive.
-                ForAllFolders( "D:", false, findIterCB );
+                ForAllFolders( "D:\\", true, findIterCB );
             }
 
             // Return anything we found.

@@ -53,8 +53,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>Icons\packageicon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -73,10 +72,10 @@
     <AssemblyOriginatorKeyFile>PluginSDK.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>D11393050BBF2F3DF2683BC112DCE98CF10F7512</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>CE84DF1FC89A5436687417918E9C714941F651AC</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>PluginSdkWizardInstaller_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PluginSDK.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
