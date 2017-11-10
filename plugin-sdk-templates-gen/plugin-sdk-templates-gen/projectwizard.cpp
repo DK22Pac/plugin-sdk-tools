@@ -6,7 +6,7 @@
 #include <QFileDialog>
 #include <Windows.h>
 
-#define DEFAULT_VS_VERSION 2017
+#define DEFAULT_VS_VERSION 2010
 
 ProjectWizard::ProjectWizard(QWidget *parent)
     : QMainWindow(parent, Qt::Window | Qt::FramelessWindowHint)
@@ -34,7 +34,7 @@ ProjectWizard::ProjectWizard(QWidget *parent)
     connect(ui.btn_useEnvironmentVariables, &QPushButton::clicked, this, &ProjectWizard::on_useEnvironmentVariablesButtonClicked);
     connect(ui.btn_generate, &QPushButton::clicked, this, &ProjectWizard::on_generateButtonClicked);
 
-    QSettings settingsFile(QApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    QSettings settingsFile(QApplication::applicationDirPath() + "\\settings.ini", QSettings::IniFormat);
     settings.read(settingsFile);
 
     if (!settings.pluginSdkFolder.isEmpty())
@@ -68,22 +68,16 @@ ProjectWizard::ProjectWizard(QWidget *parent)
 ProjectWizard::~ProjectWizard() {}
 
 void MakePathLine(QString &str) {
-    str.replace('\\', '/');
-    if (!str.endsWith('/'))
-        str.append('/');
+    str.replace('/', '\\');
+    if (!str.endsWith('\\'))
+        str.append('\\');
 }
 
 unsigned int GetVsVersionFromVSDocumentsPath(QString path) {
-    if (path.contains("2010"))
-        return 2010;
-    else if(path.contains("2012"))
-        return 2012;
-    else if (path.contains("2013"))
-        return 2013;
-    else if (path.contains("2015"))
-        return 2015;
-    else if (path.contains("2017"))
-        return 2017;
+    for (unsigned int version = 2010; version <= 2017; version++) {
+        if (path.contains(QString::number(version)))
+            return version;
+    }
     return 0;
 }
 
@@ -94,16 +88,16 @@ void ProjectWizard::on_useEnvironmentVariablesButtonClicked(bool checked) {
     ui.le_saCleoSdkFolder->setText("$(CLEO_SDK_SA_DIR)");
     ui.le_vcCleoSdkFolder->setText("$(CLEO_SDK_VC_DIR)");
     ui.le_iiiCleoSdkFolder->setText("$(CLEO_SDK_III_DIR)");
-    ui.le_saAsiOutputFolder->setText("$(GTA_SA_ASI_DIR)");
-    ui.le_vcAsiOutputFolder->setText("$(GTA_VC_ASI_DIR)");
-    ui.le_iiiAsiOutputFolder->setText("$(GTA_III_ASI_DIR)");
-    ui.le_saCleoOutputFolder->setText("$(GTA_SA_CLEO_DIR)");
-    ui.le_vcCleoOutputFolder->setText("$(GTA_VC_CLEO_DIR)");
-    ui.le_iiiCleoOutputFolder->setText("$(GTA_III_CLEO_DIR)");
+    ui.le_saAsiOutputFolder->setText("$(GTA_SA_DIR)\\scripts");
+    ui.le_vcAsiOutputFolder->setText("$(GTA_VC_DIR)\\scripts");
+    ui.le_iiiAsiOutputFolder->setText("$(GTA_III_DIR)\\scripts");
+    ui.le_saCleoOutputFolder->setText("$(GTA_SA_DIR)\\cleo");
+    ui.le_vcCleoOutputFolder->setText("$(GTA_VC_DIR)\\cleo");
+    ui.le_iiiCleoOutputFolder->setText("$(GTA_III_DIR)\\cleo");
 }
 
 void ProjectWizard::on_generateButtonClicked(bool checked) {
-    QSettings settingsFile(QApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    QSettings settingsFile(QApplication::applicationDirPath() + "\\settings.ini", QSettings::IniFormat);
     settings.pluginSdkFolder = ui.le_pluginSdkFolder->text();
     settings.rwd3d9Folder = ui.le_rwd3d9Folder->text();
     settings.directX9SdkFolder = ui.le_directX9SdkFolder->text();

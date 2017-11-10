@@ -9,14 +9,30 @@
 using namespace std;
 using namespace experimental::filesystem;
 
-#define _PLUGIN_SDK_BUILD_VER_ "1.1.0"
+#define _PLUGIN_SDK_BUILD_VER_ "1.1.2"
 
 int main(int argc, char *argv[]) {
     cout << ">>> Plugin-SDK Build Tool v." << _PLUGIN_SDK_BUILD_VER_ << " <<<" << endl;
 
+    enum BuildToolError {
+        ERROR_NOT_ENOUGH_PARAMETERS = 1,
+        ERROR_UNKNOWN_BUILD_COMMAND = 2,
+        ERROR_BUILD_TYPE_NOT_SET = 3,
+        ERROR_UNKNOWN_BUILD_TYPE = 4,
+        ERROR_PROJECT_DIR_NOT_SET = 5,
+        ERROR_PROJECT_NAME_NOT_SET = 6,
+        ERROR_TARGET_NAME_NOT_SET = 7,
+        ERROR_INT_DIR_NOT_SET = 8,
+        ERROR_CANT_OPEN_PROJECT_FILE = 9,
+        ERROR_CANT_OPEN_INT_DIR = 10,
+        ERROR_CANT_COMPILE_FILE = 11,
+        ERROR_CANT_OPEN_OUTPUT_DIRECTORY = 12,
+        ERROR_FAILED_TO_LINK_OBJECTS = 13
+    };
+
     if (argc < 2) {
         cout << "Error: not enought parameters" << endl;
-        return 0;
+        return ERROR_NOT_ENOUGH_PARAMETERS;
     }
 
     enum BuildCommand {
@@ -35,7 +51,7 @@ int main(int argc, char *argv[]) {
         buildCommand = COMMAND_CLEAN;
     else {
         cout << "Error: unknown build command" << endl;
-        return 0;
+        return ERROR_UNKNOWN_BUILD_COMMAND;
     }
 
     struct BuildParameters {
@@ -157,27 +173,27 @@ int main(int argc, char *argv[]) {
 
     if (isBuildOrRebuildMode() && parameters.buildtype.empty()) {
         cout << "Error: buildtype is not set" << endl;
-        return 0;
+        return ERROR_BUILD_TYPE_NOT_SET;
     }
 
     if (isBuildOrRebuildMode() && parameters.buildtype.compare("DLL") && parameters.buildtype.compare("LIB")) {
         cout << "Error: unknown buildtype" << endl;
-        return 0;
+        return ERROR_UNKNOWN_BUILD_TYPE;
     }
 
     if (parameters.projectdir.empty()) {
         cout << "Error: projectdir is not set" << endl;
-        return 0;
+        return ERROR_PROJECT_DIR_NOT_SET;
     }
 
     if (parameters.projectname.empty()) {
         cout << "Error: projectname is not set" << endl;
-        return 0;
+        return ERROR_PROJECT_NAME_NOT_SET;
     }
 
     if (parameters.targetname.empty()) {
         cout << "Error: targetname is not set" << endl;
-        return 0;
+        return ERROR_TARGET_NAME_NOT_SET;
     }
 
     if (parameters.outdir.empty() || (parameters.outdir.length() == 1 && (parameters.outdir[0] == '\\' || parameters.outdir[0] == '/'))) {
@@ -186,7 +202,7 @@ int main(int argc, char *argv[]) {
 
     if (parameters.intdir.empty()) {
         cout << "Error: intdir is not set" << endl;
-        return 0;
+        return ERROR_INT_DIR_NOT_SET;
     }
 
     // everything ok, now parse .vcxproj file
@@ -210,7 +226,7 @@ int main(int argc, char *argv[]) {
     }
     else {
         cout << "Error: can't open project file" << " " << parameters.projectdir << endl;
-        return 0;
+        return ERROR_CANT_OPEN_PROJECT_FILE;
     }
 
     // check for clean
@@ -268,7 +284,7 @@ int main(int argc, char *argv[]) {
         // validate object directory
         if (!exists(objectsPath)) {
             cout << "Error: can't open intdir directory" << endl;
-            return 0;
+            return ERROR_CANT_OPEN_INT_DIR;
         }
     }
 
@@ -306,8 +322,10 @@ int main(int argc, char *argv[]) {
         else
             cout << cppFilePath.filename() << endl;
 
-        if (executeCommand("g++", command.str().c_str()) != 0)
+        if (executeCommand("g++", command.str().c_str()) != 0) {
             cout << "Error: can't compile " << cppFilePath.filename() << " (" << cppFilePath << ")" << endl;
+            return ERROR_CANT_COMPILE_FILE;
+        }
     }
 
     // generate library
@@ -318,7 +336,7 @@ int main(int argc, char *argv[]) {
         // validate output directory
         if (!exists(parameters.outdir)) {
             cout << "Error: can't open outdir directory" << endl;
-            return 0;
+            return ERROR_CANT_OPEN_OUTPUT_DIRECTORY;
         }
     }
 
@@ -327,16 +345,22 @@ int main(int argc, char *argv[]) {
     {
         stringstream command;
         if (!parameters.buildtype.compare("LIB"))
-            command << "rcs ";
+            command << "-r -s ";
         else
             command << "-shared -Wl,--dll ";
         if (!parameters.linkadditional.empty())
             command << parameters.linkadditional << " ";
-        command << "-o ";
+        if (parameters.buildtype.compare("LIB"))
+            command << "-o ";
         path outputPath = canonical(parameters.outdir) / parameters.targetname;
         command << '"' << outputPath << '"' << " ";
-        path lnkObjsPath = canonical(parameters.intdir) / parameters.projectname / "*.o";
-        command << '"' << lnkObjsPath << '"' << " ";
+        // print all object files
+        for (auto const &f : cppFiles) {
+            path filePath = f;
+            path objFileName = filePath.stem().string() + ".o";
+            path lnkObjPath = canonical(parameters.intdir) / parameters.projectname / objFileName;
+            command << '"' << lnkObjPath << '"' << " ";
+        }
         // library dirs
         for (auto const &libraryDir : parameters.libraryDirs)
             command << "-L" << '"' << canonical(libraryDir) << '"' << " ";
@@ -347,8 +371,10 @@ int main(int argc, char *argv[]) {
         if (parameters.fulllog)
             cout << "Linking: " << command.str() << endl;
 
-        if (executeCommand(!parameters.buildtype.compare("LIB") ? "ar" : "g++", command.str().c_str()) != 0)
+        if (executeCommand(!parameters.buildtype.compare("LIB") ? "ar" : "g++", command.str().c_str()) != 0) {
             cout << "Error: failed to link objects (command: " << command.str() << ")" << endl;
+            return ERROR_FAILED_TO_LINK_OBJECTS;
+        }
         else {
             static char sizestr[32];
             sprintf_s(sizestr, "%.2f KB", static_cast<float>(file_size(outputPath))/1024.0f);

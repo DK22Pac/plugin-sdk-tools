@@ -613,7 +613,7 @@ public:
     {
         ProjectWizardClass->setWindowTitle(QApplication::translate("ProjectWizardClass", "Plugin-SDK Templates Generator", nullptr));
         lbl_rwd3d9Folder->setText(QApplication::translate("ProjectWizardClass", "rwd3d9 folder:", nullptr));
-        lbl_title->setText(QApplication::translate("ProjectWizardClass", "Plugin-SDK Templates Generator v.0.9.3", nullptr));
+        lbl_title->setText(QApplication::translate("ProjectWizardClass", "Plugin-SDK Templates Generator v.0.9.4", nullptr));
         lbl_visualStudioDocumentsFolder->setText(QApplication::translate("ProjectWizardClass", "Visual Studio Documents folder:", nullptr));
 #ifndef QT_NO_TOOLTIP
         le_directX9SdkFolder->setToolTip(QApplication::translate("ProjectWizardClass", "example: D:/Projects/DXSDK/9.0c", nullptr));

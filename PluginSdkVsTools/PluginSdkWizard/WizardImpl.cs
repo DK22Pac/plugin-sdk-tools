@@ -28,7 +28,7 @@ namespace PluginSdkWizard {
         string GetConfigName(string config, string gameName) {
             string configName = gameName + " ";
             if (config == "Debug")
-                configName += "Ι";
+                configName += "z";
             return configName + config;
         }
 

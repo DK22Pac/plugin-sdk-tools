@@ -48,13 +48,14 @@ public:
             else
                 fileNames.append("templates\\III.ico");
             QString documentsPath = settings.vsDocumentsPath;
-            if (!documentsPath.endsWith("vs" + QString::number(vsVersion) + '/'))
-                documentsPath += settings.vsDocumentsPath + "Templates/ProjectTemplates/Plugin-SDK/"; 
-            QString subFolder = (flags & VSGEN_CLEO) ? "CLEO/" : "ASI/";
-            if (JlCompress::compressFiles(documentsPath + subFolder + fileName + ".zip", fileNames))
+            if (!documentsPath.endsWith("vs" + QString::number(vsVersion) + '\\'))
+                documentsPath += settings.vsDocumentsPath + "Templates\\ProjectTemplates\\Plugin-SDK\\"; 
+            QString subFolder = (flags & VSGEN_CLEO) ? "CLEO\\" : "ASI\\";
+            QString filePath = documentsPath + subFolder + fileName + ".zip";
+            if (JlCompress::compressFiles(filePath, fileNames))
                 return true;
             else
-                return MESSAGE_ERROR("VS_ProjectTemplateGenerator::GenerateTemplate(): can't create .zip archive (" + fileName + ".zip)");
+                return MESSAGE_ERROR("VS_ProjectTemplateGenerator::GenerateTemplate(): can't create .zip archive (" + filePath + ")");
         }
         return false;
     }
@@ -266,73 +267,57 @@ public:
 
         vsProjectFile.SetNodesValue("OutDir", outDir);
 
-        if (vsVersion >= 2015) {
-            vsProjectFile.SetNodesValue("TargetExt", extension);
-            vsProjectFile.SetNodesValue("AdditionalIncludeDirectories", includeFolders + ";%(AdditionalIncludeDirectories)");
-            vsProjectFile.SetNodesValue("PreprocessorDefinitions", "_DEBUG", true, definitions + ";_DEBUG;%(PreprocessorDefinitions)");
-            vsProjectFile.SetNodesValue("PreprocessorDefinitions", "NDEBUG", true, definitions + ";NDEBUG;%(PreprocessorDefinitions)");
-            vsProjectFile.SetNodesValue("AdditionalLibraryDirectories", libFolders + ";%(AdditionalLibraryDirectories)");
-            if (!vcIncludes.isEmpty())
-                vsProjectFile.SetNodesValue("IncludePath", "$(IncludePath);" + vcIncludes);
-            if (!vcLibraries.isEmpty())
-                vsProjectFile.SetNodesValue("LibraryPath", "$(LibraryPath);" + vcLibraries);
-            vsProjectFile.SetNodesValue("AdditionalDependencies", "plugin_d.lib", true,
-                pluginLibName + "_d.lib;paths_d.lib;" + ToCSV(dependencies, false) + "%(AdditionalDependencies)");
-            vsProjectFile.SetNodesValue("AdditionalDependencies", "plugin.lib", true,
-                pluginLibName + ".lib;paths.lib;" + ToCSV(dependencies, false) + "%(AdditionalDependencies)");
-        }
-        else {
-            vsProjectFile.SetNodesValue("NMakeOutput", "$TargetNameRelease$", true, "$(ProjectName)" + extension);
-            vsProjectFile.SetNodesValue("NMakeOutput", "$TargetNameDebug$", true, "$(ProjectName)_d" + extension);
-            vsProjectFile.SetNodesValue("NMakePreprocessorDefinitions", "$PreprocessorDefinitionsRelease$", true,
-                definitions + ";NDEBUG;$(NMakePreprocessorDefinitions)");
-            vsProjectFile.SetNodesValue("NMakePreprocessorDefinitions", "$PreprocessorDefinitionsDebug$", true,
-                definitions + ";_DEBUG;$(NMakePreprocessorDefinitions)");
-            if (!vcIncludes.isEmpty())
-                vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", vcIncludes + ";" + includeFolders + ";$(NMakeIncludeSearchPath)");
-            else
-                vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", includeFolders + ";$(NMakeIncludeSearchPath)");
-            QString nmToolCmd = "\"$(PLUGIN_SDK_DIR)\\tools\\general\\pluginsdk-build.exe\" ";
-            QString nmBuildConfig = "buildtype:(DLL) ";
-            QString nmProjConfig = "projectdir:\"($(ProjectDir))\" projectname:\"($(ProjectName))\" ";
-            QString nmOutDirs = "outdir:\"(" + outDir + ")\" intdir:\"($(ProjectDir).obj\\$(Configuration)\\)\" ";
-            QString nmTargetNameRelease = "targetname:\"($(ProjectName)" + extension + ")\" ";
-            QString nmTargetNameDebug = "targetname:\"($(ProjectName)_d" + extension + ")\" ";
-            QString allIncludeDirs;
-            AddValueToCSVLine(allIncludeDirs, vcIncludes);
-            AddValueToCSVLine(allIncludeDirs, "$(ProjectDir)");
-            AddValueToCSVLine(allIncludeDirs, includeFolders);
-            QString nmIncludeDirs = "includeDirs:\"(" + allIncludeDirs + ")\" ";
-            QString allLibraryDirs;
-            AddValueToCSVLine(allLibraryDirs, vcLibraries);
-            AddValueToCSVLine(allLibraryDirs, libFolders);
-            QString nmLibraryDirs = "libraryDirs:\"(" + allLibraryDirs + ")\" ";
-            QString nmLibrariesRelease = "libraries:\"(paths;" + pluginLibName + ToCSV(dependencies, true) + ")\" ";
-            QString nmLibrariesDebug = "libraries:\"(paths_d;" + pluginLibName + "_d" + ToCSV(dependencies, true) + ")\" ";
-            QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
-            QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
-            QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\" ";
-            QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32 -g -fpermissive)\" ";
-            QString nmLinkAdditionalRelease = "linkadditional:\"(-s -static-libgcc -static-libstdc++)\"";
-            QString nmLinkAdditionalDebug = "linkadditional:\"(-static-libgcc -static-libstdc++)\"";
-            QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease + nmLinkAdditionalRelease;
-            QString nmDirsAndOptionsDebug = nmIncludeDirs + nmLibraryDirs + nmLibrariesDebug + nmDefinitionsDebug + nmAdditionalDebug + nmLinkAdditionalDebug;
+        vsProjectFile.SetNodesValue("NMakeOutput", "$TargetNameRelease$", true, "$(ProjectName)" + extension);
+        vsProjectFile.SetNodesValue("NMakeOutput", "$TargetNameDebug$", true, "$(ProjectName)_d" + extension);
+        vsProjectFile.SetNodesValue("NMakePreprocessorDefinitions", "$PreprocessorDefinitionsRelease$", true,
+            definitions + ";NDEBUG;$(NMakePreprocessorDefinitions)");
+        vsProjectFile.SetNodesValue("NMakePreprocessorDefinitions", "$PreprocessorDefinitionsDebug$", true,
+            definitions + ";_DEBUG;$(NMakePreprocessorDefinitions)");
+        if (!vcIncludes.isEmpty())
+            vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", vcIncludes + ";" + includeFolders + ";$(NMakeIncludeSearchPath)");
+        else
+            vsProjectFile.SetNodesValue("NMakeIncludeSearchPath", includeFolders + ";$(NMakeIncludeSearchPath)");
+        QString nmToolCmd = "\"$(PLUGIN_SDK_DIR)\\tools\\general\\pluginsdk-build.exe\" ";
+        QString nmBuildConfig = "buildtype:(DLL) ";
+        QString nmProjConfig = "projectdir:\"($(ProjectDir))\" projectname:\"($(ProjectName))\" ";
+        QString nmOutDirsRelease = "outdir:\"(" + outDir + ")\" intdir:\"($(ProjectDir).obj\\Release\\)\" ";
+        QString nmOutDirsDebug = "outdir:\"(" + outDir + ")\" intdir:\"($(ProjectDir).obj\\Debug\\)\" ";
+        QString nmTargetNameRelease = "targetname:\"($(ProjectName)" + extension + ")\" ";
+        QString nmTargetNameDebug = "targetname:\"($(ProjectName)_d" + extension + ")\" ";
+        QString allIncludeDirs;
+        AddValueToCSVLine(allIncludeDirs, vcIncludes);
+        AddValueToCSVLine(allIncludeDirs, "$(ProjectDir)");
+        AddValueToCSVLine(allIncludeDirs, includeFolders);
+        QString nmIncludeDirs = "includeDirs:\"(" + allIncludeDirs + ")\" ";
+        QString allLibraryDirs;
+        AddValueToCSVLine(allLibraryDirs, vcLibraries);
+        AddValueToCSVLine(allLibraryDirs, libFolders);
+        QString nmLibraryDirs = "libraryDirs:\"(" + allLibraryDirs + ")\" ";
+        QString nmLibrariesRelease = "libraries:\"(paths;" + pluginLibName + ToCSV(dependencies, true) + ")\" ";
+        QString nmLibrariesDebug = "libraries:\"(paths_d;" + pluginLibName + "_d" + ToCSV(dependencies, true) + ")\" ";
+        QString nmDefinitionsRelease = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";NDEBUG)\" ";
+        QString nmDefinitionsDebug = "definitions:\"(" + definitions.replace("\"", "&lt;&gt;") + ";_DEBUG)\" ";
+        QString nmAdditionalRelease = "additional:\"(-std=" + cppStd + " -m32 -O2 -fpermissive)\" ";
+        QString nmAdditionalDebug = "additional:\"(-std=" + cppStd + " -m32 -g -fpermissive)\" ";
+        QString nmLinkAdditionalRelease = "linkadditional:\"(-s -static-libgcc -static-libstdc++)\"";
+        QString nmLinkAdditionalDebug = "linkadditional:\"(-static-libgcc -static-libstdc++)\"";
+        QString nmDirsAndOptionsRelease = nmIncludeDirs + nmLibraryDirs + nmLibrariesRelease + nmDefinitionsRelease + nmAdditionalRelease + nmLinkAdditionalRelease;
+        QString nmDirsAndOptionsDebug = nmIncludeDirs + nmLibraryDirs + nmLibrariesDebug + nmDefinitionsDebug + nmAdditionalDebug + nmLinkAdditionalDebug;
 
-            vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineRelease$", true,
-                nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirs + nmDirsAndOptionsRelease);
-            vsProjectFile.SetNodesValue("NMakeReBuildCommandLine", "$RebuildCommandLineRelease$", true,
-                nmToolCmd + "rebuild " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirs + nmDirsAndOptionsRelease);
-            vsProjectFile.SetNodesValue("NMakeCleanCommandLine", "$CleanCommandLineRelease$", true,
-                nmToolCmd + "clean " + nmProjConfig + nmTargetNameRelease + nmOutDirs);
+        vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineRelease$", true,
+            nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirsRelease + nmDirsAndOptionsRelease);
+        vsProjectFile.SetNodesValue("NMakeReBuildCommandLine", "$RebuildCommandLineRelease$", true,
+            nmToolCmd + "rebuild " + nmBuildConfig + nmProjConfig + nmTargetNameRelease + nmOutDirsRelease + nmDirsAndOptionsRelease);
+        vsProjectFile.SetNodesValue("NMakeCleanCommandLine", "$CleanCommandLineRelease$", true,
+            nmToolCmd + "clean " + nmProjConfig + nmTargetNameRelease + nmOutDirsRelease);
 
-            vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineDebug$", true,
-                nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameDebug + nmOutDirs + nmDirsAndOptionsDebug);
-            vsProjectFile.SetNodesValue("NMakeReBuildCommandLine", "$RebuildCommandLineDebug$", true,
-                nmToolCmd + "rebuild " + nmBuildConfig + nmProjConfig + nmTargetNameDebug + nmOutDirs + nmDirsAndOptionsDebug);
-            vsProjectFile.SetNodesValue("NMakeCleanCommandLine", "$CleanCommandLineDebug$", true,
-                nmToolCmd + "clean " + nmProjConfig + nmTargetNameDebug + nmOutDirs);
+        vsProjectFile.SetNodesValue("NMakeBuildCommandLine", "$BuildCommandLineDebug$", true,
+            nmToolCmd + "build " + nmBuildConfig + nmProjConfig + nmTargetNameDebug + nmOutDirsDebug + nmDirsAndOptionsDebug);
+        vsProjectFile.SetNodesValue("NMakeReBuildCommandLine", "$RebuildCommandLineDebug$", true,
+            nmToolCmd + "rebuild " + nmBuildConfig + nmProjConfig + nmTargetNameDebug + nmOutDirsDebug + nmDirsAndOptionsDebug);
+        vsProjectFile.SetNodesValue("NMakeCleanCommandLine", "$CleanCommandLineDebug$", true,
+            nmToolCmd + "clean " + nmProjConfig + nmTargetNameDebug + nmOutDirsDebug);
 
-        }
         return vsProjectFile.Write("templates\\temp\\Project.vcxproj");
     }
 };

@@ -273,7 +273,7 @@ QTabBar::tab::last::selected {
      </rect>
     </property>
     <property name="text">
-     <string>Plugin-SDK Templates Generator v.0.9.3</string>
+     <string>Plugin-SDK Templates Generator v.0.9.4</string>
     </property>
    </widget>
    <widget class="QLabel" name="lbl_visualStudioDocumentsFolder">
