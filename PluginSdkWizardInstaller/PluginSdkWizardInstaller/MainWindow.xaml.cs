@@ -58,6 +58,12 @@ namespace PluginSdkWizardInstaller {
             return strA.ToLower() == strB.ToLower();
         }
 
+        private string WithoutTrailingSlash(string src) {
+            if (src.EndsWith("\\") || src.EndsWith("/"))
+                return src.Remove(src.Length - 1);
+            return src;
+        }
+
         private BitmapImage GetIcon(string iconName) {
             return new BitmapImage(new Uri("/Icons/" + iconName, UriKind.RelativeOrAbsolute));
         }
@@ -266,7 +272,7 @@ namespace PluginSdkWizardInstaller {
             EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
             try
             {
-                Environment.SetEnvironmentVariable(envVarName, tbx.Text, envTarget);
+                Environment.SetEnvironmentVariable(envVarName, WithoutTrailingSlash(tbx.Text), envTarget);
             }
             catch( SecurityException )
             {

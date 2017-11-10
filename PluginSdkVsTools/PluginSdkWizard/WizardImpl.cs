@@ -25,9 +25,23 @@ namespace PluginSdkWizard {
 
         public void RunFinished() { }
 
+        string GetConfigName(string config, string gameName) {
+            string configName = gameName + " ";
+            if (config == "Debug")
+                configName += "Ι";
+            return configName + config;
+        }
+
+        string GetConfigFullName(string config, string gameName) {
+            return GetConfigName(config, gameName) + "|Win32";
+        }
+
         private void SetupConfiguration(ref string pcf, ref string pgc, ref string igp, ref string pgd, ref string idg,
             string config, bool isDebug, string gameName, string gameId, string toolset)
         {
+            string configName = GetConfigName(config, gameName);
+            string configFullName = GetConfigFullName(config, gameName);
+
             string outDirName = window.GetOutputDirName();
 
             bool usesD3d = window.cbUseDirectXSdk.IsChecked == true;
@@ -183,12 +197,12 @@ namespace PluginSdkWizard {
                     libraries[i] += ".lib";
             }
 
-            VsUtility.AddLine(ref pcf, "    <ProjectConfiguration Include=\"" + config + " " + gameName + "|Win32\">");
-            VsUtility.AddLine(ref pcf, "      <Configuration>" + config + " " + gameName + "</Configuration>");
+            VsUtility.AddLine(ref pcf, "    <ProjectConfiguration Include=\"" + configFullName + "\">");
+            VsUtility.AddLine(ref pcf, "      <Configuration>" + configName + "</Configuration>");
             VsUtility.AddLine(ref pcf, "      <Platform>Win32</Platform>");
             VsUtility.AddLine(ref pcf, "    </ProjectConfiguration>");
 
-            VsUtility.AddLine(ref pgc, "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + config + " " + gameName + "|Win32'\" Label=\"Configuration\">");
+            VsUtility.AddLine(ref pgc, "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + configFullName + "'\" Label=\"Configuration\">");
             VsUtility.AddLine(ref pgc, "    <ConfigurationType>DynamicLibrary</ConfigurationType>");
             VsUtility.AddLine(ref pgc, "    <UseDebugLibraries>" + (isDebug ? "true" : "false") + "</UseDebugLibraries>");
             VsUtility.AddLine(ref pgc, "    <CharacterSet>MultiByte</CharacterSet>");
@@ -197,11 +211,11 @@ namespace PluginSdkWizard {
                 VsUtility.AddLine(ref pgc, "    <WholeProgramOptimization>true</WholeProgramOptimization>");
             VsUtility.AddLine(ref pgc, "  </PropertyGroup>");
 
-            VsUtility.AddLine(ref igp, "  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='" + config + " " + gameName + "|Win32'\">");
+            VsUtility.AddLine(ref igp, "  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='" + configFullName + "'\">");
             VsUtility.AddLine(ref igp, "    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />");
             VsUtility.AddLine(ref igp, "  </ImportGroup>");
 
-            VsUtility.AddLine(ref pgd, "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + config + " " + gameName + "|Win32'\">");
+            VsUtility.AddLine(ref pgd, "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + configFullName + "'\">");
             VsUtility.AddLine(ref pgd, "    <OutDir>" + outputDir + "</OutDir>");
             VsUtility.AddLine(ref pgd, "    <IntDir>$(ProjectDir).obj\\" + gameName + "\\" + config + "\\</IntDir>");
             VsUtility.AddLine(ref pgd, "    <TargetName>" + targetName + "</TargetName>");
@@ -214,7 +228,7 @@ namespace PluginSdkWizard {
             }
             VsUtility.AddLine(ref pgd, "  </PropertyGroup>");
 
-            VsUtility.AddLine(ref idg, "  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='" + config + " " + gameName + "|Win32'\">");
+            VsUtility.AddLine(ref idg, "  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='" + configFullName + "'\">");
             VsUtility.AddLine(ref idg, "    <ClCompile>");
             VsUtility.AddLine(ref idg, "      <WarningLevel>Level3</WarningLevel>");
             VsUtility.AddLine(ref idg, "      <Optimization>" + (isDebug ? "Disabled" : "MaxSpeed") + "</Optimization>");
@@ -247,6 +261,8 @@ namespace PluginSdkWizard {
         }
 
         private void GetHeadersAndSources(ref string output, string srcFileName, bool filters, bool addPchForSA) {
+            string releaseConfigFullName = GetConfigFullName("GTASA", "Release");
+            string debugConfigFullName = GetConfigFullName("GTASA", "Debug");
             VsUtility.AddLine(ref output, "  <ItemGroup>");
             VsUtility.AddLine(ref output, "    <ClCompile Include=\"" + srcFileName + "\" />");
             if (addPchForSA) {
@@ -254,10 +270,10 @@ namespace PluginSdkWizard {
                     VsUtility.AddLine(ref output, "    <ClCompile Include=\"pch.cpp\" />");
                 else {
                     VsUtility.AddLine(ref output, "    <ClCompile Include=\"pch.cpp\">");
-                    VsUtility.AddLine(ref output, "      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)' == 'Debug GTASA|Win32'\">Create</PrecompiledHeader>");
-                    VsUtility.AddLine(ref output, "      <PrecompiledHeaderFile Condition=\"'$(Configuration)|$(Platform)' == 'Debug GTASA|Win32'\">pch.h</PrecompiledHeaderFile>");
-                    VsUtility.AddLine(ref output, "      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)' == 'Release GTASA|Win32'\">Create</PrecompiledHeader>");
-                    VsUtility.AddLine(ref output, "      <PrecompiledHeaderFile Condition=\"'$(Configuration)|$(Platform)' == 'Release GTASA|Win32'\">pch.h</PrecompiledHeaderFile>");
+                    VsUtility.AddLine(ref output, "      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)' == '" + debugConfigFullName + "'\">Create</PrecompiledHeader>");
+                    VsUtility.AddLine(ref output, "      <PrecompiledHeaderFile Condition=\"'$(Configuration)|$(Platform)' == '" + debugConfigFullName + "'\">pch.h</PrecompiledHeaderFile>");
+                    VsUtility.AddLine(ref output, "      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)' == '" + releaseConfigFullName + "'\">Create</PrecompiledHeader>");
+                    VsUtility.AddLine(ref output, "      <PrecompiledHeaderFile Condition=\"'$(Configuration)|$(Platform)' == '" + releaseConfigFullName + "'\">pch.h</PrecompiledHeaderFile>");
                     VsUtility.AddLine(ref output, "    </ClCompile>");
                 }
             }
