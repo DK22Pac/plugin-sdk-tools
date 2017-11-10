@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.6.7" Height="635" Width="880" MinWidth="880" MinHeight="635" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
+        Title="Plugin-SDK Installer v0.6.8" Height="635" Width="880" MinWidth="880" MinHeight="635" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
     <Grid Margin="0,0,0.333,0.667">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

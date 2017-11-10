@@ -218,7 +218,7 @@ namespace PluginSdkWizardInstaller {
                     string installerPath = Path.Combine(sdkDir, "tools\\general\\code-blocks-wizard-installer.exe");
                     if (File.Exists(installerPath)) {
                         ProcessStartInfo info = new ProcessStartInfo(installerPath);
-                        info.Arguments = '"' + dlg.txbFolder.Text + '"' + ' ' + '"' + sdkDir + '"';
+                        info.Arguments = '"' + WithoutTrailingSlash(dlg.txbFolder.Text) + '"' + ' ' + '"' + sdkDir + '"';
                         info.UseShellExecute = false;
                         info.Verb = "runas";
                         try {
