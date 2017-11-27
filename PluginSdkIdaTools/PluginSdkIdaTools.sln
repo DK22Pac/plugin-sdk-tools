@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkExport", "PluginSdkExport\PluginSdkExport.vcxproj", "{678DAA14-8AF4-40A6-B813-CB7F2376900F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		IDA 32-bit|Windows = IDA 32-bit|Windows
+		IDA 64-bit|Windows = IDA 64-bit|Windows
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 32-bit|Windows.ActiveCfg = IDA 32-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 32-bit|Windows.Build.0 = IDA 32-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 64-bit|Windows.ActiveCfg = IDA 64-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 64-bit|Windows.Build.0 = IDA 64-bit|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FC7C3902-737B-4829-B042-FB22B85263F8}
+	EndGlobalSection
+EndGlobal
