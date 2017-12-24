@@ -10,63 +10,6 @@ qstring csvvalue(qstring const &value) {
     return retval;
 }
 
-void splitComment(qstring const &comment, qstring &realComment, qstring &optionStr) {
-    auto lineEnd = comment.find('\n');
-    qstring firstLine, otherLines;
-    if (lineEnd != qstring::npos) {
-        firstLine = comment.substr(0, lineEnd);
-        if (comment.length() > lineEnd + 1)
-            otherLines = comment.substr(lineEnd + 1);
-    }
-    else
-        firstLine = comment;
-    if (firstLine.find("module:") != qstring::npos || firstLine.find("attributes:") != qstring::npos) {
-        optionStr = firstLine;
-        realComment = otherLines;
-    }
-    else {
-        optionStr.clear();
-        realComment = comment;
-    }
-    realComment.replace("\n", "$n$");
-}
-
-qvector<qstring> extractValuesFromComment(qstring const &optionStr, qstring const &fieldName) {
-    qvector<qstring> result;
-    qstring _fieldName = fieldName;
-    _fieldName += ":";
-    auto fieldpos = optionStr.find(_fieldName);
-    if (fieldpos != qstring::npos) {
-        size_t valuepos = fieldpos + _fieldName.length();
-        qstring str;
-        for (size_t i = valuepos; i < optionStr.length(); i++) {
-            if (optionStr[i] == '\r' || optionStr[i] == '\n' || optionStr[i] == ' ' || optionStr[i] == '\t') {
-                qstring endChar;
-                endChar.append(optionStr[i]);
-                if (!str.empty()) {
-                    result.push_back(str);
-                    str.clear();
-                }
-                break;
-            }
-            if (optionStr[i] == ',' && !str.empty()) {
-                result.push_back(str);
-                str.clear();
-            }
-            str.append(optionStr[i]);
-        }
-        if (!str.empty())
-            result.push_back(str);
-    }
-    return result;
-}
-
-qstring readMemberComment(qstring const &commentLine) {
-    qstring result = commentLine;
-    result.replace("\n", "$n$");
-    return result;
-}
-
 bool startsWith(qstring const &strToCheck, qstring const &strStart) {
     return strToCheck.substr(0, strStart.length()) == strStart;
 }

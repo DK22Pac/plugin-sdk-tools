@@ -46,6 +46,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;$(SolutionDir)shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__NT__;__IDP__;__X64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ida.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -73,6 +74,7 @@
     <ClCompile Include="ut_enum.cpp" />
     <ClCompile Include="ut_func.cpp" />
     <ClCompile Include="ut_ida.cpp" />
+    <ClCompile Include="ut_options.cpp" />
     <ClCompile Include="ut_range.cpp" />
     <ClCompile Include="ut_string.cpp" />
     <ClCompile Include="ut_variable.cpp" />
@@ -83,6 +85,7 @@
     <ClInclude Include="ut_enum.h" />
     <ClInclude Include="ut_func.h" />
     <ClInclude Include="ut_ida.h" />
+    <ClInclude Include="ut_options.h" />
     <ClInclude Include="ut_range.h" />
     <ClInclude Include="ut_string.h" />
     <ClInclude Include="ut_variable.h" />

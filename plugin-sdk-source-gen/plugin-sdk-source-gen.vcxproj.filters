@@ -3,10 +3,26 @@
   <ItemGroup>
     <ClInclude Include="Module.h" />
     <ClInclude Include="Generator.h" />
+    <ClInclude Include="Enum.h" />
+    <ClInclude Include="Tabs.h" />
+    <ClInclude Include="JsonIO.h" />
+    <ClInclude Include="Games.h" />
+    <ClInclude Include="Comments.h" />
+    <ClInclude Include="Type.h" />
+    <ClInclude Include="Struct.h" />
+    <ClInclude Include="String.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Module.cpp" />
+    <ClCompile Include="Enum.cpp" />
+    <ClCompile Include="Tabs.cpp" />
+    <ClCompile Include="JsonIO.cpp" />
+    <ClCompile Include="Games.cpp" />
+    <ClCompile Include="Comments.cpp" />
+    <ClCompile Include="Struct.cpp" />
+    <ClCompile Include="Type.cpp" />
+    <ClCompile Include="String.cpp" />
   </ItemGroup>
 </Project>

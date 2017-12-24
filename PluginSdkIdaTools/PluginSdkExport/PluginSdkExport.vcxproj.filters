@@ -34,6 +34,9 @@
     <ClCompile Include="ut_variable.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="ut_options.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="export.h">
@@ -58,6 +61,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="ut_variable.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="ut_options.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

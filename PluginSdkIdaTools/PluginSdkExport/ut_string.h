@@ -56,12 +56,6 @@ void readcsv(qstring const &line, ArgTypes&... args) {
     readcsvparameter(line, currentIndex, args...);
 }
 
-void splitComment(qstring const &comment, qstring &realComment, qstring &optionStr);
-
-qvector<qstring> extractValuesFromComment(qstring const &optionStr, qstring const &fieldName);
-
-qstring readMemberComment(qstring const &commentLine);
-
 bool startsWith(qstring const &strToCheck, qstring const &strStart);
 
 void addValueToStringLineList(qstring &line, qstring const &value);

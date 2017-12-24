@@ -7,8 +7,10 @@ public:
     qstring m_name;
     qstring m_demangledName;
     qstring m_type;
+    qstring m_rawType;
     qstring m_module;
-    qvector<qstring> m_attributes;
+    bool m_isFunction = false;
+    bool m_isArray = false;
     qstring m_comment;
 
     static unsigned int Find(qstring const &name, qvector<Variable> const &entries);

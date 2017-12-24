@@ -25,12 +25,12 @@ bool inline Message(char *message) {
 }
 
 template <typename ...ArgTypes>
-int ErrorCode(int code, char *message, ArgTypes... args) {
+int ErrorCode(int code, char const *message, ArgTypes... args) {
     Message(message, args...);
     return code;
 }
 
-int ErrorCode(int code, char *message) {
+int ErrorCode(int code, char const *message) {
     Message(message);
     return code;
 }

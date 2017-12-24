@@ -7,6 +7,8 @@ public:
     public:
         qstring m_name;
         qstring m_type;
+        qstring m_comment;
+        qstring m_rawType;
     };
 
     unsigned int m_address = 0;
@@ -17,7 +19,7 @@ public:
     qstring m_retType;
     qstring m_cc;
     qvector<Param> m_params;
-    qvector<qstring> m_attributes;
+    bool m_isConst = false;
     qstring m_comment;
 
     static unsigned int Find(qstring const &name, qvector<Function> const &entries);
