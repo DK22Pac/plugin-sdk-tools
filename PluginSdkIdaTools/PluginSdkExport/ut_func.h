@@ -7,7 +7,6 @@ public:
     public:
         qstring m_name;
         qstring m_type;
-        qstring m_comment;
         qstring m_rawType;
     };
 
@@ -17,6 +16,7 @@ public:
     qstring m_type;
     qstring m_module;
     qstring m_retType;
+    qstring m_rawRetType;
     qstring m_cc;
     qvector<Param> m_params;
     bool m_isConst = false;

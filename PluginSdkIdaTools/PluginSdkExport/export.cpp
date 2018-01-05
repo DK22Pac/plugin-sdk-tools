@@ -73,29 +73,23 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
     }
 
     string gameFolder = "gta" + gameName;
-    path fileFolderPath = output / gameFolder;
-    {
+    path gameFolderPath = output / gameFolder;
+    if(!exists(gameFolderPath)) {
+        warning("Folder '%s' (%s) does not exist", gameFolder.c_str(), gameFolderPath.string().c_str());
+        return;
+    }
+
+    path dbFolderPath = gameFolderPath / "database";
+
+    if (!exists(dbFolderPath)) {
         error_code errCode;
-        remove_all(fileFolderPath, errCode);
+        create_directories(dbFolderPath, errCode);
         if (errCode) {
-            warning("Unable to remove '%s' folder (%s):\n%s", gameFolder.c_str(), fileFolderPath.string().c_str(), errCode.message().c_str());
+            warning("Unable to create database folder (%s):\n%s", dbFolderPath.string().c_str(), errCode.message().c_str());
             return;
         }
     }
 
-    if (!exists(fileFolderPath)) {
-        error_code errCode;
-        create_directories(fileFolderPath, errCode);
-        if (errCode) {
-            warning("Unable to create '%s' folder (%s):\n%s", gameFolder.c_str(), fileFolderPath.string().c_str(), errCode.message().c_str());
-            return;
-        }
-    }
-
-    if (!exists(fileFolderPath)) {
-        create_directories(fileFolderPath);
-
-    }
     if (options & OPTION_FUNCTIONS) {
         qvector<Function> functions;
 
@@ -107,7 +101,7 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
         }
         
         string fileName = "plugin-sdk." + gameName + ".functions." + versionName + ".csv";
-        path filePath = fileFolderPath / fileName;
+        path filePath = dbFolderPath / fileName;
 
         auto func = get_next_func(0);
         while (func) {
@@ -128,6 +122,8 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                     if (entry.m_name == tmpdem)
                         entry.m_demangledName = entry.m_name;
                 }
+                qstring cmtLine;
+                get_func_cmt(&cmtLine, func, false);
                 switch (type.get_cc()) {
                 case CM_CC_INVALID:
                     entry.m_cc = "";
@@ -170,20 +166,19 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                         Function::Param funcParam;
                         funcParam.m_name = p.name;
                         p.type.print(&funcParam.m_type);
-                        getFunctionArgumentExtraInfo(p.cmt, funcParam.m_comment, funcParam.m_rawType);
+                        if (!funcParam.m_name.empty() && startsWith(funcParam.m_name, "rt_"))
+                            getFunctionArgumentExtraInfo(cmtLine, funcParam.m_name, funcParam.m_rawType);
                         entry.m_params.push_back(funcParam);
                     }
                 }
-                qstring cmtLine;
-                get_func_cmt(&cmtLine, func, false);
-                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_isConst);
+                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawRetType, entry.m_isConst);
                 functions.push_back(entry);
             }
             func = get_next_func(func->start_ea);
         }
         if (!isBaseVersion) {
             string baseFileName = "plugin-sdk." + gameName + ".functions." + baseVersionName + ".csv";
-            path baseFilePath = output / gameFolder / baseFileName;
+            path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0)
                 Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
@@ -197,7 +192,7 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
         qvector<Variable> variables;
 
         string fileName = "plugin-sdk." + gameName + ".variables." + versionName + ".csv";
-        path filePath = fileFolderPath / fileName;
+        path filePath = dbFolderPath / fileName;
 
         auto seg = get_first_seg();
         while (seg) {
@@ -238,7 +233,7 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
         }
         if (!isBaseVersion) {
             string baseFileName = "plugin-sdk." + gameName + ".variables." + baseVersionName + ".csv";
-            path baseFilePath = output / gameFolder / baseFileName;
+            path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0)
                 Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
@@ -249,7 +244,7 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
     }
 
     if (options & OPTION_STRUCTURES) {
-        path structFolderPath = fileFolderPath / "structs";
+        path structFolderPath = dbFolderPath / "structs";
         bool folderExists = false;
         if (!exists(structFolderPath)) {
             error_code errCode;
@@ -268,15 +263,14 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                 auto s = get_struc(stid);
                 qstring name = get_struc_name(stid);
                 bool isUnion = s->is_union();
-                bool isAnonymous = false;
                 unsigned int size = get_struc_size(s);
                 int alignment = s->get_alignment();
 
                 qstring cmtLine;
                 get_struc_cmt(&cmtLine, stid, false);
                 qstring comment, moduleName, scope;
-                bool isStruct;
-                getStructExtraInfo(cmtLine, comment, moduleName, scope, isStruct);
+                bool isStruct, isAnonymous;
+                getStructExtraInfo(cmtLine, comment, moduleName, scope, isStruct, isAnonymous);
 
                 startWritingToJson();
                 json j;
@@ -297,6 +291,8 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                 else
                     j[jsonOrderedName("size")] = size;
                 j[jsonOrderedName("alignment")] = alignment;
+                if (isAnonymous)
+                    j[jsonOrderedName("isAnonymous")] = isAnonymous;
                 j[jsonOrderedName("comment")] = comment.c_str();
                 auto &members = j[jsonOrderedName("members")];
                 members = json::array();
@@ -320,8 +316,8 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
 
                         qstring memberComment, memberRawType;
                         int bitWidth;
-                        bool isAnonymous, isParent;
-                        getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isAnonymous, isParent);
+                        bool isMemberAnonymous;
+                        getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isMemberAnonymous);
 
                         json jmember;
                         jmember[jsonOrderedName("name")] = mname.c_str();
@@ -342,10 +338,8 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                         }
                         else
                             jmember[jsonOrderedName("size")] = msize;
-                        if (isAnonymous)
-                            jmember[jsonOrderedName("isAnonymous")] = isAnonymous;
-                        if (isParent)
-                            jmember[jsonOrderedName("isParent")] = isParent;
+                        if (isMemberAnonymous)
+                            jmember[jsonOrderedName("isAnonymous")] = isMemberAnonymous;
                         if (!memberComment.empty())
                             jmember[jsonOrderedName("comment")] = memberComment.c_str();
                         members.push_back(jmember);
@@ -372,7 +366,7 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
     }
 
     if (options & OPTION_ENUMS) {
-        path enumFolderPath = fileFolderPath / "enums";
+        path enumFolderPath = dbFolderPath / "enums";
         bool folderExists = false;
         if (!exists(enumFolderPath)) {
             error_code errCode;

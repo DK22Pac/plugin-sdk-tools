@@ -40,13 +40,14 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
         qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Comment\n", version);
         // entries
         for (auto const &i : entries) {
+            qstring retType = i.m_rawRetType.empty() ? i.m_retType : (qstring("raw ") + i.m_rawRetType);
             qfprintf(outFile, "0x%X,%s,%s,%s,%s,%s,%s,", i.m_address,
                 csvvalue(i.m_module).c_str(),
                 csvvalue(i.m_name).c_str(),
                 csvvalue(i.m_demangledName).c_str(),
                 csvvalue(i.m_type).c_str(),
                 csvvalue(i.m_cc).c_str(),
-                csvvalue(i.m_retType).c_str());
+                csvvalue(retType).c_str());
             qstring parameters;
             for (size_t p = 0; p < i.m_params.size(); p++) {
                 if (!i.m_params[p].m_rawType.empty()) {

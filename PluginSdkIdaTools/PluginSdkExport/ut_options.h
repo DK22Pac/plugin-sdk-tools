@@ -46,10 +46,10 @@ void getExtraInfo(qstring const &inCommentStr, qstring &outComment, qvector<qstr
     outComment.replace("\n", ";;");
 }
 
-void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsStruct);
-void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsParent);
+void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsStruct, bool &outIsAnonymous);
+void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous);
 void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsClass);
 void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBitWidth, bool &outIsCounter);
-void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, bool &outIsConst);
-void getFunctionArgumentExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType);
+void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, bool &outIsConst);
+void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType);
 void getVariableExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRawType);
