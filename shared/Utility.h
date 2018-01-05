@@ -30,7 +30,7 @@ int ErrorCode(int code, char const *message, ArgTypes... args) {
     return code;
 }
 
-int ErrorCode(int code, char const *message) {
+int inline ErrorCode(int code, char const *message) {
     Message(message);
     return code;
 }

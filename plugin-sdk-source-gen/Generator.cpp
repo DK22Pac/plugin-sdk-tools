@@ -1,10 +1,13 @@
 #pragma once
 #include "Generator.h"
 #include "JsonIO.h"
+#include "String.h"
+#include "..\shared\Utility.h"
 
 void Generator::Generate(path const &sdkpath) {
     for (unsigned int i = 0; i < 3; i++) {
         vector<Module> modules = ReadGame(sdkpath, Games::ToID(i));
+        ReadHierarchy(sdkpath, Games::ToID(i), modules);
         WriteModules(sdkpath, Games::ToID(i), modules);
     }
 }
@@ -14,7 +17,7 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
     vector<Module> modules;
 
     // read enums
-    for (const auto& p : recursive_directory_iterator(sdkpath / Games::GetGameFolder(game) / "enums")) {
+    for (const auto& p : recursive_directory_iterator(sdkpath / Games::GetGameFolder(game) / "database" / "enums")) {
         if (p.path().extension() == ".json") {
             ifstream enumFile(p.path().string());
             if (enumFile.is_open()) {
@@ -56,7 +59,7 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
     }
 
     // read structs
-    for (const auto& p : recursive_directory_iterator(sdkpath / Games::GetGameFolder(game) / "structs")) {
+    for (const auto& p : recursive_directory_iterator(sdkpath / Games::GetGameFolder(game) / "database" / "structs")) {
         if (p.path().extension() == ".json") {
             ifstream structFile(p.path().string());
             if (structFile.is_open()) {
@@ -94,7 +97,6 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                             m.m_fullType = JsonIO::readJsonString(jm, "type");
                             m.m_offset = JsonIO::readJsonNumber(jm, "offset");
                             m.m_size = JsonIO::readJsonNumber(jm, "size");
-                            m.m_isParent = JsonIO::readJsonBool(j, "isParent");
                             m.m_isAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
                             m.m_comment = JsonIO::readJsonString(jm, "comment");
                             if (m.m_fullType.empty()) {
@@ -107,8 +109,7 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                                 else
                                     m.m_fullType = "char[" + to_string(m.m_size) + "]";
                             }
-                            Type::FixDefaultTypeNames(m.m_fullType);
-                            m.m_type.ParseFromFullType(m.m_fullType);
+                            m.m_type.SetFromString(m.m_fullType);
                             s.m_members.push_back(m);
                         }
                     }
@@ -120,11 +121,87 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
     return modules;
 }
 
-void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module> modules) {
+void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
     path folder = sdkpath / "generated" / ("plugin_" + Games::GetGameAbbrLow(game)) / ("game_" + Games::GetGameAbbrLow(game));
     if (!exists(folder))
         create_directories(folder);
     for (auto &module : modules) {
         module.Write(folder);
+    }
+}
+
+void Generator::ReadHierarchy(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
+    if (modules.size() == 0)
+        return;
+    path filePath = sdkpath / Games::GetGameFolder(game) / "class-hierarchy.txt";
+    ifstream file(filePath);
+    if (!file.is_open()) {
+        Message("Unable to open class-hierarchy.txt (%s)", filePath.string().c_str());
+        return;
+    }
+
+    vector<pair<string, string>> links;
+
+    vector<string> parents;
+    int currParent = -1;
+    for (string line; getline(file, line); ) {
+        if (line.empty() || String::Compare(line, 0, '#'))
+            continue;
+    
+        size_t numSpaces = line.find_first_not_of(' ');
+        if (numSpaces == string::npos)
+            continue;
+    
+        String::Trim(line);
+    
+        if (numSpaces == 0) {
+            parents.clear();
+            currParent = 0;
+            parents.push_back(line);
+        }
+        else {
+            int mod = numSpaces % 4;
+            if (mod != 0) {
+                Message("Incorrect file format (at \"%s\")", line.c_str());
+                return;
+            }
+            int offset = numSpaces / 4;
+            int diff = offset - currParent;
+            if (diff > 1) {
+                Message("Incorrect file format (at \"%s\")", line.c_str());
+                return;
+            }
+            if (diff == 1) {
+                links.emplace_back(line, parents[currParent]);
+                parents.push_back(line);
+                currParent++;
+            }
+            else if (diff == 0) {
+                links.emplace_back(line, parents[currParent - 1]);
+                parents[currParent] = line;
+            }
+            else {
+                currParent += diff;
+                links.emplace_back(line, parents[currParent - 1]);
+                parents.resize(currParent);
+                parents.push_back(line);
+            }
+        }
+    }
+    
+    ofstream testf("links.txt");
+    if (!testf.is_open())
+        return;
+    for (auto const &i : links)
+        testf << i.first << " : " << i.second << endl;
+
+    for (Module &m : modules) {
+        for (Struct &s : m.m_structs) {
+            if (!s.m_isAnonymous) {
+                for (auto const &i : links)
+                    if (i.first == s.m_name)
+                        s.m_parent = i.second;
+            }
+        }
     }
 }

@@ -271,7 +271,8 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                 qstring comment, moduleName, scope;
                 bool isStruct, isAnonymous;
                 getStructExtraInfo(cmtLine, comment, moduleName, scope, isStruct, isAnonymous);
-
+                if (!isStruct && startsWith(name, "t"))
+                    isStruct = true;
                 startWritingToJson();
                 json j;
                 j[jsonOrderedName("name")] = name.c_str();
