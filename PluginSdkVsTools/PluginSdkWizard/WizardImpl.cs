@@ -168,6 +168,8 @@ namespace PluginSdkWizard {
             }
             if (window.cbLimitAdjusterCompatibilityMode.IsChecked == true)
                 defs.Add("_LA_SUPPORT");
+            if (usesD3d)
+                defs.Add("_DX9_SDK_INSTALLED");
 
             List<string> additionalIncludeDirs = VsUtility.SplitListLine(isDebug ? window.tbDbgAdditionalIncDirs.Text : window.tbRelAdditionalIncDirs.Text);
             List<string> additionalLibraryDirs = VsUtility.SplitListLine(isDebug ? window.tbDbgAdditionalLibDirs.Text : window.tbRelAdditionalLibDirs.Text);

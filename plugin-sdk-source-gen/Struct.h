@@ -7,6 +7,8 @@
 
 using namespace std;
 
+class Module;
+
 class Struct {
 public:
     enum class Kind { Class, Struct, Union };
@@ -38,7 +40,7 @@ public:
 
     vector<Member> m_members;
 
-    void Write(ofstream &stream, tabs t);
+    void Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules);
 
-    bool ContainsType(string const &typeName, bool withPointers = true);
+    bool ContainsType(string const &typeName, bool withPointers = true) const;
 };

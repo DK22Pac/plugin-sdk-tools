@@ -486,6 +486,7 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                 if (mName.empty()) {
                     mName = t.value;
                     mIsInBuilt = t.type == Token::INBUILT_TYPE_NAME || t.type == Token::VOID_TYPE;
+                    mIsCustom = t.type == Token::CUSTOM_TYPE_NAME;
                     mIsVoid = t.type == Token::VOID_TYPE;
                     mIsRenderWare = IsRenderWareTypeName(mName);
                 }

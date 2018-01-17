@@ -6,10 +6,7 @@ bool Struct::Member::IsPadding() {
     return !strncmp(m_name.c_str(), "_pad", 4) || !strncmp(m_name.c_str(), "__pad", 5);
 }
 
-void Struct::Write(ofstream &stream, tabs t) {
-    if (!m_parent.empty()) {
-
-    }
+void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules) {
     WriteComment(stream, m_comment, t, 0);
     stream << t();
     Access access = Access::Public;
@@ -50,6 +47,7 @@ void Struct::Write(ofstream &stream, tabs t) {
         }
         stream << t();
         auto pos = stream.tellp();
+
         stream << m.m_type.BeforeName() << ' ' << m.m_name << m.m_type.AfterName() << ';';
         WriteComment(stream, m.m_comment, t, stream.tellp() - pos);
         stream << endl;
@@ -65,10 +63,32 @@ void Struct::Write(ofstream &stream, tabs t) {
     stream << "VALIDATE_SIZE(" << m_name << ',' << ' ' << String::ToHexString(m_size) << ')' << ';';
 }
 
-bool Struct::ContainsType(string const &typeName, bool withPointers) {
-    //for (Member const &m : m_members) {
-    //    if (m.m_type.mName == typeName) {
-    //        if (withPointers || !m.m_type.IsPointer())
-    //    }
-    //}
+bool TypePresentCB(Type const &t, string const &typeName) {
+    if (t.mIsCustom && !t.mIsRenderWare && t.mName == typeName)
+        return true;
+    if (t.IsTemplate()) {
+        for (Type const &tt : t.mTemplateTypes) {
+            if (TypePresentCB(tt, typeName))
+                return true;
+        }
+    }
+    if (t.mIsFunction) {
+        for (Type const &fp : t.mFunctionParams) {
+            if (TypePresentCB(fp, typeName))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool Struct::ContainsType(string const &typeName, bool withPointers) const {
+    for (Member const &m : m_members) {
+        if (m.m_type.mIsCustom && !m.m_type.mIsRenderWare && m.m_type.mName == typeName) {
+            if (withPointers || !m.m_type.IsPointer())
+                return true;
+        }
+        if (withPointers && TypePresentCB(m.m_type, typeName))
+            return true;
+    }
+    return false;
 }

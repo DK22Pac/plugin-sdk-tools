@@ -19,7 +19,7 @@ public:
 
     static Module *Find(vector<Module> &modules, string const &name);
 
-    void Write(path const &folder);
-    bool WriteHeader(path const &folder);
-    bool WriteSource(path const &folder);
+    void Write(path const &folder, vector<Module> const &allModules);
+    bool WriteHeader(path const &folder, vector<Module> const &allModules);
+    bool WriteSource(path const &folder, vector<Module> const &allModules);
 };

@@ -56,6 +56,7 @@ public:
     
     // type
     bool mIsInBuilt = false;
+    bool mIsCustom = false;
     bool mIsRenderWare = false;
 
     // pointer

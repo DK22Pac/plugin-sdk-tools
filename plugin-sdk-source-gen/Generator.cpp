@@ -126,7 +126,7 @@ void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module
     if (!exists(folder))
         create_directories(folder);
     for (auto &module : modules) {
-        module.Write(folder);
+        module.Write(folder, modules);
     }
 }
 

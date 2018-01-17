@@ -236,6 +236,7 @@ public:
                 AddValueToCSVLine(includeFolders, settings.rwd3d9Path + "source\\");
                 AddValueToCSVLine(libFolders, settings.rwd3d9Path + "libs\\");
             }
+            AddValueToCSVLine(definitions, "_DX9_SDK_INSTALLED");
         }
 
         if (genFlags & VSGEN_CLEO) {
