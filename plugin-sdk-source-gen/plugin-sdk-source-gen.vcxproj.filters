@@ -11,6 +11,9 @@
     <ClInclude Include="Type.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="String.h" />
+    <ClInclude Include="Function.h" />
+    <ClInclude Include="Variable.h" />
+    <ClInclude Include="CSV.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -24,5 +27,8 @@
     <ClCompile Include="Struct.cpp" />
     <ClCompile Include="Type.cpp" />
     <ClCompile Include="String.cpp" />
+    <ClCompile Include="Function.cpp" />
+    <ClCompile Include="Variable.cpp" />
+    <ClCompile Include="CSV.cpp" />
   </ItemGroup>
 </Project>

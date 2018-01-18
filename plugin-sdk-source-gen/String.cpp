@@ -15,6 +15,23 @@ vector<string> String::Split(string const &str, string const &delim) {
     return result;
 }
 
+void String::Break(string const &str, string const &breakWord, string &outLeft, string &outRight, bool reverseSearch) {
+    string stringToBreak = str;
+    size_t wordPos;
+    if (reverseSearch)
+        wordPos = stringToBreak.rfind(breakWord);
+    else
+        wordPos = stringToBreak.find(breakWord);
+    if (wordPos != string::npos) {
+        outLeft = stringToBreak.substr(0, wordPos);
+        outRight = stringToBreak.substr(wordPos + breakWord.length());
+    }
+    else {
+        outLeft.clear();
+        outRight = stringToBreak;
+    }
+}
+
 void String::Replace(string &str, const string &what, const string &to) {
     for (size_t pos = 0; ; pos += to.length()) {
         pos = str.find(what, pos);
@@ -41,6 +58,10 @@ bool String::IsNumber(string const &str) {
             return false;
     }
     return true;
+}
+
+int String::ToNumber(string const &str) {
+    return (StartsWith(str, "0x") ? strtol(str.substr(2).c_str(), nullptr, 16) : strtol(str.c_str(), nullptr, 10));
 }
 
 void String::Trim(string &str) {

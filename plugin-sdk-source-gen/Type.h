@@ -49,7 +49,7 @@ public:
 
     // array
     bool mIsPointerToFixedSizeArray = false;
-    unsigned int mArraySize[2]; // 2D arrays are supported
+    unsigned int mArraySize[2] = { 0, 0 }; // 2D arrays are supported
     
     // const
     bool mIsConst = false;
@@ -61,6 +61,8 @@ public:
 
     // pointer
     string mPointers;
+
+    string mFunctionOrArrayPointers;
 
     // function
     bool mIsFunction = false;
@@ -74,6 +76,10 @@ public:
 
     // debug
     vector<Token> mDbgTokens;
+
+    Type() = default;
+    Type(Type const &rhs);
+    ~Type();
     
     void SetFromString(string const &str);
     void SetFromTokens(vector<Token> const &tokens);
@@ -89,4 +95,6 @@ public:
     void AddRetTypeForFunction();
 
     void DbgPrint(size_t offset = 0) const;
+
+    Type GetReference();
 };

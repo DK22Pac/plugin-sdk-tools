@@ -4,6 +4,36 @@
 #include <iostream>
 #include <iomanip>
 
+Type::Type(Type const &rhs) {
+    mName = rhs.mName;
+    mIsNumber = rhs.mIsNumber;
+    mIsEpsilon = rhs.mIsEpsilon;
+    mIsVoid = rhs.mIsVoid;
+    mIsPointerToFixedSizeArray = rhs.mIsPointerToFixedSizeArray;
+    mArraySize[0] = rhs.mArraySize[0];
+    mArraySize[1] = rhs.mArraySize[1];
+    mIsConst = rhs.mIsConst;
+    mIsInBuilt = rhs.mIsInBuilt;
+    mIsCustom = rhs.mIsCustom;
+    mIsRenderWare = rhs.mIsRenderWare;
+    mPointers = rhs.mPointers;
+    mFunctionOrArrayPointers = rhs.mFunctionOrArrayPointers;
+    mIsFunction = rhs.mIsFunction;
+    mFunctionCC = rhs.mFunctionCC;
+    mFunctionParams = rhs.mFunctionParams;
+    if (rhs.mFunctionRetType)
+        mFunctionRetType = new Type(*rhs.mFunctionRetType);
+    else
+        mFunctionRetType = nullptr;
+    mIsTemplate = rhs.mIsTemplate;
+    mTemplateTypes = rhs.mTemplateTypes;
+    mDbgTokens = rhs.mDbgTokens;
+}
+
+Type::~Type() {
+    delete mFunctionRetType;
+}
+
 bool IsSpecialCharacter(char c) {
     return c == '*' || c == '&' || c == '<' || c == '>' || c == ',' || c == '(' || c == ')' || c == '[' || c == ']';
 };
@@ -280,23 +310,25 @@ string Type::BeforeName() const {
         result += '>';
     }
     if (mIsConst)
-        result += ' ' + "const";
+        result += " const";
     if (mPointers.size() > 0)
         result += ' ' + mPointers;
     if (mIsPointerToFixedSizeArray)
-        result += '(' + '*';
+        result += '(' + mFunctionOrArrayPointers;
     else if (mIsFunction) {
         result += '(';
         if (mFunctionCC != CC_CDECL) {
             if (mFunctionCC == CC_STDCALL)
-                result += "__stdcall";
+                result += "__stdcall ";
             else if (mFunctionCC == CC_THISCALL)
-                result += "__thiscall";
+                result += "__thiscall ";
             else if (mFunctionCC == CC_FASTCALL)
-                result += "__fastcall";
+                result += "__fastcall ";
         }
-        result += '*';
+        result += mFunctionOrArrayPointers;
     }
+    if (!mIsFunction && !mIsPointerToFixedSizeArray && mPointers.size() == 0)
+        result += ' ';
     return result;
 }
 
@@ -363,8 +395,7 @@ void Type::SetFunctionTypeFromToken(Token const &t) {
 }
 
 void Type::AddRetTypeForFunction() {
-    if (mFunctionRetType)
-        delete mFunctionRetType;
+    delete mFunctionRetType;
     mFunctionRetType = new Type;
     mFunctionRetType->mName = mName;
     mName = "Function";
@@ -410,7 +441,7 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                 mIsConst = true;
             else if (t.type == Token::SPECIAL_CHAR) {
                 if (!mName.empty()) {
-                    if (!mIsFunction && (t.value[0] == '*' || t.value[0] == '&'))
+                    if (!mIsFunction && !mIsPointerToFixedSizeArray && (t.value[0] == '*' || t.value[0] == '&'))
                         mPointers += t.value[0];
                     else if (t.value[0] == '[') {
                         unsigned int arySize = 0;
@@ -424,7 +455,7 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                                 && tokens[i + 2].type == Token::SPECIAL_CHAR
                                 && tokens[i + 2].value[0] == ']')
                             {
-                                arySize = atoi(tokens[i + 1].value.c_str());
+                                arySize = String::ToNumber(tokens[i + 1].value);
                                 i += 2;
                             }
                             if (arySize > 0) {
@@ -451,12 +482,15 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                             tokens[i + 3].type == Token::SPECIAL_CHAR && tokens[i + 3].value[0] == '[')
                         {
                             mIsPointerToFixedSizeArray = true;
+                            mFunctionOrArrayPointers = "*"; // maybe also add support for references?
                             i += 2;
                         }
                         else {
                             if (!mIsFunction) {
                                 mIsFunction = true;
                                 AddRetTypeForFunction();
+                                // function types like 'void(int)' are also stored as function pointers
+                                mFunctionOrArrayPointers = "*"; // maybe also add support for references?
                             }
                             bool scanParameters = true;
                             if (right >= 1) {
@@ -497,6 +531,38 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
     mDbgTokens = tokens;
 }
 
+void AddPointer(string &str, char ptrChar) {
+    if (str.size() > 0)
+        str.back() = '*';
+    str += ptrChar;
+}
+
+Type Type::GetReference() {
+    Type newType = *this;
+    if (newType.mIsFunction) {
+        if (newType.mArraySize[0] > 0)
+            AddPointer(newType.mFunctionOrArrayPointers, '*');
+        else
+            AddPointer(newType.mFunctionOrArrayPointers, '&');
+    }
+    else if (newType.mIsPointerToFixedSizeArray)
+        AddPointer(newType.mPointers, '&');
+    else {
+        if (newType.mArraySize[0] > 0) {
+            if (newType.mArraySize[1] > 0) {
+                // make a pointer to fixed-size array
+                newType.mIsPointerToFixedSizeArray = true;
+                newType.mFunctionOrArrayPointers = '*';
+            }
+            else
+                AddPointer(newType.mPointers, '*');
+        }
+        else
+            AddPointer(newType.mPointers, '&');
+    }
+    return newType;
+}
+
 string StrOffset(size_t offset) {
     return string(offset * 4, ' ');
 }
@@ -520,6 +586,7 @@ void Type::DbgPrint(size_t offset) const {
         else
             cout << "__cdecl";
         cout << endl;
+        cout << StrOffset(offset + 1) << "function pointers: " << mFunctionOrArrayPointers << endl;
         cout << StrOffset(offset + 1) << "isconst: " << boolalpha << mIsConst << endl;
         cout << StrOffset(offset + 1) << "isarray: " << boolalpha << (mArraySize[0] > 0) << endl;
         cout << StrOffset(offset + 1) << "arraylength: " << mArraySize[0];
@@ -550,6 +617,8 @@ void Type::DbgPrint(size_t offset) const {
             cout << StrOffset(offset + 1) << "pointers: " << mPointers << endl;
         else
             cout << StrOffset(offset + 1) << "pointers: -" << endl;
+        if (mIsPointerToFixedSizeArray)
+            cout << StrOffset(offset + 1) << "array pointers: " << mFunctionOrArrayPointers << endl;
         cout << StrOffset(offset + 1) << "isarray: " << boolalpha << (mArraySize[0] > 0) << endl;
         cout << StrOffset(offset + 1) << "arraylength: " << mArraySize[0];
         if (mArraySize[0] > 0 && mArraySize[1] > 0)

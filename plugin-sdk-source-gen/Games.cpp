@@ -27,3 +27,15 @@ string Games::GetGameAbbrLow(IDs game) {
         return "iii";
     return "sa";
 }
+
+string Games::GetGameVersionName(IDs game, unsigned int version) {
+    if (version < GetGameVersionsCount(game)) {
+        if (game == GTASA)
+            return VersionNamesSA[version];
+        if (game == GTAVC)
+            return VersionNamesVC[version];
+        if (game == GTA3)
+            return VersionNamesIII[version];
+    }
+    return "";
+}

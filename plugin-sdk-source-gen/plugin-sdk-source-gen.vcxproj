@@ -53,7 +53,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Comments.h" />
+    <ClInclude Include="CSV.h" />
     <ClInclude Include="Enum.h" />
+    <ClInclude Include="Function.h" />
     <ClInclude Include="Games.h" />
     <ClInclude Include="Generator.h" />
     <ClInclude Include="JsonIO.h" />
@@ -62,10 +64,13 @@
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Tabs.h" />
     <ClInclude Include="Type.h" />
+    <ClInclude Include="Variable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Comments.cpp" />
+    <ClCompile Include="CSV.cpp" />
     <ClCompile Include="Enum.cpp" />
+    <ClCompile Include="Function.cpp" />
     <ClCompile Include="Games.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="JsonIO.cpp" />
@@ -75,6 +80,7 @@
     <ClCompile Include="Struct.cpp" />
     <ClCompile Include="Tabs.cpp" />
     <ClCompile Include="Type.cpp" />
+    <ClCompile Include="Variable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,26 +1,28 @@
 #include "Tabs.h"
 
 tabs::tabs() {
-    m_count = 0;
+    mCount = 0;
 }
 
 tabs::tabs(unsigned int count) {
-    m_count = count;
+    mCount = count;
 }
 
 string tabs::operator()() {
-    return string(m_count * 4, ' ');
+    if (mCount > 0)
+        return string(mCount * 4, ' ');
+    return "";
 }
 
 void tabs::operator+=(unsigned int const &count) {
-    m_count += count;
+    mCount += count;
 }
 
 void tabs::operator-=(unsigned int const &count) {
-    if (m_count < count)
-        m_count = 0;
+    if (mCount < count)
+        mCount = 0;
     else
-        m_count -= count;
+        mCount -= count;
 }
 
 tabs &tabs::operator++() {

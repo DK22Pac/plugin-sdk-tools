@@ -3,36 +3,37 @@
 #include "String.h"
 
 bool Struct::Member::IsPadding() {
-    return !strncmp(m_name.c_str(), "_pad", 4) || !strncmp(m_name.c_str(), "__pad", 5);
+    return !strncmp(mName.c_str(), "_pad", 4) || !strncmp(mName.c_str(), "__pad", 5);
 }
 
 void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules) {
-    WriteComment(stream, m_comment, t, 0);
+    WriteComment(stream, mComment, t, 0);
     stream << t();
     Access access = Access::Public;
-    if (m_kind == Kind::Struct)
+    if (mKind == Kind::Struct)
         stream << "struct";
-    else if (m_kind == Kind::Union)
+    else if (mKind == Kind::Union)
         stream << "union";
     else {
         stream << "class";
         access = Access::Private;
     }
     stream << ' ';
-    if (!m_isAnonymous)
-        stream << "PLUGIN_API" << ' ' << m_name << ' ';
-    if (!m_parent.empty())
-        stream << ": public " << m_parent << ' ';
+    if (!mIsAnonymous)
+        stream << "PLUGIN_API" << ' ' << mName << ' ';
+    if (!mParent.empty())
+        stream << ": public " << mParent << ' ';
     stream << '{' << endl;
     if (access == Access::Private) {
         stream << "public:" << endl;
         access = Access::Public;
     }
-    t++;
-    for (unsigned int i = 0; i < m_members.size(); i++) {
-        if (!m_parent.empty() && i == 0)
+    ++t;
+    unsigned int numWrittenMembers = 0;
+    for (unsigned int i = 0; i < mMembers.size(); i++) {
+        if (!mParent.empty() && i == 0)
             continue;
-        Struct::Member &m = m_members[i];
+        Struct::Member &m = mMembers[i];
         if (m.IsPadding()) {
             if (access == Access::Public) {
                 stream << "private:" << endl;
@@ -45,22 +46,38 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Modu
                 access = Access::Public;
             }
         }
+        if (numWrittenMembers != 0)
+            stream << endl;
         stream << t();
         auto pos = stream.tellp();
-
-        stream << m.m_type.BeforeName() << ' ' << m.m_name << m.m_type.AfterName() << ';';
-        WriteComment(stream, m.m_comment, t, stream.tellp() - pos);
-        stream << endl;
+        stream << m.mType.BeforeName() << m.mName << m.mType.AfterName() << ';';
+        WriteComment(stream, m.mComment, t, stream.tellp() - pos);
+        ++numWrittenMembers;
     }
     if (access == Access::Private) {
-        stream << "public:" << endl;
+        stream << endl << "public:" << endl;
         access = Access::Public;
     }
-    // functions and other things
-    t--;
-    stream << t() << '}' << ';' << endl;
-    stream << endl;
-    stream << "VALIDATE_SIZE(" << m_name << ',' << ' ' << String::ToHexString(m_size) << ')' << ';';
+    if (numWrittenMembers > 0)
+        stream << endl;
+    // variables
+    if (mVariables.size() > 0) {
+        for (unsigned int i = 0; i < mVariables.size(); i++) {
+            stream << t() << "static ";
+            tabs t0(0);
+            mVariables[i].WriteDeclaration(stream, t0);
+            stream << endl;
+        }
+    }
+    // functions
+
+    --t;
+    stream << t() << '}' << ';';
+    if (mSize > 0) {
+        stream << endl;
+        stream << endl;
+        stream << "VALIDATE_SIZE(" << mName << ',' << ' ' << String::ToHexString(mSize) << ')' << ';';
+    }
 }
 
 bool TypePresentCB(Type const &t, string const &typeName) {
@@ -82,13 +99,19 @@ bool TypePresentCB(Type const &t, string const &typeName) {
 }
 
 bool Struct::ContainsType(string const &typeName, bool withPointers) const {
-    for (Member const &m : m_members) {
-        if (m.m_type.mIsCustom && !m.m_type.mIsRenderWare && m.m_type.mName == typeName) {
-            if (withPointers || !m.m_type.IsPointer())
+    for (Member const &m : mMembers) {
+        if (m.mType.mIsCustom && !m.mType.mIsRenderWare && m.mType.mName == typeName) {
+            if (withPointers || !m.mType.IsPointer())
                 return true;
         }
-        if (withPointers && TypePresentCB(m.m_type, typeName))
+        if (withPointers && TypePresentCB(m.mType, typeName))
             return true;
     }
     return false;
+}
+
+string Struct::GetFullName() {
+    if (mScope.empty())
+        return mName;
+    return mScope + "::" + mName;
 }

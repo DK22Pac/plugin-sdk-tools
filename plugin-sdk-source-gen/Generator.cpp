@@ -2,6 +2,8 @@
 #include "Generator.h"
 #include "JsonIO.h"
 #include "String.h"
+#include "CSV.h"
+#include <fstream>
 #include "..\shared\Utility.h"
 
 void Generator::Generate(path const &sdkpath) {
@@ -16,8 +18,10 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
 
     vector<Module> modules;
 
+    path gameDbPath = sdkpath / Games::GetGameFolder(game) / "database";
+
     // read enums
-    for (const auto& p : recursive_directory_iterator(sdkpath / Games::GetGameFolder(game) / "database" / "enums")) {
+    for (const auto& p : recursive_directory_iterator(gameDbPath / "enums")) {
         if (p.path().extension() == ".json") {
             ifstream enumFile(p.path().string());
             if (enumFile.is_open()) {
@@ -28,38 +32,38 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                     Module *m = Module::Find(modules, moduleName);
                     if (!m) {
                         Module tmp;
-                        tmp.m_name = moduleName;
-                        tmp.m_game = game;
+                        tmp.mName = moduleName;
+                        tmp.mGame = game;
                         modules.push_back(tmp);
                         m = &modules.back();
                     }
                     Enum e;
-                    e.m_name = JsonIO::readJsonString(j, "name");
-                    e.m_moduleName = moduleName;
-                    e.m_width = JsonIO::readJsonNumber(j, "width");
-                    e.m_isClass = JsonIO::readJsonBool(j, "isClass");
-                    e.m_isHexademical = JsonIO::readJsonBool(j, "isHexademical");
-                    e.m_isSigned = JsonIO::readJsonBool(j, "isSigned");
-                    e.m_isBitfield = JsonIO::readJsonBool(j, "isBitfield");
-                    e.m_comment = JsonIO::readJsonString(j, "comment");
+                    e.mName = JsonIO::readJsonString(j, "name");
+                    e.mModuleName = moduleName;
+                    e.mWidth = JsonIO::readJsonNumber(j, "width");
+                    e.mIsClass = JsonIO::readJsonBool(j, "isClass");
+                    e.mIsHexademical = JsonIO::readJsonBool(j, "isHexademical");
+                    e.mIsSigned = JsonIO::readJsonBool(j, "isSigned");
+                    e.mIsBitfield = JsonIO::readJsonBool(j, "isBitfield");
+                    e.mComment = JsonIO::readJsonString(j, "comment");
                     auto &members = j.find("members");
                     if (members != j.end()) {
                         for (auto const &jm : *members) {
                             Enum::Member m;
-                            m.m_name = JsonIO::readJsonString(jm, "name");
-                            m.m_value = JsonIO::readJsonNumber(jm, "value");
-                            m.m_comment = JsonIO::readJsonString(jm, "comment");
-                            e.m_members.push_back(m);
+                            m.mName = JsonIO::readJsonString(jm, "name");
+                            m.mValue = JsonIO::readJsonNumber(jm, "value");
+                            m.mComment = JsonIO::readJsonString(jm, "comment");
+                            e.mMembers.push_back(m);
                         }
                     }
-                    m->m_enums.push_back(e);
+                    m->mEnums.push_back(e);
                 }
             }
         }
     }
 
     // read structs
-    for (const auto& p : recursive_directory_iterator(sdkpath / Games::GetGameFolder(game) / "database" / "structs")) {
+    for (const auto& p : recursive_directory_iterator(gameDbPath / "structs")) {
         if (p.path().extension() == ".json") {
             ifstream structFile(p.path().string());
             if (structFile.is_open()) {
@@ -70,54 +74,143 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                     Module *m = Module::Find(modules, moduleName);
                     if (!m) {
                         Module tmp;
-                        tmp.m_name = moduleName;
+                        tmp.mName = moduleName;
                         modules.push_back(tmp);
                         m = &modules.back();
                     }
                     Struct s;
-                    s.m_name = JsonIO::readJsonString(j, "name");
-                    s.m_moduleName = moduleName;
+                    s.mName = JsonIO::readJsonString(j, "name");
+                    s.mModuleName = moduleName;
                     string kind = JsonIO::readJsonString(j, "kind");
                     if (kind == "struct")
-                        s.m_kind = Struct::Kind::Struct;
+                        s.mKind = Struct::Kind::Struct;
                     else if (kind == "union")
-                        s.m_kind = Struct::Kind::Union;
+                        s.mKind = Struct::Kind::Union;
                     else
-                        s.m_kind = Struct::Kind::Class;
-                    s.m_size = JsonIO::readJsonNumber(j, "size");
-                    s.m_alignment = JsonIO::readJsonNumber(j, "alignment");
-                    s.m_isAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
-                    s.m_isPacked = JsonIO::readJsonBool(j, "isPacked");
-                    s.m_comment = JsonIO::readJsonString(j, "comment");
+                        s.mKind = Struct::Kind::Class;
+                    s.mSize = JsonIO::readJsonNumber(j, "size");
+                    s.mAlignment = JsonIO::readJsonNumber(j, "alignment");
+                    s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                    s.mComment = JsonIO::readJsonString(j, "comment");
                     auto &members = j.find("members");
                     if (members != j.end()) {
                         for (auto const &jm : *members) {
                             Struct::Member m;
-                            m.m_name = JsonIO::readJsonString(jm, "name");
-                            m.m_fullType = JsonIO::readJsonString(jm, "type");
-                            m.m_offset = JsonIO::readJsonNumber(jm, "offset");
-                            m.m_size = JsonIO::readJsonNumber(jm, "size");
-                            m.m_isAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
-                            m.m_comment = JsonIO::readJsonString(jm, "comment");
-                            if (m.m_fullType.empty()) {
-                                if (m.m_size == 1)
-                                    m.m_fullType = "char";
-                                else if (m.m_size == 2)
-                                    m.m_fullType = "short";
-                                else if (m.m_size == 4)
-                                    m.m_fullType = "int";
+                            m.mName = JsonIO::readJsonString(jm, "name");
+                            m.mFullType = JsonIO::readJsonString(jm, "type");
+                            m.mOffset = JsonIO::readJsonNumber(jm, "offset");
+                            m.mSize = JsonIO::readJsonNumber(jm, "size");
+                            m.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                            m.mComment = JsonIO::readJsonString(jm, "comment");
+                            if (m.mFullType.empty()) {
+                                if (m.mSize == 1)
+                                    m.mFullType = "char";
+                                else if (m.mSize == 2)
+                                    m.mFullType = "short";
+                                else if (m.mSize == 4)
+                                    m.mFullType = "int";
                                 else
-                                    m.m_fullType = "char[" + to_string(m.m_size) + "]";
+                                    m.mFullType = "char[" + to_string(m.mSize) + "]";
                             }
-                            m.m_type.SetFromString(m.m_fullType);
-                            s.m_members.push_back(m);
+                            m.mType.SetFromString(m.mFullType);
+                            s.mMembers.push_back(m);
                         }
                     }
-                    m->m_structs.push_back(s);
+                    m->mStructs.push_back(s);
                 }
             }
         }
     }
+
+    if (Games::GetGameVersionsCount(game) > 0) {
+
+        // read variables file for each game version:
+        // 1.0 us/english version should be always present, and its index is always '0'.
+        for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+            // example filepath: plugin-sdk.sa.variables.10us.csv
+            path varsFilePath = gameDbPath / ("plugin-sdk." + Games::GetGameAbbrLow(game) + ".variables." + Games::GetGameVersionName(game, i) + ".csv");
+            std::ifstream varsFile(varsFilePath);
+            if (!varsFile.is_open()) {
+                // exit if can't open base file
+                if (i == 0) {
+                    Message("%s: Unable to open base file for variables (%s)", __FUNCTION__, varsFilePath.string().c_str());
+                    break;
+                }
+            }
+            else {
+                auto csvLines = CSV::ReadLines(varsFile);
+                // if base version
+                if (i == 0) {
+                    for (string const &csvLine : csvLines) {
+                        string varAddress, varModuleName, varName, varDemName, varType, varRawType, varIsFunction, varIsArray, varComment;
+                        CSV::Read(csvLine, varAddress, varModuleName, varName, varDemName, varType, varRawType, varIsFunction, varIsArray, varComment);
+                        if (!varModuleName.empty()) {
+                            // get module for this variable
+                            Module *m = Module::Find(modules, varModuleName);
+                            if (!m) {
+                                Module tmp;
+                                tmp.mName = varModuleName;
+                                modules.push_back(tmp);
+                                m = &modules.back();
+                            }
+                            // get variable type
+                            string finalVarType = varRawType;
+                            if (finalVarType.empty())
+                                finalVarType = varType;
+                            // if var type and var name are not empty
+                            if (!finalVarType.empty() && !varDemName.empty()) {
+                                string varScope;
+                                String::Break(varDemName, "::", varScope, varDemName, true);
+                                Variable newVar;
+                                newVar.mName = varDemName;
+                                newVar.mMangledName = varName;
+                                newVar.mModuleName = varModuleName;
+                                newVar.mScope = varScope;
+                                newVar.mComment = varComment;
+                                newVar.mType.SetFromString(finalVarType);
+                                newVar.mVersionInfo[0].mAddress = String::ToNumber(varAddress);
+                                if (varScope.empty())
+                                    m->mVariables.push_back(newVar);
+                                else {
+                                    // find class inside module
+                                    Struct *s = m->FindStruct(varScope, true);
+                                    if (s)
+                                        s->mVariables.push_back(newVar);
+                                    else {
+                                        // variable class not found
+                                        string newClassName, newClassScope;
+                                        String::Break(varScope, "::", newClassScope, newClassName, true);
+                                        Struct *newClass = m->AddEmptyStruct(newClassName, newClassScope);
+                                        newClass->mKind = Struct::Kind::Class;
+                                        newClass->mVariables.push_back(newVar);
+                                    }
+                                }
+                            }
+                            else {
+                                m->mWarnings.push_back(String::Format("wrong variable '(%s) %s'",
+                                    (finalVarType.empty()? "<no-type>" : finalVarType.c_str()),
+                                    (varDemName.empty() ? "<no-name>" : varDemName.c_str())));
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (string const &csvLine : csvLines) {
+                        string varBaseAddress, varRefAddress, varRefName;
+                        CSV::Read(csvLine, varBaseAddress, varRefAddress, varRefName);
+                        if (!varRefAddress.empty()) {
+                            unsigned int refAddress = String::ToNumber(varRefAddress);
+                            if (refAddress != 0) {
+
+                            }
+                        }
+                    }
+                }
+            }
+            varsFile.close();
+        }
+    }
+
     return modules;
 }
 
@@ -196,11 +289,12 @@ void Generator::ReadHierarchy(path const &sdkpath, Games::IDs game, vector<Modul
         testf << i.first << " : " << i.second << endl;
 
     for (Module &m : modules) {
-        for (Struct &s : m.m_structs) {
-            if (!s.m_isAnonymous) {
-                for (auto const &i : links)
-                    if (i.first == s.m_name)
-                        s.m_parent = i.second;
+        for (Struct &s : m.mStructs) {
+            if (!s.mIsAnonymous) {
+                for (auto const &i : links) {
+                    if (i.first == s.mName)
+                        s.mParent = i.second;
+                }
             }
         }
     }

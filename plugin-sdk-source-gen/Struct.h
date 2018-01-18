@@ -4,6 +4,8 @@
 #include <fstream>
 #include "Tabs.h"
 #include "Type.h"
+#include "Function.h"
+#include "Variable.h"
 
 using namespace std;
 
@@ -15,30 +17,36 @@ public:
 
     enum class Access { Public, Private, Protected };
 
-    string m_name;
-    string m_moduleName;
-    Kind m_kind;
-    unsigned int m_size;
-    unsigned int m_alignment;
-    bool m_isAnonymous;
-    bool m_isPacked;
-    string m_comment;
-    string m_parent;
+    string mName;
+    string mModuleName;
+    Kind mKind = Kind::Struct;
+    unsigned int mSize = 0;
+    unsigned int mAlignment = 0;
+    bool mIsAnonymous = false;
+    string mComment;
+    string mScope;
+    string mParent;
 
     class Member {
     public:
-        string m_name;
-        string m_fullType;
-        Type m_type;
-        unsigned int m_offset;
-        unsigned int m_size;
-        bool m_isAnonymous;
-        string m_comment;
+        string mName;
+        string mFullType;
+        Type mType;
+        unsigned int mOffset;
+        unsigned int mSize;
+        bool mIsAnonymous;
+        string mComment;
 
         bool IsPadding();
     };
 
-    vector<Member> m_members;
+    vector<Member> mMembers;
+
+    vector<Variable> mVariables;
+    vector<Function> mFunctions;
+
+
+    string GetFullName(); // combine name + scope
 
     void Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules);
 

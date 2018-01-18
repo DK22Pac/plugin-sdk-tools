@@ -8,23 +8,23 @@ using namespace std;
 
 class Enum {
 public:
-    string m_name;
-    string m_moduleName;
-    unsigned int m_width;
-    bool m_isClass;
-    bool m_isHexademical;
-    bool m_isSigned;
-    bool m_isBitfield;
-    string m_comment;
+    string mName;
+    string mModuleName;
+    unsigned int mWidth;
+    bool mIsClass;
+    bool mIsHexademical;
+    bool mIsSigned;
+    bool mIsBitfield;
+    string mComment;
 
     class Member {
     public:
-        string m_name;
-        int m_value;
-        string m_comment;
+        string mName;
+        int mValue;
+        string mComment;
     };
 
-    vector<Member> m_members;
+    vector<Member> mMembers;
 
     void Write(ofstream &stream, tabs t);
 };

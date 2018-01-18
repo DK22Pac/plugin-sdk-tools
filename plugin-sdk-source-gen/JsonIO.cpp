@@ -5,7 +5,7 @@ int JsonIO::readJsonNumber(json const &node, string const &key) {
     if (it == node.end())
         return 0;
     if ((*it).is_string()) {
-        int value = 0;
+        unsigned int value = 0;
         sscanf_s((*it).get<string>().c_str(), "0x%X", &value);
         return value;
     }

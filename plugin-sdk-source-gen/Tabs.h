@@ -4,7 +4,7 @@
 using namespace std;
 
 class tabs {
-    unsigned int m_count;
+    unsigned int mCount;
 public:
     tabs();
     tabs(unsigned int count);
