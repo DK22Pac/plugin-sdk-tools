@@ -142,8 +142,8 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                 // if base version
                 if (i == 0) {
                     for (string const &csvLine : csvLines) {
-                        string varAddress, varModuleName, varName, varDemName, varType, varRawType, varIsFunction, varIsArray, varComment;
-                        CSV::Read(csvLine, varAddress, varModuleName, varName, varDemName, varType, varRawType, varIsFunction, varIsArray, varComment);
+                        string varAddress, varModuleName, varName, varDemName, varType, varRawType, varDefaultValues, varComment;
+                        CSV::Read(csvLine, varAddress, varModuleName, varName, varDemName, varType, varRawType, varDefaultValues, varComment);
                         if (!varModuleName.empty()) {
                             // get module for this variable
                             Module *m = Module::Find(modules, varModuleName);
@@ -166,6 +166,7 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                                 newVar.mMangledName = varName;
                                 newVar.mModuleName = varModuleName;
                                 newVar.mScope = varScope;
+                                newVar.mDefaultValues = varDefaultValues;
                                 newVar.mComment = varComment;
                                 newVar.mType.SetFromString(finalVarType);
                                 newVar.mVersionInfo[0].mAddress = String::ToNumber(varAddress);

@@ -82,7 +82,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules) {
                 stream << endl;
                 stream << t() << "extern ";
                 tabs t0(0);
-                mVariables[i].WriteDeclaration(stream, t0);
+                mVariables[i].WriteDeclaration(stream, t0, false);
                 stream << endl;
             }
         }

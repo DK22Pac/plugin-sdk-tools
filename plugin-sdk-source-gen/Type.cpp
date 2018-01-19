@@ -540,8 +540,11 @@ void AddPointer(string &str, char ptrChar) {
 Type Type::GetReference() {
     Type newType = *this;
     if (newType.mIsFunction) {
-        if (newType.mArraySize[0] > 0)
+        if (newType.mArraySize[0] > 0) {
             AddPointer(newType.mFunctionOrArrayPointers, '*');
+            newType.mArraySize[0] = 0;
+            newType.mArraySize[1] = 0;
+        }
         else
             AddPointer(newType.mFunctionOrArrayPointers, '&');
     }
@@ -553,9 +556,13 @@ Type Type::GetReference() {
                 // make a pointer to fixed-size array
                 newType.mIsPointerToFixedSizeArray = true;
                 newType.mFunctionOrArrayPointers = '*';
+                newType.mArraySize[0] = newType.mArraySize[1];
+                newType.mArraySize[1] = 0;
             }
-            else
+            else {
                 AddPointer(newType.mPointers, '*');
+                newType.mArraySize[0] = 0;
+            }
         }
         else
             AddPointer(newType.mPointers, '&');

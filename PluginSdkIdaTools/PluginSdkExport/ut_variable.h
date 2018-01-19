@@ -9,8 +9,7 @@ public:
     qstring m_type;
     qstring m_rawType;
     qstring m_module;
-    bool m_isFunction = false;
-    bool m_isArray = false;
+    qstring m_defaultValues;
     qstring m_comment;
 
     static unsigned int Find(qstring const &name, qvector<Variable> const &entries);

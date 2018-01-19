@@ -36,16 +36,15 @@ qvector<Variable> Variable::FromCSV(char const *filepath) {
 bool Variable::ToCSV(qvector<Variable> const &entries, char const *filepath, char const *version) {
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
-        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,RawType,IsFunction,IsArray,Comment\n", version);
+        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,RawType,DefaultValues,Comment\n", version);
         for (auto const &i : entries) {
-            qfprintf(outFile, "0x%X,%s,%s,%s,%s,%s,%d,%d,%s\n", i.m_address,
+            qfprintf(outFile, "0x%X,%s,%s,%s,%s,%s,%s,%s\n", i.m_address,
                 csvvalue(i.m_module).c_str(),
                 csvvalue(i.m_name).c_str(),
                 csvvalue(i.m_demangledName).c_str(),
                 csvvalue(i.m_type).c_str(),
                 csvvalue(i.m_rawType).c_str(),
-                i.m_isFunction,
-                i.m_isArray,
+                csvvalue(i.m_defaultValues).c_str(),
                 csvvalue(i.m_comment).c_str());
         }
         qfclose(outFile);

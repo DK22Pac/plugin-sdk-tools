@@ -14,6 +14,7 @@ public:
     string mScope; // scope
     string mModuleName;
     Type mType;
+    string mDefaultValues;
     string mComment;
 
     struct ExeVersionInfo {
@@ -26,5 +27,5 @@ public:
     string GetNameWithType(bool bFullName = false);
     string GetNameWithRefType(bool bFullName = false);
     void WriteDefinition(ofstream &stream, tabs t);
-    void WriteDeclaration(ofstream &stream, tabs t);
+    void WriteDeclaration(ofstream &stream, tabs t, bool isStatic);
 };

@@ -17,10 +17,30 @@ string Variable::GetNameWithRefType(bool bFullName) {
 }
 
 void Variable::WriteDefinition(ofstream &stream, tabs t) {
+    bool isConst = mType.mIsConst;
+    mType.mIsConst = false;
     stream << t() << GetNameWithRefType(true) << ';';
+    mType.mIsConst = isConst;
 }
 
-void Variable::WriteDeclaration(ofstream &stream, tabs t) {
+void Variable::WriteDeclaration(ofstream &stream, tabs t, bool isStatic) {
     WriteComment(stream, mComment, t, 0);
+    string originalVarTypeAndName = GetNameWithType(false);
+    bool isConst = mType.mIsConst;
+    mType.mIsConst = false;
     stream << t() << GetNameWithRefType(false) << ';';
+    string additionalComment;
+    if (mType.mArraySize[0] > 0) {
+        if (isStatic)
+            additionalComment += "static ";
+        additionalComment += originalVarTypeAndName;
+    }
+    if (isConst && mDefaultValues.length() > 0 && mType.mIsInBuilt) {
+        if (mType.mArraySize[0] > 0)
+            additionalComment += " = ";
+        additionalComment += mDefaultValues;
+    }
+    if (additionalComment.length() > 0)
+        stream << " // " << additionalComment;
+    mType.mIsConst = isConst;
 }

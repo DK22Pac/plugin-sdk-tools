@@ -20,6 +20,12 @@ void addValueToStringLineList(qstring &line, qstring const &value) {
     line.append(value);
 }
 
+void addValueCSVLine(qstring &line, qstring const &value) {
+    if (!line.empty())
+        line.append(", ");
+    line.append(value);
+}
+
 bool isValidCharacterForFileName(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
 }

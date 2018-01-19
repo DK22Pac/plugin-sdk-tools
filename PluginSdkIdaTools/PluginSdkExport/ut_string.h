@@ -60,6 +60,8 @@ bool startsWith(qstring const &strToCheck, qstring const &strStart);
 
 void addValueToStringLineList(qstring &line, qstring const &value);
 
+void addValueCSVLine(qstring &line, qstring const &value);
+
 bool isValidCharacterForFileName(char c);
 
 qstring getValidFileName(qstring const &oldFileName);

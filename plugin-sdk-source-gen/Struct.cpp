@@ -65,7 +65,7 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Modu
         for (unsigned int i = 0; i < mVariables.size(); i++) {
             stream << t() << "static ";
             tabs t0(0);
-            mVariables[i].WriteDeclaration(stream, t0);
+            mVariables[i].WriteDeclaration(stream, t0, true);
             stream << endl;
         }
     }
