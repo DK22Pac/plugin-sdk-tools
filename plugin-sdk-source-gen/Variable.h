@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "Type.h"
-#include "Games.h"
+#include "..\shared\Games.h"
 #include "Tabs.h"
 
 using namespace std;
@@ -27,5 +27,5 @@ public:
     string GetNameWithType(bool bFullName = false);
     string GetNameWithRefType(bool bFullName = false);
     void WriteDefinition(ofstream &stream, tabs t);
-    void WriteDeclaration(ofstream &stream, tabs t, bool isStatic);
+    void WriteDeclaration(ofstream &stream, tabs t, bool isStatic, Games::IDs game);
 };

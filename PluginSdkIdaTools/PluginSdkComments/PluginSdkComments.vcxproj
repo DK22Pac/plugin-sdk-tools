@@ -12,11 +12,11 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{678DAA14-8AF4-40A6-B813-CB7F2376900F}</ProjectGuid>
+    <ProjectGuid>{476449E6-0A23-48DB-8798-7F4452866FB2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PluginSdkExport</RootNamespace>
+    <RootNamespace>PluginSdkComments</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
-    <ProjectName>PluginSdkExport</ProjectName>
+    <ProjectName>PluginSdkComments</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
@@ -68,13 +68,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="export.cpp" />
-    <ClCompile Include="interface.cpp" />
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="export.h" />
-    <ClInclude Include="interface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

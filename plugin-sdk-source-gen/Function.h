@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "Type.h"
-#include "Games.h"
+#include "..\shared\Games.h"
 
 using namespace std;
 

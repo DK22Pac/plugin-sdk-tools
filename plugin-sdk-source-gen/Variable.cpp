@@ -23,12 +23,18 @@ void Variable::WriteDefinition(ofstream &stream, tabs t) {
     mType.mIsConst = isConst;
 }
 
-void Variable::WriteDeclaration(ofstream &stream, tabs t, bool isStatic) {
+void Variable::WriteDeclaration(ofstream &stream, tabs t, bool isStatic, Games::IDs game) {
     WriteComment(stream, mComment, t, 0);
+    stream << t();
+    if (isStatic)
+        stream << "static ";
+    else
+        stream << "extern ";
+    stream << Games::GetSupportedGameVersionsMacro(game, mVersionInfo) << ' ';
     string originalVarTypeAndName = GetNameWithType(false);
     bool isConst = mType.mIsConst;
     mType.mIsConst = false;
-    stream << t() << GetNameWithRefType(false) << ';';
+    stream << GetNameWithRefType(false) << ';';
     string additionalComment;
     if (mType.mArraySize[0] > 0) {
         if (isStatic)

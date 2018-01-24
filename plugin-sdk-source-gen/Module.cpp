@@ -1,4 +1,5 @@
 #include "Module.h"
+#include <iostream>
 
 Module *Module::Find(vector<Module> &modules, string const &name) {
     for (unsigned int i = 0; i < modules.size(); i++) {
@@ -31,11 +32,12 @@ Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
     return &mStructs.back();
 }
 
-void Module::Write(path const &folder, vector<Module> const &allModules) {
-    WriteHeader(folder, allModules);
+void Module::Write(path const &folder, vector<Module> const &allModules, Games::IDs game) {
+    cout << "GTA" << Games::GetGameAbbr(game) << ": Writing module '" << mName << "'" << endl;
+    WriteHeader(folder, allModules, game);
 }
 
-bool Module::WriteHeader(path const &folder, vector<Module> const &allModules) {
+bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game) {
     ofstream stream(folder / (mName + ".h"));
     if (!stream.is_open()) {
         return false;
@@ -70,7 +72,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules) {
         for (unsigned int i = 0; i < mStructs.size(); i++) {
             if (!mStructs[i].mIsAnonymous) {
                 stream << endl;
-                mStructs[i].Write(stream, t, *this, allModules);
+                mStructs[i].Write(stream, t, *this, allModules, game);
                 stream << endl;
             }
         }
@@ -80,9 +82,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules) {
         for (unsigned int i = 0; i < mVariables.size(); i++) {
             if (mVariables[i].mScope.empty()) {
                 stream << endl;
-                stream << t() << "extern ";
-                tabs t0(0);
-                mVariables[i].WriteDeclaration(stream, t0, false);
+                mVariables[i].WriteDeclaration(stream, t, false, game);
                 stream << endl;
             }
         }
@@ -93,6 +93,6 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules) {
     return true;
 }
 
-bool Module::WriteSource(path const &folder, vector<Module> const &allModules) {
+bool Module::WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game) {
     return false;
 }

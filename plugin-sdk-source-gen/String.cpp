@@ -1,4 +1,5 @@
 #include "String.h"
+#include <algorithm>
 
 vector<string> String::Split(string const &str, string const &delim) {
     vector<string> result;
@@ -71,4 +72,18 @@ void String::Trim(string &str) {
     size_t end = str.find_last_not_of(" \t\r\n");
     if (end != string::npos)
         str = str.substr(0, end + 1);
+}
+
+string String::ToUpper(string const &str) {
+    string result;
+    for (size_t i = 0; i < str.length(); i++)
+        result += toupper(static_cast<unsigned char>(str[i]));
+    return result;
+}
+
+string String::ToLower(string const &str) {
+    string result;
+    for (size_t i = 0; i < str.length(); i++)
+        result += tolower(static_cast<unsigned char>(str[i]));
+    return result;
 }

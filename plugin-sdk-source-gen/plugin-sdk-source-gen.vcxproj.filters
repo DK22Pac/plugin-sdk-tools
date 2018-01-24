@@ -6,7 +6,6 @@
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Tabs.h" />
     <ClInclude Include="JsonIO.h" />
-    <ClInclude Include="Games.h" />
     <ClInclude Include="Comments.h" />
     <ClInclude Include="Type.h" />
     <ClInclude Include="Struct.h" />
@@ -22,7 +21,6 @@
     <ClCompile Include="Enum.cpp" />
     <ClCompile Include="Tabs.cpp" />
     <ClCompile Include="JsonIO.cpp" />
-    <ClCompile Include="Games.cpp" />
     <ClCompile Include="Comments.cpp" />
     <ClCompile Include="Struct.cpp" />
     <ClCompile Include="Type.cpp" />

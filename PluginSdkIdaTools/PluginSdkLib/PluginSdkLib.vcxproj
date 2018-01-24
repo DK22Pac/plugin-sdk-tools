@@ -12,20 +12,20 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{678DAA14-8AF4-40A6-B813-CB7F2376900F}</ProjectGuid>
+    <ProjectGuid>{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PluginSdkExport</RootNamespace>
+    <RootNamespace>PluginSdkLib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
-    <ProjectName>PluginSdkExport</ProjectName>
+    <ProjectName>PluginSdkLib</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
     <PlatformToolset>v141</PlatformToolset>
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 32-bit|x64'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -35,46 +35,55 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
     <TargetName>$(ProjectName)64</TargetName>
-    <OutDir>C:\Program Files\IDA 7.0\plugins\</OutDir>
+    <OutDir>$(SolutionDir)shared\lib\</OutDir>
     <IntDir>$(ProjectDir).obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 32-bit|x64'">
-    <OutDir>C:\Program Files\IDA 7.0\plugins\</OutDir>
+    <OutDir>$(SolutionDir)shared\lib\</OutDir>
     <IntDir>$(ProjectDir).obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 32-bit|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;$(SolutionDir)shared;$(SolutionDir)PluginSdkLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__NT__;__IDP__;__X64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ida.lib;PluginSdkLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_32;$(SolutionDir)shared\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ida.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;$(SolutionDir)shared;$(SolutionDir)PluginSdkLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__NT__;__IDP__;__X64__;__EA64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ida.lib;PluginSdkLib64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_64;$(SolutionDir)shared\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ida.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="export.cpp" />
-    <ClCompile Include="interface.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ut_enum.cpp" />
+    <ClCompile Include="ut_func.cpp" />
+    <ClCompile Include="ut_ida.cpp" />
+    <ClCompile Include="ut_options.cpp" />
+    <ClCompile Include="ut_range.cpp" />
+    <ClCompile Include="ut_string.cpp" />
+    <ClCompile Include="ut_variable.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="export.h" />
-    <ClInclude Include="interface.h" />
+    <ClInclude Include="ut_enum.h" />
+    <ClInclude Include="ut_func.h" />
+    <ClInclude Include="ut_ida.h" />
+    <ClInclude Include="ut_options.h" />
+    <ClInclude Include="ut_range.h" />
+    <ClInclude Include="ut_string.h" />
+    <ClInclude Include="ut_variable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

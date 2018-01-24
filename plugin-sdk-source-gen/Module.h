@@ -7,7 +7,7 @@
 #include "Struct.h"
 #include "Variable.h"
 #include "Function.h"
-#include "Games.h"
+#include "..\shared\Games.h"
 
 using namespace std;
 using namespace std::experimental::filesystem;
@@ -28,7 +28,7 @@ public:
     Struct *FindStruct(string const &name, bool bFullName = false);
     Struct *AddEmptyStruct(string const &name, string const &scope);
 
-    void Write(path const &folder, vector<Module> const &allModules);
-    bool WriteHeader(path const &folder, vector<Module> const &allModules);
-    bool WriteSource(path const &folder, vector<Module> const &allModules);
+    void Write(path const &folder, vector<Module> const &allModules, Games::IDs game);
+    bool WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game);
+    bool WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game);
 };

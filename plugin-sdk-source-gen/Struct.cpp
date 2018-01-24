@@ -6,7 +6,7 @@ bool Struct::Member::IsPadding() {
     return !strncmp(mName.c_str(), "_pad", 4) || !strncmp(mName.c_str(), "__pad", 5);
 }
 
-void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules) {
+void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules, Games::IDs game) {
     WriteComment(stream, mComment, t, 0);
     stream << t();
     Access access = Access::Public;
@@ -63,9 +63,7 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Modu
     // variables
     if (mVariables.size() > 0) {
         for (unsigned int i = 0; i < mVariables.size(); i++) {
-            stream << t() << "static ";
-            tabs t0(0);
-            mVariables[i].WriteDeclaration(stream, t0, true);
+            mVariables[i].WriteDeclaration(stream, t, true, game);
             stream << endl;
         }
     }

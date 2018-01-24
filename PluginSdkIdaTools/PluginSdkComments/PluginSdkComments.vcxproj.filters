@@ -7,22 +7,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="interface.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="export.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="export.h">
-      <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="interface.h">
-      <Filter>source</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

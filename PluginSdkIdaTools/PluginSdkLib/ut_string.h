@@ -1,6 +1,12 @@
 #pragma once
 #include "ida.hpp"
 
+#define IDA_TOOLS
+
+#include "..\..\shared\json\json.hpp"
+
+using json = nlohmann::json;
+
 qstring csvvalue(qstring const &value);
 
 // example usage:
@@ -73,3 +79,18 @@ void endWritingToJson();
 char const *jsonOrderedName(char const *name);
 
 void jsonRemoveOrderingSigns(qstring &str);
+
+template<typename ...ArgTypes>
+qstring format(const qstring &format, ArgTypes... args) {
+    static char buf[1024];
+    qsnprintf(buf, 1024, format.c_str(), args...);
+    return buf;
+}
+
+template <typename T>
+qstring toHexString(T intVal) {
+    return format("0x%X", intVal);
+}
+
+
+int toNumber(qstring const &str);

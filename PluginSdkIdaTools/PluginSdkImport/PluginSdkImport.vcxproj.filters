@@ -10,18 +10,18 @@
     <ClCompile Include="interface.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="export.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="import.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="export.h">
+    <ClInclude Include="interface.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="interface.h">
+    <ClInclude Include="import.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

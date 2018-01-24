@@ -15,6 +15,7 @@ public:
     static unsigned int Find(qstring const &name, qvector<Variable> const &entries);
 
     static qvector<Variable> FromCSV(char const *filepath);
+    static qvector<Variable> FromReferenceCSV(char const *filepath, qvector<Variable> const &baseVars);
 
     static bool ToCSV(qvector<Variable> const &entries, char const *filepath, char const *version);
 

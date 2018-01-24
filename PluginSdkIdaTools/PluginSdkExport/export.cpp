@@ -15,65 +15,22 @@
 #include "ut_enum.h"
 #include "ut_ida.h"
 #include "ut_options.h"
-
-#define IDA_TOOLS
-
-#include "..\..\shared\json\json.hpp"
+#include "Games.h"
 
 using namespace std;
-using json = nlohmann::json;
 
-void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
-    string gameName;
-    bool isBaseVersion = false;
-    string versionName;
-    string baseVersionName;
-    if (selectedGame == GTA_SA) {
-        gameName = "sa";
-        baseVersionName = "10us";
-        switch (selectedVersion) {
-        case GAMEVERSION_10US:
-            versionName = "10us";
-            isBaseVersion = true;
-            break;
-        case GAMEVERSION_10EU:
-            versionName = "10eu";
-            break;
-        case GAMEVERSION_11US:
-            versionName = "11us";
-            break;
-        case GAMEVERSION_11EU:
-            versionName = "11eu";
-            break;
-        case GAMEVERSION_STEAM:
-            versionName = "Steam";
-            break;
-        }
+void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
+    if (selectedGame == -1) {
+        warning("Can't detect game version");
+        return;
     }
-    else {
-        baseVersionName = "10";
-        if (selectedGame == GTA_VC)
-            gameName = "vc";
-        else
-            gameName = "3";
-        switch (selectedVersion) {
-        case GAMEVERSION_10US:
-        case GAMEVERSION_10EU:
-            versionName = "10";
-            isBaseVersion = true;
-            break;
-        case GAMEVERSION_11US:
-        case GAMEVERSION_11EU:
-            versionName = "11";
-            break;
-        case GAMEVERSION_STEAM:
-            versionName = "Steam";
-            break;
-        }
-    }
-
-    string gameFolder = "gta" + gameName;
+    string gameName = Games::GetGameAbbrLow(Games::ToID(selectedGame));
+    bool isBaseVersion = selectedVersion == 0;
+    string versionName = Games::GetGameVersionName(Games::ToID(selectedGame), selectedVersion);
+    string baseVersionName = Games::GetGameVersionName(Games::ToID(selectedGame), 0);
+    string gameFolder = Games::GetGameFolder(Games::ToID(selectedGame));
     path gameFolderPath = output / gameFolder;
+
     if(!exists(gameFolderPath)) {
         warning("Folder '%s' (%s) does not exist", gameFolder.c_str(), gameFolderPath.string().c_str());
         return;
@@ -94,11 +51,8 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
         qvector<Function> functions;
 
         qvector<AddressRange> skipRanges;
-        switch (selectedGame) {
-        case GTA_SA:
+        if (selectedGame == Games::GTASA)
             AddRange(skipRanges, 0x837170, 0x848F10);
-            break;
-        }
         
         string fileName = "plugin-sdk." + gameName + ".functions." + versionName + ".csv";
         path filePath = dbFolderPath / fileName;
@@ -166,12 +120,23 @@ void exportdb(unsigned int selectedGame, unsigned short selectedVersion, unsigne
                         Function::Param funcParam;
                         funcParam.m_name = p.name;
                         p.type.print(&funcParam.m_type);
-                        if (!funcParam.m_name.empty() && startsWith(funcParam.m_name, "rt_"))
-                            getFunctionArgumentExtraInfo(cmtLine, funcParam.m_name, funcParam.m_rawType);
+                        if (!funcParam.m_name.empty() && startsWith(funcParam.m_name, "rt_")) {
+                            qstring funcParamRawType;
+                            getFunctionArgumentExtraInfo(cmtLine, funcParam.m_name, funcParamRawType);
+                            if (!funcParamRawType.empty()) {
+                                funcParam.m_type = funcParamRawType;
+                                funcParam.m_rawType = true;
+                            }
+                        }
                         entry.m_params.push_back(funcParam);
                     }
                 }
-                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawRetType, entry.m_isConst);
+                qstring funcRawRetType;
+                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, funcRawRetType, entry.m_isConst);
+                if (!funcRawRetType.empty()) {
+                    entry.m_retType = funcRawRetType;
+                    entry.m_rawRetType = true;
+                }
                 functions.push_back(entry);
             }
             func = get_next_func(func->start_ea);

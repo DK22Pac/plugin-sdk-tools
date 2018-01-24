@@ -13,6 +13,8 @@ public:
     static bool Compare(string const &str, size_t index, char c);
     static bool IsNumber(string const &str);
     static int ToNumber(string const &str);
+    static string ToUpper(string const &str);
+    static string ToLower(string const &str);
 
     static void Trim(string &str);
 

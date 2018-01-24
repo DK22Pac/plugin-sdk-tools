@@ -48,7 +48,7 @@ public:
 
     string GetFullName(); // combine name + scope
 
-    void Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules);
+    void Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules, Games::IDs game);
 
     bool ContainsType(string const &typeName, bool withPointers = true) const;
 };

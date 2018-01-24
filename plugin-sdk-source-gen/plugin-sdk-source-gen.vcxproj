@@ -56,7 +56,6 @@
     <ClInclude Include="CSV.h" />
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Function.h" />
-    <ClInclude Include="Games.h" />
     <ClInclude Include="Generator.h" />
     <ClInclude Include="JsonIO.h" />
     <ClInclude Include="Module.h" />
@@ -71,7 +70,6 @@
     <ClCompile Include="CSV.cpp" />
     <ClCompile Include="Enum.cpp" />
     <ClCompile Include="Function.cpp" />
-    <ClCompile Include="Games.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="JsonIO.cpp" />
     <ClCompile Include="Main.cpp" />

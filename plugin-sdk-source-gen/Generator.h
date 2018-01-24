@@ -2,7 +2,7 @@
 #include <vector>
 #include <filesystem>
 #include "Module.h"
-#include "Games.h"
+#include "..\shared\Games.h"
 
 using namespace std;
 using namespace std::experimental::filesystem;

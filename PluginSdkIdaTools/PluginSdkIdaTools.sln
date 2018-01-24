@@ -1,20 +1,59 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkExport", "PluginSdkExport\PluginSdkExport.vcxproj", "{678DAA14-8AF4-40A6-B813-CB7F2376900F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA} = {BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkImport", "PluginSdkImport\PluginSdkImport.vcxproj", "{F7153287-8045-458D-A153-413B57F4AFE9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA} = {BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkLib", "PluginSdkLib\PluginSdkLib.vcxproj", "{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkComments", "PluginSdkComments\PluginSdkComments.vcxproj", "{476449E6-0A23-48DB-8798-7F4452866FB2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA} = {BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		IDA 32-bit|Windows = IDA 32-bit|Windows
+		IDA 32-bit|x64 = IDA 32-bit|x64
 		IDA 64-bit|Windows = IDA 64-bit|Windows
+		IDA 64-bit|x64 = IDA 64-bit|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 32-bit|Windows.ActiveCfg = IDA 32-bit|x64
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 32-bit|Windows.Build.0 = IDA 32-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 32-bit|x64.ActiveCfg = IDA 32-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 32-bit|x64.Build.0 = IDA 32-bit|x64
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 64-bit|Windows.ActiveCfg = IDA 64-bit|x64
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 64-bit|Windows.Build.0 = IDA 64-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 64-bit|x64.ActiveCfg = IDA 64-bit|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 64-bit|x64.Build.0 = IDA 64-bit|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 32-bit|Windows.ActiveCfg = IDA 32-bit|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 32-bit|x64.ActiveCfg = IDA 32-bit|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 32-bit|x64.Build.0 = IDA 32-bit|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 64-bit|Windows.ActiveCfg = IDA 64-bit|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 64-bit|x64.ActiveCfg = IDA 64-bit|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 64-bit|x64.Build.0 = IDA 64-bit|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 32-bit|Windows.ActiveCfg = IDA 32-bit|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 32-bit|x64.ActiveCfg = IDA 32-bit|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 32-bit|x64.Build.0 = IDA 32-bit|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 64-bit|Windows.ActiveCfg = IDA 64-bit|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 64-bit|x64.ActiveCfg = IDA 64-bit|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 64-bit|x64.Build.0 = IDA 64-bit|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 32-bit|Windows.ActiveCfg = IDA 32-bit|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 32-bit|x64.ActiveCfg = IDA 32-bit|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 32-bit|x64.Build.0 = IDA 32-bit|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 64-bit|Windows.ActiveCfg = IDA 64-bit|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 64-bit|x64.ActiveCfg = IDA 64-bit|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 64-bit|x64.Build.0 = IDA 64-bit|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
