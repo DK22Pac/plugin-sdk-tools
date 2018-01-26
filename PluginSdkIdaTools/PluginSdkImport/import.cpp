@@ -83,108 +83,6 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         return;
     }
 
-    if (options & OPTION_FUNCTIONS) {
-        
-    }
-
-    if (options & OPTION_VARIABLES) {
-        
-    }
-
-    // read & create structs
-    if (options & OPTION_STRUCTURES) {
-        begin_type_updating(UTP_STRUCT);
-        // read structs
-        qvector<Struct> structs;
-        for (const auto& p : recursive_directory_iterator(dbFolderPath / "structs")) {
-            if (p.path().extension() == ".json") {
-                json j = jsonReadFromFile(p.path().string().c_str());
-                qstring structName = jsonReadString(j, "name");
-                if (!structName.empty()) {
-                    Struct entry;
-                    entry.m_name = structName;
-                    // find struct kind
-                    Struct::Kind kind;
-                    qstring strKind = jsonReadString(j, "kind");
-                    if (strKind == "struct")
-                        entry.m_kind = Struct::STRT_STRUCT;
-                    else if (strKind == "union")
-                        entry.m_kind = Struct::STRT_UNION;
-                    else
-                        entry.m_kind = Struct::STRT_CLASS;
-                    //
-                    entry.m_module = jsonReadString(j, "module");
-                    entry.m_size = jsonReadNumber(j, "size");
-                    entry.m_alignment = jsonReadNumber(j, "alignment");
-                    entry.m_isAnonymous = jsonReadBool(j, "isAnonymous");
-                    entry.m_comment = jsonReadString(j, "comment");
-                    auto &members = j.find("members");
-                    if (members != j.end()) {
-                        for (auto const &jm : *members) {
-                            Struct::Member m;
-                            m.m_name = jsonReadString(jm, "name");
-                            m.m_type = jsonReadString(jm, "type");
-                            m.m_rawType = jsonReadString(jm, "rawType");
-                            m.m_offset = jsonReadNumber(jm, "offset");
-                            m.m_size = jsonReadNumber(jm, "size");
-                            m.m_isAnonymous = jsonReadBool(j, "isAnonymous");
-                            m.m_comment = jsonReadString(jm, "comment");
-                            if (m.m_type.empty()) {
-                                if (m.m_size == 1)
-                                    m.m_type = "char";
-                                else if (m.m_size == 2)
-                                    m.m_type = "short";
-                                else if (m.m_size == 4)
-                                    m.m_type = "int";
-                                else {
-                                    m.m_type = "char[";
-                                    m.m_type += to_string(m.m_size).c_str();
-                                    m.m_type += "]";
-                                }
-                            }
-                            entry.m_members.push_back(m);
-                        }
-                    }
-                    structs.push_back(entry);
-                }
-            }
-        }
-        // sort...
-
-        // update ida structs
-        for (size_t i = 0; i < structs.size(); i++) {
-            Struct &entry = structs[i];
-            auto stid = get_struc_id(entry.m_name.c_str());
-            struc_t *s = nullptr;
-            if (stid != BADNODE) {
-                s = get_struc(stid);
-                auto strucsize = get_struc_size(stid);
-                del_struc_members(s, 0, strucsize);
-                // switch to/from union
-                if (s->is_union()) {
-                    if (entry.m_kind != Struct::STRT_UNION)
-                        setflag(s->props, SF_UNION, false);
-                }
-                else if (entry.m_kind == Struct::STRT_UNION)
-                    setflag(s->props, SF_UNION, true);
-            }
-            else {
-                stid = add_struc(-1, entry.m_name.c_str(), entry.m_kind == Struct::STRT_UNION);
-                if (stid == BADNODE) {
-                    // error : can't create struct!
-                    warning("Error: Unable to create struct '%s'", entry.m_name.c_str());
-                    continue;
-                }
-                s = get_struc(stid);
-            }
-            // alignment
-            if (entry.m_alignment != 0)
-                set_struc_align(s, entry.m_alignment);
-            // comment
-        }
-        end_type_updating(UTP_STRUCT);
-    }
-
     // read & create enums
     if (options & OPTION_ENUMS) {
         begin_type_updating(UTP_ENUM);
@@ -258,14 +156,15 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             if (addEnMemberResult == 0) {
                                 // comment
                                 qstring enFullMemberComment;
-                                bool enIsCounter = jsonReadBool(j, "isCounter");
+                                bool enIsCounter = jsonReadBool(jm, "isCounter");
                                 if (enIsCounter)
                                     enFullMemberComment += " iscounter:true";
-                                int enBitWidth = jsonReadNumber(j, "bitWidth");
+                                int enBitWidth = jsonReadNumber(jm, "bitWidth");
                                 if (enBitWidth != 0)
                                     enFullMemberComment += format(" bitwidth:%d", enBitWidth);
                                 qstring enMemberComment = jsonReadString(jm, "comment");
                                 if (!enMemberComment.empty()) {
+                                    enMemberComment.replace(";;", "\n");
                                     if (!enFullMemberComment.empty())
                                         enFullMemberComment += "\n";
                                     enFullMemberComment += enMemberComment;
@@ -274,14 +173,19 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                     enum_member_comment_info commentInfo;
                                     commentInfo.memberName = enMemberName;
                                     commentInfo.comment = enFullMemberComment;
-                                    commentInfo.used = true;
+                                    commentInfo.used = false;
                                     enumMemberComments.push_back(commentInfo);
                                 }
+                            }
+                            else {
+                                warning("Error: Unable to create enum member '%s' in enum '%s'",
+                                    enMemberName.c_str(), enumName.c_str());
                             }
                         }
                         // set comments for enum members
                         struct enum_visitor : public enum_member_visitor_t {
-                            enum_visitor(qvector<enum_member_comment_info> &comments) : m_comments(comments) {}
+                            enum_visitor(qvector<enum_member_comment_info> &_comments, qstring const &_enumName) : 
+                                m_comments(_comments), m_enumName(_enumName) {}
                             virtual int idaapi visit_enum_member(const_t cid, uval_t value) {
                                 qstring name;
                                 get_enum_member_name(&name, cid);
@@ -291,19 +195,220 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                         cm.used = true;
                                     }
                                 }
+                                for (auto &cm : m_comments) {
+                                    if (cm.used) {
+                                        warning("Comment for enum member '%s' in enum '%s' was not set",
+                                            cm.memberName.c_str(), m_enumName.c_str());
+                                    }
+                                }
                                 return 0;
                             }
                             qvector<enum_member_comment_info> &m_comments;
+                            qstring m_enumName;
                         };
 
-                        enum_visitor visitor(enumMemberComments);
+                        enum_visitor visitor(enumMemberComments, enumName);
                         for_all_enum_members(et, visitor);
                     }
                     // bitfield
                     set_enum_bf(et, jsonReadBool(j, "isBitfield"));
                 }
+                else {
+                    warning("Empty enum name in file '%s'", p.path().string().c_str());
+                }
             }
         }
         end_type_updating(UTP_ENUM);
+    }
+
+    // read & create structs
+    if (options & OPTION_STRUCTURES) {
+        begin_type_updating(UTP_STRUCT);
+        // read structs
+        qvector<Struct> structs;
+        for (const auto& p : recursive_directory_iterator(dbFolderPath / "structs")) {
+            if (p.path().extension() == ".json") {
+                json j = jsonReadFromFile(p.path().string().c_str());
+                qstring structName = jsonReadString(j, "name");
+                if (!structName.empty()) {
+                    Struct entry;
+                    entry.m_name = structName;
+                    // find struct kind
+                    qstring strKind = jsonReadString(j, "kind");
+                    if (strKind == "struct")
+                        entry.m_kind = Struct::STRT_STRUCT;
+                    else if (strKind == "union")
+                        entry.m_kind = Struct::STRT_UNION;
+                    else
+                        entry.m_kind = Struct::STRT_CLASS;
+                    //
+                    entry.m_module = jsonReadString(j, "module");
+                    entry.m_scope = jsonReadString(j, "scope");
+                    entry.m_size = jsonReadNumber(j, "size");
+                    entry.m_alignment = jsonReadNumber(j, "alignment");
+                    entry.m_isAnonymous = jsonReadBool(j, "isAnonymous");
+                    entry.m_comment = jsonReadString(j, "comment");
+                    auto &members = j.find("members");
+                    if (members != j.end()) {
+                        for (auto const &jm : *members) {
+                            Struct::Member m;
+                            m.m_name = jsonReadString(jm, "name");
+                            m.m_type = jsonReadString(jm, "type");
+                            m.m_rawType = jsonReadString(jm, "rawType");
+                            m.m_offset = jsonReadNumber(jm, "offset");
+                            m.m_size = jsonReadNumber(jm, "size");
+                            m.m_isAnonymous = jsonReadBool(jm, "isAnonymous");
+                            m.m_comment = jsonReadString(jm, "comment");
+                            if (m.m_type.empty()) {
+                                if (m.m_size == 1)
+                                    m.m_type = "char";
+                                else if (m.m_size == 2)
+                                    m.m_type = "short";
+                                else if (m.m_size == 4)
+                                    m.m_type = "int";
+                                else {
+                                    m.m_type = "char[";
+                                    m.m_type += to_string(m.m_size).c_str();
+                                    m.m_type += "]";
+                                }
+                            }
+                            auto stid = get_struc_id(entry.m_name.c_str());
+                            struc_t *s = nullptr;
+                            if (stid != BADNODE) {
+                                s = get_struc(stid);
+                                auto strucsize = get_struc_size(stid);
+                                if (del_struc_members(s, 0, strucsize) != -1) {
+                                    // switch to/from union
+                                    if (s->is_union()) {
+                                        if (entry.m_kind != Struct::STRT_UNION)
+                                            setflag(s->props, SF_UNION, false);
+                                    }
+                                    else if (entry.m_kind == Struct::STRT_UNION)
+                                        setflag(s->props, SF_UNION, true);
+                                }
+                                else {
+                                    warning("Error: Unable to delete struct '%s' data", entry.m_name.c_str());
+                                    continue;
+                                }
+                            }
+                            else {
+                                stid = add_struc(-1, entry.m_name.c_str(), entry.m_kind == Struct::STRT_UNION);
+                                if (stid == BADNODE) {
+                                    // error : can't create struct!
+                                    warning("Error: Unable to create struct '%s'", entry.m_name.c_str());
+                                    continue;
+                                }
+                                s = get_struc(stid);
+                            }
+                            entry.m_idaStruct = s;
+                            entry.m_idaStructId = stid;
+                            entry.m_members.push_back(m);
+
+                            // set alignment
+                            set_struc_align(s, entry.m_alignment);
+                            // set comment
+                            qstring stFullCommentLine = "module:";
+                            stFullCommentLine += entry.m_module;
+                            if (!entry.m_scope.empty()) {
+                                stFullCommentLine += " scope:";
+                                stFullCommentLine += entry.m_scope;
+                            }
+                            if (entry.m_kind == Struct::STRT_STRUCT)
+                                stFullCommentLine += " isstruct:true";
+                            if (entry.m_isAnonymous)
+                                stFullCommentLine += " isanonymous:true";
+                            if (!entry.m_comment.empty()) {
+                                qstring stCommentLine = entry.m_comment;
+                                stCommentLine.replace(";;", "\n");
+                                stFullCommentLine += "\n"; // we added 'module:X' signature, so we can add a newline here
+                                stFullCommentLine += stCommentLine;
+                            }
+                            set_struc_cmt(stid, stFullCommentLine.c_str(), false);
+                            // create struct members
+                            for (auto const &m : entry.m_members) {
+                                if (add_struc_member(s, m.m_name.c_str(), m.m_offset, 0, nullptr, m.m_size) != STRUC_ERROR_MEMBER_OK) {
+                                    warning("Error: Unable to create struct member '%s' in struct '%s'", m.m_name.c_str(),
+                                        entry.m_name.c_str());
+                                }
+                            }
+                            // validate struct size
+                            auto newSize = get_struc_size(s);
+                            if (newSize < entry.m_size) {
+                                if (add_struc_member(s, format("_pad%X", newSize).c_str(), newSize, 0, nullptr, entry.m_size - newSize) != 
+                                    STRUC_ERROR_MEMBER_OK)
+                                {
+                                    warning("Error: Unable to pad struct '%s' (at offset %d with %d bytes)", entry.m_name.c_str(),
+                                        newSize, entry.m_size - newSize);
+                                }
+                            }
+                        }
+                    }
+                    structs.push_back(entry);
+                }
+                else {
+                    warning("Empty struct name in file '%s'", p.path().string().c_str());
+                }
+            }
+        }
+        end_type_updating(UTP_STRUCT);
+        // update types & comments for ida structs members
+        begin_type_updating(UTP_STRUCT);
+        auto til = get_idati();
+        for (size_t i = 0; i < structs.size(); i++) {
+            Struct &entry = structs[i];
+            auto stid = entry.m_idaStructId;
+            auto s = entry.m_idaStruct;
+            for (auto const &m : entry.m_members) {
+                tinfo_t tif; qstring typeOut;
+                auto smem = get_member(s, m.m_offset);
+                if (smem) {
+                    if (parse_decl(&tif, &typeOut, NULL, (m.m_type + ";").c_str(), PT_SIL))
+                        set_member_tinfo(s, smem, m.m_offset, tif, 0);
+                    else {
+                        warning("Can't find member '%s' in struct '%s' (at offset %d)",
+                            m.m_name.c_str(), entry.m_name.c_str(), m.m_offset);
+                    }
+                    // member comment
+                    qstring stFullMemberComment;
+                    if (!m.m_rawType.empty()) {
+                        stFullMemberComment += " rawtype:";
+                        stFullMemberComment += m.m_rawType;
+                    }
+                    if (m.m_isAnonymous)
+                        stFullMemberComment += " isanonymous:true";
+                    if (!m.m_comment.empty()) {
+                        qstring stMemberComment = m.m_comment;
+                        stMemberComment.replace(";;", "\n");
+                        if (!stFullMemberComment.empty())
+                            stFullMemberComment += "\n";
+                        stFullMemberComment += stMemberComment;
+                    }
+                    if (!stFullMemberComment.empty())
+                        set_member_cmt(smem, stFullMemberComment.c_str(), false);
+                }
+                else {
+                    warning("Unable to parse type for member '%s' ('%s') in struct '%s'",
+                        m.m_name.c_str(), m.m_type.c_str(), entry.m_name.c_str());
+                }
+            }
+
+        }
+        end_type_updating(UTP_STRUCT);
+        // validate struct sizes
+        for (size_t i = 0; i < structs.size(); i++) {
+            auto idaStructSize = get_struc_size(structs[i].m_idaStructId);
+            if (structs[i].m_size != idaStructSize) {
+                warning("Size of struct '%s' is incorrect (%d bytes, should be %d bytes)",
+                    structs[i].m_name.c_str(), structs[i].m_size, idaStructSize);
+            }
+        }
+    }
+
+    if (options & OPTION_VARIABLES) {
+
+    }
+
+    if (options & OPTION_FUNCTIONS) {
+
     }
 }

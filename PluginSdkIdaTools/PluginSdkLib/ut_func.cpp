@@ -56,7 +56,7 @@ qvector<Function> Function::FromCSV(char const *filepath) {
         qfclose(inFile);
     }
     else
-        warning("Unable to open '%s'", filepath);
+        warning("Unable to open '%s' file for reading", filepath);
     return entries;
 }
 
@@ -101,7 +101,7 @@ qvector<Function> Function::FromReferenceCSV(char const *filepath, qvector<Funct
             qfclose(inFile);
         }
         else
-            warning("Unable to open '%s'", filepath);
+            warning("Unable to open '%s' file for reading", filepath);
     }
     return entries;
 }
@@ -139,30 +139,35 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
         qfclose(outFile);
         return true;
     }
-    warning("Unable to open '%s'", filepath);
+    warning("Unable to open '%s' file for writing", filepath);
+    return false;
+}
+
+bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
+    qvector<unsigned int> const &addresses, char const *version, char const *filepath)
+{
+    auto outFile = qfopen(filepath, "wt");
+    if (outFile) {
+        qfprintf(outFile, "%s,%s,NameComment\n", baseVersion, version);
+        for (size_t i = 0; i < baseEntries.size(); i++)
+            qfprintf(outFile, "0x%X,0x%X,%s\n", baseEntries[i].m_address, addresses[i], csvvalue(baseEntries[i].m_demangledName).c_str());
+        qfclose(outFile);
+        return true;
+    }
+    warning("Unable to open '%s' for writing", filepath);
     return false;
 }
 
 bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
     qvector<Function> const &entries, char const *version, char const *filepath)
 {
-    auto outFile = qfopen(filepath, "wt");
-    if (outFile) {
-        qfprintf(outFile, "%s,%s,NameComment\n", baseVersion, version);
-        for (auto const &i : baseEntries) {
-            if (!i.m_name.empty()) {
-                unsigned int addr = Function::Find(i.m_name, entries);
-                if (addr != 0)
-                    qfprintf(outFile, "0x%X,0x%X,%s\n", i.m_address, addr, csvvalue(i.m_demangledName).c_str());
-                else
-                    qfprintf(outFile, "0x%X,0,%s\n", i.m_address, csvvalue(i.m_demangledName).c_str());
-            }
-            else
-                qfprintf(outFile, "0x%X,0,%s\n", i.m_address, csvvalue(i.m_demangledName).c_str());
-        }
-        qfclose(outFile);
-        return true;
+    qvector<unsigned int> addresses;
+    for (size_t i = 0; i < baseEntries.size(); i++) {
+        if (!baseEntries[i].m_name.empty())
+            addresses.push_back(Function::Find(baseEntries[i].m_name, entries));
+        else
+            addresses.push_back(0);
+        
     }
-    warning("Unable to open '%s'", filepath);
-    return false;
+    return ToReferenceCSV(baseEntries, baseVersion, addresses, version, filepath);
 }

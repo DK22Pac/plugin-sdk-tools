@@ -15,9 +15,12 @@
 #include "ut_enum.h"
 #include "ut_ida.h"
 #include "ut_options.h"
+#include "translator.h"
 #include "Games.h"
 
 using namespace std;
+
+const bool gTranslateAddresses = true;
 
 void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
     if (selectedGame == -1) {
@@ -67,7 +70,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 get_tinfo(&type, ea);
                 type.print(&entry.m_type);
                 get_func_name(&entry.m_name, ea);
-                if (isPrefixReserved(entry.m_name))
+                if (isFunctionPrefixReserved(entry.m_name))
                     entry.m_name.clear();
                 else {
                     get_short_name(&entry.m_demangledName, ea);
@@ -145,9 +148,19 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             string baseFileName = "plugin-sdk." + gameName + ".functions." + baseVersionName + ".csv";
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
-            if (baseEntries.size() > 0)
-                Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
-                    filePath.string().c_str());
+            if (baseEntries.size() > 0) {
+                if (gTranslateAddresses) {
+                    qvector<unsigned int> addresses;
+                    for (size_t i = 0; i < baseEntries.size(); i++)
+                        addresses.push_back(translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address));
+                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), addresses, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+                else {
+                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+            }
         }
         else
             Function::ToCSV(functions, filePath.string().c_str(), versionName.c_str());
@@ -163,116 +176,118 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         while (seg) {
             qstring segName;
             get_segm_name(&segName, seg);
-            if (segName == ".data") {
+            if (segName == ".data" || segName == ".bss") {
                 msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->start_ea, seg->end_ea);
                 auto ea = seg->start_ea;
                 while (ea < seg->end_ea) {
                     int size = 1;
                     tinfo_t type;
                     if (get_tinfo(&type, ea)) {
-                        Variable entry;
-                        entry.m_address = ea;
-                        type.print(&entry.m_type);
-                        entry.m_name = get_name(ea);
-                        entry.m_demangledName = get_short_name(ea);
-                        
-                        qstring cmtLine;
-                        get_cmt(&cmtLine, ea, false);
-                        getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
-                        if (type.is_const()) {
-                            static char fmtbuf[32];
-                            qstring values;
-                            unsigned int numValues = 1;
-                            tinfo_t compType = type;
-                            if (compType.is_array()) {
-                                numValues = compType.get_array_nelems();
-                                compType = compType.get_array_element();
-                            }
-                            bool allRead = true;
-                            auto arrEa = ea;
-                            for (unsigned int val = 0; val < numValues; val++) {
-                                if (compType.is_bool()) {
-                                    bool bVal = get_byte(arrEa);
-                                    addValueCSVLine(values, (bVal ? "true" : "false"));
-                                    arrEa += 1;
-                                }
-                                else if (compType.is_float()) {
-                                    unsigned int u32 = get_dword(arrEa);
-                                    float f32 = *reinterpret_cast<float *>(&u32);
-                                    qsnprintf(fmtbuf, 32, "%g", f32);
-                                    qstring strval = fmtbuf;
-                                    if (strval.find('.') == qstring::npos)
-                                        strval += ".0";
-                                    strval += "f";
-                                    addValueCSVLine(values, strval);
-                                    arrEa += 4;
-                                }
-                                else if (compType.is_double()) {
-                                    unsigned int u64 = get_qword(arrEa);
-                                    float f64 = *reinterpret_cast<float *>(&u64);
-                                    qsnprintf(fmtbuf, 32, "%lg", f64);
-                                    qstring strval = fmtbuf;
-                                    if (strval.find('.') == qstring::npos)
-                                        strval += ".0";
-                                    addValueCSVLine(values, strval);
-                                    arrEa += 8;
-                                }
-                                else if (compType.is_int32() || compType.is_uint32()) {
-                                    unsigned int u32 = get_dword(arrEa);
-                                    if (compType.is_int32()) {
-                                        int i32 = *reinterpret_cast<float *>(&u32);
-                                        qsnprintf(fmtbuf, 32, "%d", i32);
-                                    }
-                                    else
-                                        qsnprintf(fmtbuf, 32, "%u", u32);
-                                    addValueCSVLine(values, fmtbuf);
-                                    arrEa += 4;
-                                }
-                                else if (compType.is_int16() || compType.is_uint16()) {
-                                    unsigned int u16 = get_word(arrEa);
-                                    if (compType.is_int16()) {
-                                        int i16 = *reinterpret_cast<float *>(&u16);
-                                        qsnprintf(fmtbuf, 32, "%d", i16);
-                                    }
-                                    else
-                                        qsnprintf(fmtbuf, 32, "%u", u16);
-                                    addValueCSVLine(values, fmtbuf);
-                                    arrEa += 2;
-                                }
-                                else if (compType.is_char() || compType.is_uchar()) {
-                                    unsigned int u8 = get_byte(arrEa);
-                                    if (compType.is_char()) {
-                                        int i8 = *reinterpret_cast<float *>(&u8);
-                                        qsnprintf(fmtbuf, 32, "%d", i8);
-                                    }
-                                    else
-                                        qsnprintf(fmtbuf, 32, "%u", u8);
-                                    addValueCSVLine(values, fmtbuf);
-                                    arrEa += 1;
-                                }
-                                else {
-                                    allRead = false;
-                                    break;
-                                }
-                            }
-                            
-                            if (allRead) {
-                                if (type.is_array()) {
-                                    values.insert(0, "{");
-                                    values += "}";
-                                }
-                                entry.m_defaultValues = values;
-                            }
-                        }
-
-                        variables.push_back(entry);
-
+                        // get type size
                         size = type.get_size();
                         if (size < 1)
                             size = 1;
                         auto itemSize = get_item_size(ea);
                         if (itemSize > size)
                             size = itemSize;
+                        //
+                        qstring addrName = get_name(ea);
+                        if (!addrName.empty() && !isDataPrefixReserved(addrName) && get_str_type(ea) == -1) {
+                            Variable entry;
+                            entry.m_address = ea;
+                            type.print(&entry.m_type);
+                            entry.m_name = addrName;
+                            entry.m_demangledName = get_short_name(ea);
+                            qstring cmtLine;
+                            get_cmt(&cmtLine, ea, false);
+                            getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
+                            if (type.is_const()) {
+                                static char fmtbuf[32];
+                                qstring values;
+                                unsigned int numValues = 1;
+                                tinfo_t compType = type;
+                                if (compType.is_array()) {
+                                    numValues = compType.get_array_nelems();
+                                    compType = compType.get_array_element();
+                                }
+                                bool allRead = true;
+                                auto arrEa = ea;
+                                for (unsigned int val = 0; val < numValues; val++) {
+                                    if (compType.is_bool()) {
+                                        bool bVal = get_byte(arrEa);
+                                        addValueCSVLine(values, (bVal ? "true" : "false"));
+                                        arrEa += 1;
+                                    }
+                                    else if (compType.is_float()) {
+                                        unsigned int u32 = get_dword(arrEa);
+                                        float f32 = *reinterpret_cast<float *>(&u32);
+                                        qsnprintf(fmtbuf, 32, "%g", f32);
+                                        qstring strval = fmtbuf;
+                                        if (strval.find('.') == qstring::npos)
+                                            strval += ".0";
+                                        strval += "f";
+                                        addValueCSVLine(values, strval);
+                                        arrEa += 4;
+                                    }
+                                    else if (compType.is_double()) {
+                                        unsigned int u64 = get_qword(arrEa);
+                                        float f64 = *reinterpret_cast<float *>(&u64);
+                                        qsnprintf(fmtbuf, 32, "%lg", f64);
+                                        qstring strval = fmtbuf;
+                                        if (strval.find('.') == qstring::npos)
+                                            strval += ".0";
+                                        addValueCSVLine(values, strval);
+                                        arrEa += 8;
+                                    }
+                                    else if (compType.is_int32() || compType.is_uint32()) {
+                                        unsigned int u32 = get_dword(arrEa);
+                                        if (compType.is_int32()) {
+                                            int i32 = *reinterpret_cast<float *>(&u32);
+                                            qsnprintf(fmtbuf, 32, "%d", i32);
+                                        }
+                                        else
+                                            qsnprintf(fmtbuf, 32, "%u", u32);
+                                        addValueCSVLine(values, fmtbuf);
+                                        arrEa += 4;
+                                    }
+                                    else if (compType.is_int16() || compType.is_uint16()) {
+                                        unsigned int u16 = get_word(arrEa);
+                                        if (compType.is_int16()) {
+                                            int i16 = *reinterpret_cast<float *>(&u16);
+                                            qsnprintf(fmtbuf, 32, "%d", i16);
+                                        }
+                                        else
+                                            qsnprintf(fmtbuf, 32, "%u", u16);
+                                        addValueCSVLine(values, fmtbuf);
+                                        arrEa += 2;
+                                    }
+                                    else if (compType.is_char() || compType.is_uchar()) {
+                                        unsigned int u8 = get_byte(arrEa);
+                                        if (compType.is_char()) {
+                                            int i8 = *reinterpret_cast<float *>(&u8);
+                                            qsnprintf(fmtbuf, 32, "%d", i8);
+                                        }
+                                        else
+                                            qsnprintf(fmtbuf, 32, "%u", u8);
+                                        addValueCSVLine(values, fmtbuf);
+                                        arrEa += 1;
+                                    }
+                                    else {
+                                        allRead = false;
+                                        break;
+                                    }
+                                }
+
+                                if (allRead) {
+                                    if (type.is_array()) {
+                                        values.insert(0, "{");
+                                        values += "}";
+                                    }
+                                    entry.m_defaultValues = values;
+                                }
+                            }
+                            variables.push_back(entry);
+                        }
                     }
                     ea += size;
                 }
@@ -283,9 +298,19 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             string baseFileName = "plugin-sdk." + gameName + ".variables." + baseVersionName + ".csv";
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
-            if (baseEntries.size() > 0)
-                Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
-                    filePath.string().c_str());
+            if (baseEntries.size() > 0) {
+                if (gTranslateAddresses) {
+                    qvector<unsigned int> addresses;
+                    for (size_t i = 0; i < baseEntries.size(); i++)
+                        addresses.push_back(translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address));
+                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), addresses, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+                else {
+                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+            }
         }
         else
             Variable::ToCSV(variables, filePath.string().c_str(), versionName.c_str());
@@ -302,8 +327,19 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             else
                 folderExists = true;
         }
-        else
+        else {
             folderExists = true;
+            for (const auto& p : directory_iterator(structFolderPath)) {
+                if (p.path().extension() == ".json") {
+                    error_code remErrCode;
+                    remove(p.path(), remErrCode);
+                    if (remErrCode) {
+                        warning("Unable to remove file '%s' in 'structs' folder (%s)",
+                            p.path().filename().string().c_str(), structFolderPath.string().c_str());
+                    }
+                }
+            }
+        }
 
         if (folderExists) {
             for (size_t i = 0; i < get_struc_qty(); i++) {
@@ -361,7 +397,6 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         get_member_cmt(&memberCmtLine, mid, false);
 
                         qstring memberComment, memberRawType;
-                        int bitWidth;
                         bool isMemberAnonymous;
                         getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isMemberAnonymous);
 
@@ -370,18 +405,12 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         jmember[jsonOrderedName("type")] = mtype.c_str();
                         if (!memberRawType.empty())
                             jmember[jsonOrderedName("rawType")] = memberRawType.c_str();
-                        if (moffset >= 10) {
-                            static char hexValue[32];
-                            qsnprintf(hexValue, 32, "0x%X", moffset);
-                            jmember[jsonOrderedName("offset")] = hexValue;
-                        }
+                        if (moffset >= 10)
+                            jmember[jsonOrderedName("offset")] = toHexString(moffset).c_str();
                         else
                             jmember[jsonOrderedName("offset")] = moffset;
-                        if (msize >= 10) {
-                            static char hexValue[32];
-                            qsnprintf(hexValue, 32, "0x%X", msize);
-                            jmember[jsonOrderedName("size")] = hexValue;
-                        }
+                        if (msize >= 10)
+                            jmember[jsonOrderedName("size")] = toHexString(msize).c_str();
                         else
                             jmember[jsonOrderedName("size")] = msize;
                         if (isMemberAnonymous)
@@ -422,8 +451,19 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             else
                 folderExists = true;
         }
-        else
+        else {
             folderExists = true;
+            for (const auto& p : directory_iterator(enumFolderPath)) {
+                if (p.path().extension() == ".json") {
+                    error_code remErrCode;
+                    remove(p.path(), remErrCode);
+                    if (remErrCode) {
+                        warning("Unable to remove file '%s' in 'enums' folder (%s)",
+                            p.path().filename().string().c_str(), enumFolderPath.string().c_str());
+                    }
+                }
+            }
+        }
 
         if (folderExists) {
             for (size_t i = 0; i < get_enum_qty(); i++) {

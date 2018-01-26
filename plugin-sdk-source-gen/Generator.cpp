@@ -40,6 +40,7 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                     Enum e;
                     e.mName = JsonIO::readJsonString(j, "name");
                     e.mModuleName = moduleName;
+                    e.mScope = JsonIO::readJsonString(j, "scope");
                     e.mWidth = JsonIO::readJsonNumber(j, "width");
                     e.mIsClass = JsonIO::readJsonBool(j, "isClass");
                     e.mIsHexademical = JsonIO::readJsonBool(j, "isHexademical");
@@ -80,6 +81,7 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                     }
                     Struct s;
                     s.mName = JsonIO::readJsonString(j, "name");
+                    s.mScope = JsonIO::readJsonString(j, "scope");
                     s.mModuleName = moduleName;
                     string kind = JsonIO::readJsonString(j, "kind");
                     if (kind == "struct")

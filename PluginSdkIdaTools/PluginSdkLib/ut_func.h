@@ -30,4 +30,6 @@ public:
     static bool ToCSV(qvector<Function> const &entries, char const *filepath, char const *version);
     static bool ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
         qvector<Function> const &entries, char const *version, char const *filepath);
+    static bool ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
+        qvector<unsigned int> const &addresses, char const *version, char const *filepath);
 };

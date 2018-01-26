@@ -1,7 +1,7 @@
 #include "ut_ida.h"
 #include "ut_string.h"
 
-bool isPrefixReserved(qstring const &name) {
+bool isFunctionPrefixReserved(qstring const &name) {
     return startsWith(name, "sub_") ||
         startsWith(name, "_sub_") ||
         startsWith(name, "j_sub_") ||
@@ -16,7 +16,11 @@ bool isPrefixReserved(qstring const &name) {
         startsWith(name, "j_unknown_libname_") ||
         startsWith(name, "locret_") ||
         startsWith(name, "loc_") ||
-        startsWith(name, "off_") ||
+        startsWith(name, "unk_");
+}
+
+bool isDataPrefixReserved(qstring const &name) {
+    return startsWith(name, "off_") ||
         startsWith(name, "seg_") ||
         startsWith(name, "asc_") ||
         startsWith(name, "byte_") ||
@@ -34,4 +38,8 @@ bool isPrefixReserved(qstring const &name) {
         startsWith(name, "custdata_") ||
         startsWith(name, "algn_") ||
         startsWith(name, "unk_");
+}
+
+bool isPrefixReserved(qstring const &name) {
+    return isFunctionPrefixReserved(name) || isDataPrefixReserved(name);
 }

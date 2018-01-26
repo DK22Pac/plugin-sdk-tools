@@ -21,4 +21,7 @@ public:
 
     static bool ToReferenceCSV(qvector<Variable> const &baseEntries, char const *baseVersion,
         qvector<Variable> const &entries, char const *version, char const *filepath);
+
+    static bool ToReferenceCSV(qvector<Variable> const &baseEntries, char const *baseVersion,
+        qvector<unsigned int> const &addresses, char const *version, char const *filepath);
 };

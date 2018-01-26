@@ -1,5 +1,6 @@
 #pragma once
 #include "idp.hpp"
+#include "struct.hpp"
 
 class Struct {
 public:
@@ -32,6 +33,10 @@ public:
     bool m_isAnonymous = false;
 
     qvector<Member> m_members;
+
+    // ida struct
+    struc_t *m_idaStruct = nullptr;
+    tid_t m_idaStructId = 0;
 
     Struct() = default;
 };

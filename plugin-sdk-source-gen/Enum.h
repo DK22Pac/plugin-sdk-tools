@@ -10,6 +10,7 @@ class Enum {
 public:
     string mName;
     string mModuleName;
+    string mScope;
     unsigned int mWidth;
     bool mIsClass;
     bool mIsHexademical;
