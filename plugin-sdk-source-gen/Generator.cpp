@@ -97,7 +97,9 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                         for (auto const &jm : *members) {
                             Struct::Member m;
                             m.mName = JsonIO::readJsonString(jm, "name");
-                            m.mFullType = JsonIO::readJsonString(jm, "type");
+                            m.mFullType = JsonIO::readJsonString(jm, "rawType"); // read custom type
+                            if (m.mFullType.empty()) // if custom is not defined, read default type
+                                m.mFullType = JsonIO::readJsonString(jm, "type");
                             m.mOffset = JsonIO::readJsonNumber(jm, "offset");
                             m.mSize = JsonIO::readJsonNumber(jm, "size");
                             m.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");

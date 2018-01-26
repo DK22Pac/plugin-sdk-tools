@@ -332,11 +332,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     j[jsonOrderedName("kind")] = "union";
                 else
                     j[jsonOrderedName("kind")] = "class";
-                if (size >= 10) {
-                    static char hexValue[32];
-                    qsnprintf(hexValue, 32, "0x%X", size);
-                    j[jsonOrderedName("size")] = hexValue;
-                }
+                if (size >= 10)
+                    j[jsonOrderedName("size")] = toHexString(size).c_str();
                 else
                     j[jsonOrderedName("size")] = size;
                 j[jsonOrderedName("alignment")] = alignment;

@@ -74,6 +74,7 @@
     <ClCompile Include="ut_options.cpp" />
     <ClCompile Include="ut_range.cpp" />
     <ClCompile Include="ut_string.cpp" />
+    <ClCompile Include="ut_struct.cpp" />
     <ClCompile Include="ut_variable.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +84,7 @@
     <ClInclude Include="ut_options.h" />
     <ClInclude Include="ut_range.h" />
     <ClInclude Include="ut_string.h" />
+    <ClInclude Include="ut_struct.h" />
     <ClInclude Include="ut_variable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

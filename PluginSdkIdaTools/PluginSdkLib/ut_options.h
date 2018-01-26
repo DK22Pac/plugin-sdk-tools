@@ -4,7 +4,7 @@
 void getOptionsAndComment(qstring const &line, qstring &realComment, qstring &optionStr);
 void getOptionValue(qstring const &optionStr, qstring const &fieldName, qstring &out);
 void getOptionValue(qstring const &optionStr, qstring const &fieldName, int &out);
-void getOptionValue(qstring const &optionStr, qstring const &fieldName, bool &out);;
+void getOptionValue(qstring const &optionStr, qstring const &fieldName, bool &out);
 void getOptionValue(qstring const &optionStr, qstring const &fieldName);
 void setOptionDefaultValue(qstring &opt);
 void setOptionDefaultValue(int &opt);
