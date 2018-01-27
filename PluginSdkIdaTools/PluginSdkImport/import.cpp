@@ -334,8 +334,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             // validate struct size
                             auto newSize = get_struc_size(s);
                             if (newSize < entry.m_size) {
-                                if (add_struc_member(s, format("_pad%X", newSize).c_str(), newSize, 0, nullptr, entry.m_size - newSize) != 
-                                    STRUC_ERROR_MEMBER_OK)
+                                if (add_struc_member(s, format("_pad%X", newSize).c_str(), newSize, 0, nullptr,
+                                    entry.m_size - newSize) != STRUC_ERROR_MEMBER_OK)
                                 {
                                     warning("Error: Unable to pad struct '%s' (at offset %d with %d bytes)", entry.m_name.c_str(),
                                         newSize, entry.m_size - newSize);
@@ -362,11 +362,9 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 tinfo_t tif; qstring typeOut;
                 auto smem = get_member(s, m.m_offset);
                 if (smem) {
-                    if (parse_decl(&tif, &typeOut, NULL, (m.m_type + ";").c_str(), PT_SIL))
-                        set_member_tinfo(s, smem, m.m_offset, tif, 0);
-                    else {
-                        warning("Can't find member '%s' in struct '%s' (at offset %d)",
-                            m.m_name.c_str(), entry.m_name.c_str(), m.m_offset);
+                    if (!setType(s, smem, m.m_offset, m.m_type)) {
+                        warning("Unable to set type for member '%s' ('%s') in struct '%s'",
+                            m.m_name.c_str(), m.m_type.c_str(), entry.m_name.c_str());
                     }
                     // member comment
                     qstring stFullMemberComment;
@@ -387,11 +385,10 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         set_member_cmt(smem, stFullMemberComment.c_str(), false);
                 }
                 else {
-                    warning("Unable to parse type for member '%s' ('%s') in struct '%s'",
-                        m.m_name.c_str(), m.m_type.c_str(), entry.m_name.c_str());
+                    warning("Can't find member '%s' in struct '%s' (at offset %d)",
+                        m.m_name.c_str(), entry.m_name.c_str(), m.m_offset);
                 }
             }
-
         }
         end_type_updating(UTP_STRUCT);
         // validate struct sizes
@@ -404,10 +401,83 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         }
     }
 
+    // read and update variables
     if (options & OPTION_VARIABLES) {
+        string fileName = "plugin-sdk." + gameName + ".variables." + versionName + ".csv";
+        path filePath = dbFolderPath / fileName;
 
+        // find data segments
+        qvector<AddressRange> dataSegments;
+        auto seg = get_first_seg();
+        while (seg) {
+            qstring segName;
+            get_segm_name(&segName, seg);
+            if (isDataSegment(segName))
+                AddRange(dataSegments, seg->start_ea, seg->end_ea);
+            seg = get_next_seg(seg->start_ea);
+        }
+
+        // read variables file
+        qvector<Variable> variables;
+        if (!isBaseVersion) {
+            string baseFileName = "plugin-sdk." + gameName + ".variables." + baseVersionName + ".csv";
+            path baseFilePath = dbFolderPath / baseFileName;
+            auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
+            if (baseEntries.size() > 0)
+                variables = Variable::FromReferenceCSV(filePath.string().c_str(), baseEntries);
+        }
+        else
+            variables = Variable::FromCSV(filePath.string().c_str());
+
+        // update ida variables
+        auto f = qfopen("D:\\wrong_var_types.csv", "wt");
+        qfputs("Address,DemangledName,Type\n", f);
+        for (size_t i = 0; i < variables.size(); i++) {
+            Variable const &v = variables[i];
+            if (v.m_address != 0 && !v.m_type.empty()) {
+                if (IsInRange(v.m_address, dataSegments)) {
+                    if (!del_items(v.m_address, DELIT_DELNAMES, v.m_size)) {
+                        warning("Unable to clear space for '%s' variable at address 0x%X (%d bytes)",
+                            v.m_demangledName.c_str(), v.m_address, v.m_size);
+                    }
+                    for (unsigned int i = 0; i < v.m_size; i++)
+                        setType(v.m_address + i, "");
+                    if (!set_name(v.m_address, v.m_name.c_str())) {
+                        warning("Unable to set variable '%s' name at address 0x%X",
+                            v.m_demangledName.c_str(), v.m_address);
+                    }
+                    if (!setType(v.m_address, v.m_type)) {
+                        //warning("Unable to set variable '%s' type ('%s') at address 0x%X",
+                        //    v.m_demangledName.c_str(), v.m_type.c_str(), v.m_address);
+                        qfprintf(f, "0x%X,%s,%s\n", v.m_address, v.m_demangledName.c_str(), v.m_type.c_str());
+                    }
+                    qstring varFullComment = "module:";
+                    varFullComment += v.m_module;
+                    if (!v.m_rawType.empty()) {
+                        varFullComment += " rawtype:";
+                        varFullComment += v.m_rawType;
+                    }
+                    if (!v.m_comment.empty()) {
+                        qstring varComment = v.m_comment;
+                        varComment.replace(";;", "\n");
+                        varFullComment += "\n";
+                        varFullComment += varComment;
+                    }
+                    if (!set_cmt(v.m_address, varFullComment.c_str(), false)) {
+                        warning("Unable to set variable '%s' comment at address 0x%X\nComment:\n%s",
+                            v.m_demangledName.c_str(), v.m_address, varFullComment.c_str());
+                    }
+                }
+                else {
+                    warning("Variable '%s' is placed outside the data segment range (0x%X)",
+                        v.m_demangledName.c_str(), v.m_address);
+                }
+            }
+        }
+        qfclose(f);
     }
 
+    // read and update functions
     if (options & OPTION_FUNCTIONS) {
 
     }

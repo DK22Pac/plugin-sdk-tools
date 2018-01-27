@@ -36,13 +36,13 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Modu
         Struct::Member &m = mMembers[i];
         if (m.IsPadding()) {
             if (access == Access::Public) {
-                stream << "private:" << endl;
+                stream << endl << "private:";
                 access = Access::Private;
             }
         }
         else {
             if (access == Access::Private) {
-                stream << "public:" << endl;
+                stream << endl << "public:";
                 access = Access::Public;
             }
         }

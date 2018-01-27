@@ -176,11 +176,12 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         while (seg) {
             qstring segName;
             get_segm_name(&segName, seg);
-            if (segName == ".data" || segName == ".bss") {
+            if (isDataSegment(segName)) {
                 msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->start_ea, seg->end_ea);
                 auto ea = seg->start_ea;
                 while (ea < seg->end_ea) {
                     int size = 1;
+                    bool hasType = false;
                     tinfo_t type;
                     if (get_tinfo(&type, ea)) {
                         // get type size
@@ -190,104 +191,107 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         auto itemSize = get_item_size(ea);
                         if (itemSize > size)
                             size = itemSize;
-                        //
-                        qstring addrName = get_name(ea);
-                        if (!addrName.empty() && !isDataPrefixReserved(addrName) && get_str_type(ea) == -1) {
-                            Variable entry;
-                            entry.m_address = ea;
+                        hasType = true;
+                    }
+                    qstring addrName = get_name(ea);
+                    if (!addrName.empty() && !isDataPrefixReserved(addrName) && get_str_type(ea) == -1) {
+                        Variable entry;
+                        entry.m_address = ea;
+                        entry.m_size = size;
+                        if (hasType)
                             type.print(&entry.m_type);
-                            entry.m_name = addrName;
-                            entry.m_demangledName = get_short_name(ea);
-                            qstring cmtLine;
-                            get_cmt(&cmtLine, ea, false);
-                            getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
-                            if (type.is_const()) {
-                                static char fmtbuf[32];
-                                qstring values;
-                                unsigned int numValues = 1;
-                                tinfo_t compType = type;
-                                if (compType.is_array()) {
-                                    numValues = compType.get_array_nelems();
-                                    compType = compType.get_array_element();
+                        entry.m_name = addrName;
+                        entry.m_demangledName = get_short_name(ea);
+                        qstring cmtLine;
+                        get_cmt(&cmtLine, ea, false);
+                        getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
+                        // get default value(s) for constant variable
+                        if (hasType && type.is_const()) {
+                            static char fmtbuf[32];
+                            qstring values;
+                            unsigned int numValues = 1;
+                            tinfo_t compType = type;
+                            if (compType.is_array()) {
+                                numValues = compType.get_array_nelems();
+                                compType = compType.get_array_element();
+                            }
+                            bool allRead = true;
+                            auto arrEa = ea;
+                            for (unsigned int val = 0; val < numValues; val++) {
+                                if (compType.is_bool()) {
+                                    bool bVal = get_byte(arrEa);
+                                    addValueCSVLine(values, (bVal ? "true" : "false"));
+                                    arrEa += 1;
                                 }
-                                bool allRead = true;
-                                auto arrEa = ea;
-                                for (unsigned int val = 0; val < numValues; val++) {
-                                    if (compType.is_bool()) {
-                                        bool bVal = get_byte(arrEa);
-                                        addValueCSVLine(values, (bVal ? "true" : "false"));
-                                        arrEa += 1;
-                                    }
-                                    else if (compType.is_float()) {
-                                        unsigned int u32 = get_dword(arrEa);
-                                        float f32 = *reinterpret_cast<float *>(&u32);
-                                        qsnprintf(fmtbuf, 32, "%g", f32);
-                                        qstring strval = fmtbuf;
-                                        if (strval.find('.') == qstring::npos)
-                                            strval += ".0";
-                                        strval += "f";
-                                        addValueCSVLine(values, strval);
-                                        arrEa += 4;
-                                    }
-                                    else if (compType.is_double()) {
-                                        unsigned int u64 = get_qword(arrEa);
-                                        float f64 = *reinterpret_cast<float *>(&u64);
-                                        qsnprintf(fmtbuf, 32, "%lg", f64);
-                                        qstring strval = fmtbuf;
-                                        if (strval.find('.') == qstring::npos)
-                                            strval += ".0";
-                                        addValueCSVLine(values, strval);
-                                        arrEa += 8;
-                                    }
-                                    else if (compType.is_int32() || compType.is_uint32()) {
-                                        unsigned int u32 = get_dword(arrEa);
-                                        if (compType.is_int32()) {
-                                            int i32 = *reinterpret_cast<float *>(&u32);
-                                            qsnprintf(fmtbuf, 32, "%d", i32);
-                                        }
-                                        else
-                                            qsnprintf(fmtbuf, 32, "%u", u32);
-                                        addValueCSVLine(values, fmtbuf);
-                                        arrEa += 4;
-                                    }
-                                    else if (compType.is_int16() || compType.is_uint16()) {
-                                        unsigned int u16 = get_word(arrEa);
-                                        if (compType.is_int16()) {
-                                            int i16 = *reinterpret_cast<float *>(&u16);
-                                            qsnprintf(fmtbuf, 32, "%d", i16);
-                                        }
-                                        else
-                                            qsnprintf(fmtbuf, 32, "%u", u16);
-                                        addValueCSVLine(values, fmtbuf);
-                                        arrEa += 2;
-                                    }
-                                    else if (compType.is_char() || compType.is_uchar()) {
-                                        unsigned int u8 = get_byte(arrEa);
-                                        if (compType.is_char()) {
-                                            int i8 = *reinterpret_cast<float *>(&u8);
-                                            qsnprintf(fmtbuf, 32, "%d", i8);
-                                        }
-                                        else
-                                            qsnprintf(fmtbuf, 32, "%u", u8);
-                                        addValueCSVLine(values, fmtbuf);
-                                        arrEa += 1;
-                                    }
-                                    else {
-                                        allRead = false;
-                                        break;
-                                    }
+                                else if (compType.is_float()) {
+                                    unsigned int u32 = get_dword(arrEa);
+                                    float f32 = *reinterpret_cast<float *>(&u32);
+                                    qsnprintf(fmtbuf, 32, "%g", f32);
+                                    qstring strval = fmtbuf;
+                                    if (strval.find('.') == qstring::npos)
+                                        strval += ".0";
+                                    strval += "f";
+                                    addValueCSVLine(values, strval);
+                                    arrEa += 4;
                                 }
-
-                                if (allRead) {
-                                    if (type.is_array()) {
-                                        values.insert(0, "{");
-                                        values += "}";
+                                else if (compType.is_double()) {
+                                    unsigned int u64 = get_qword(arrEa);
+                                    float f64 = *reinterpret_cast<float *>(&u64);
+                                    qsnprintf(fmtbuf, 32, "%lg", f64);
+                                    qstring strval = fmtbuf;
+                                    if (strval.find('.') == qstring::npos)
+                                        strval += ".0";
+                                    addValueCSVLine(values, strval);
+                                    arrEa += 8;
+                                }
+                                else if (compType.is_int32() || compType.is_uint32()) {
+                                    unsigned int u32 = get_dword(arrEa);
+                                    if (compType.is_int32()) {
+                                        int i32 = *reinterpret_cast<float *>(&u32);
+                                        qsnprintf(fmtbuf, 32, "%d", i32);
                                     }
-                                    entry.m_defaultValues = values;
+                                    else
+                                        qsnprintf(fmtbuf, 32, "%u", u32);
+                                    addValueCSVLine(values, fmtbuf);
+                                    arrEa += 4;
+                                }
+                                else if (compType.is_int16() || compType.is_uint16()) {
+                                    unsigned int u16 = get_word(arrEa);
+                                    if (compType.is_int16()) {
+                                        int i16 = *reinterpret_cast<float *>(&u16);
+                                        qsnprintf(fmtbuf, 32, "%d", i16);
+                                    }
+                                    else
+                                        qsnprintf(fmtbuf, 32, "%u", u16);
+                                    addValueCSVLine(values, fmtbuf);
+                                    arrEa += 2;
+                                }
+                                else if (compType.is_char() || compType.is_uchar()) {
+                                    unsigned int u8 = get_byte(arrEa);
+                                    if (compType.is_char()) {
+                                        int i8 = *reinterpret_cast<float *>(&u8);
+                                        qsnprintf(fmtbuf, 32, "%d", i8);
+                                    }
+                                    else
+                                        qsnprintf(fmtbuf, 32, "%u", u8);
+                                    addValueCSVLine(values, fmtbuf);
+                                    arrEa += 1;
+                                }
+                                else {
+                                    allRead = false;
+                                    break;
                                 }
                             }
-                            variables.push_back(entry);
+
+                            if (allRead) {
+                                if (type.is_array()) {
+                                    values.insert(0, "{");
+                                    values += "}";
+                                }
+                                entry.m_defaultValues = values;
+                            }
                         }
+                        variables.push_back(entry);
                     }
                     ea += size;
                 }

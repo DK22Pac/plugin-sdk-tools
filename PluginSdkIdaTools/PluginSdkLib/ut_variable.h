@@ -4,6 +4,7 @@
 class Variable {
 public:
     unsigned int m_address = 0;
+    unsigned int m_size = 0;
     qstring m_name;
     qstring m_demangledName;
     qstring m_type;

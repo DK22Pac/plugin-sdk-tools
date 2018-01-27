@@ -37,9 +37,51 @@ bool isDataPrefixReserved(qstring const &name) {
         startsWith(name, "stru_") ||
         startsWith(name, "custdata_") ||
         startsWith(name, "algn_") ||
-        startsWith(name, "unk_");
+        startsWith(name, "unk_") ||
+        startsWith(name, "GUID_") ||
+        startsWith(name, "IID_") ||
+        startsWith(name, "CLSID_");
 }
 
 bool isPrefixReserved(qstring const &name) {
     return isFunctionPrefixReserved(name) || isDataPrefixReserved(name);
+}
+
+bool isDataSegment(qstring const &name) {
+    return name == ".data" || name == ".rdata" || name == ".bss";
+}
+
+bool parseType(qstring const &typeName, tinfo_t &out, bool silent) {
+    qstring fixedTypeName = typeName;
+    if (typeName.last() != ';')
+        fixedTypeName += ";";
+    qstring outTypeName;
+    if (parse_decl(&out, &outTypeName, NULL, fixedTypeName.c_str(), silent ? PT_SIL : 0))
+        return true;
+    return false;
+}
+
+bool setType(ea_t ea, qstring const &typeName, bool silent) {
+    tinfo_t tif;
+    if (!typeName.empty()) {
+        if (!parseType(typeName, tif, silent))
+            return false;
+    }
+    return apply_tinfo(ea, tif, TINFO_DEFINITE);
+}
+
+bool setType(struc_t *struc, size_t offset, qstring const &typeName, bool silent) {
+    auto member = get_member(struc, offset);
+    if (!member)
+        return false;
+    return setType(struc, member, offset, typeName, silent);
+}
+
+bool setType(struc_t *struc, member_t *member, size_t offset, qstring const &typeName, bool silent) {
+    tinfo_t tif;
+    if (!typeName.empty()) {
+        if (!parseType(typeName, tif, silent))
+            return false;
+    }
+    return set_member_tinfo(struc, member, offset, tif, 0) == SMT_OK;
 }

@@ -16,6 +16,7 @@ public:
     Type mType;
     string mDefaultValues;
     string mComment;
+    unsigned int mSize;
 
     struct ExeVersionInfo {
         unsigned int mAddress = 0;
