@@ -196,8 +196,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                     }
                                 }
                                 for (auto &cm : m_comments) {
-                                    if (cm.used) {
-                                        warning("Comment for enum member '%s' in enum '%s' was not set",
+                                    if (!cm.used) {
+                                        msg("Comment for enum member '%s' in enum '%s' was not set\n",
                                             cm.memberName.c_str(), m_enumName.c_str());
                                     }
                                 }
@@ -430,14 +430,12 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             variables = Variable::FromCSV(filePath.string().c_str());
 
         // update ida variables
-        auto f = qfopen("D:\\wrong_var_types.csv", "wt");
-        qfputs("Address,DemangledName,Type\n", f);
         for (size_t i = 0; i < variables.size(); i++) {
             Variable const &v = variables[i];
             if (v.m_address != 0 && !v.m_type.empty()) {
                 if (IsInRange(v.m_address, dataSegments)) {
                     if (!del_items(v.m_address, DELIT_DELNAMES, v.m_size)) {
-                        warning("Unable to clear space for '%s' variable at address 0x%X (%d bytes)",
+                        msg("Unable to clear space for '%s' variable at address 0x%X (%d bytes)\n",
                             v.m_demangledName.c_str(), v.m_address, v.m_size);
                     }
                     for (unsigned int i = 0; i < v.m_size; i++)
@@ -447,9 +445,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             v.m_demangledName.c_str(), v.m_address);
                     }
                     if (!setType(v.m_address, v.m_type)) {
-                        //warning("Unable to set variable '%s' type ('%s') at address 0x%X",
-                        //    v.m_demangledName.c_str(), v.m_type.c_str(), v.m_address);
-                        qfprintf(f, "0x%X,%s,%s\n", v.m_address, v.m_demangledName.c_str(), v.m_type.c_str());
+                        msg("Errors while setting variable '%s' type ('%s') at address 0x%X\n",
+                            v.m_demangledName.c_str(), v.m_type.c_str(), v.m_address);
                     }
                     qstring varFullComment = "module:";
                     varFullComment += v.m_module;
@@ -469,16 +466,98 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     }
                 }
                 else {
-                    warning("Variable '%s' is placed outside the data segment range (0x%X)",
+                    msg("Variable '%s' is placed outside the data segment range (0x%X)\n",
                         v.m_demangledName.c_str(), v.m_address);
                 }
             }
         }
-        qfclose(f);
     }
 
     // read and update functions
     if (options & OPTION_FUNCTIONS) {
+        string fileName = "plugin-sdk." + gameName + ".functions." + versionName + ".csv";
+        path filePath = dbFolderPath / fileName;
 
+        // read functions file
+        qvector<Function> functions;
+        if (!isBaseVersion) {
+            string baseFileName = "plugin-sdk." + gameName + ".functions." + baseVersionName + ".csv";
+            path baseFilePath = dbFolderPath / baseFileName;
+            auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
+            if (baseEntries.size() > 0)
+                functions = Function::FromReferenceCSV(filePath.string().c_str(), baseEntries);
+        }
+        else
+            functions = Function::FromCSV(filePath.string().c_str());
+        warning("%d", functions.size());
+        // update ida functions
+        for (size_t i = 0; i < functions.size(); i++) {
+            Function const &f = functions[i];
+            if (f.m_address != 0 && !f.m_name.empty()) {
+                auto func = get_func(f.m_address);
+                if (!func) {
+                    msg("Creating function '%s' at address 0x%X\n", f.m_demangledName.c_str(), f.m_address);
+                    if (!add_func(f.m_address)) {
+                        warning("Unable to create function '%s' at address 0x%X", f.m_demangledName.c_str(), f.m_address);
+                        continue;
+                    }
+                    func = get_func(f.m_address);
+                    if (!func) {
+                        warning("Unable to get info for just created function '%s' (at address 0x%X)",
+                            f.m_demangledName.c_str(), f.m_address);
+                        continue;
+                    }
+                }
+                // function name
+                if (!set_name(f.m_address, f.m_name.c_str())) {
+                    warning("Unable to set function '%s' name at address 0x%X", f.m_demangledName.c_str(), f.m_address);
+                }
+                // function type (includes function parameters names)
+                if (!f.m_type.empty()){
+                    qstring fnType = f.m_type;
+                    auto fnNamePos = fnType.find('(', 0);
+                    if (fnNamePos != qstring::npos)
+                        fnType.insert(fnNamePos, " f");
+                    if (!setType(f.m_address, fnType)) {
+                        msg("Unable to set function '%s' type ('%s') at address 0x%X\n",
+                            f.m_demangledName.c_str(), f.m_type.c_str(), f.m_address);
+                    }
+                }
+                // function comment
+                qstring fnFullComment;
+                // module
+                fnFullComment = "module:";
+                fnFullComment += f.m_module;
+                // rettype
+                if (f.m_rawRetType) {
+                    fnFullComment += " rettype:";
+                    fnFullComment += f.m_retType;
+                }
+                // isconst
+                if (f.m_isConst)
+                    fnFullComment += " isconst:true";
+                // raw parameters types
+                for (auto const &fp : f.m_params) {
+                    if (!fp.m_name.empty() && startsWith(fp.m_name, "rt_") && fp.m_rawType) {
+                        fnFullComment += " ";
+                        fnFullComment += fp.m_name;
+                        fnFullComment += ":\"";
+                        fnFullComment += fp.m_type;
+                        fnFullComment += "\"";
+                    }
+                }
+                // default comment
+                if (!f.m_comment.empty()) {
+                    qstring fnComment = f.m_comment;
+                    fnComment.replace(";;", "\n");
+                    fnFullComment += "\n";
+                    fnFullComment += fnComment;
+                }
+                if (!set_func_cmt(func, fnFullComment.c_str(), false)) {
+                    warning("Unable to set function '%s' comment at address 0x%X\nComment:\n%s",
+                        f.m_demangledName.c_str(), f.m_address, fnFullComment.c_str());
+                }
+            }
+        }
     }
 }

@@ -68,8 +68,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 tinfo_t type;
                 entry.m_address = ea;
                 get_tinfo(&type, ea);
-                type.print(&entry.m_type);
                 get_func_name(&entry.m_name, ea);
+                type.print(&entry.m_type);
                 if (isFunctionPrefixReserved(entry.m_name))
                     entry.m_name.clear();
                 else {
