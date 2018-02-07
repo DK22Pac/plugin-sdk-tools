@@ -27,6 +27,6 @@ public:
     string GetFullName(); // combine name + scope
     string GetNameWithType(bool bFullName = false);
     string GetNameWithRefType(bool bFullName = false);
-    void WriteDefinition(ofstream &stream, tabs t);
-    void WriteDeclaration(ofstream &stream, tabs t, bool isStatic, Games::IDs game);
+    void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
+    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool isStatic);
 };

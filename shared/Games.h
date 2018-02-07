@@ -17,7 +17,7 @@ public:
         GTA3
     };
 
-    static constexpr unsigned int Games::GetGameVersionsCount(IDs game) {
+    static constexpr unsigned int GetGameVersionsCount(IDs game) {
         if (game == GTASA)
             return sizeof(VersionNamesSA) / sizeof(char*);
         if (game == GTAVC)
@@ -27,15 +27,15 @@ public:
         return 0;
     }
 
-    static constexpr unsigned int Games::GetMaxGameVersions() {
+    static constexpr unsigned int GetMaxGameVersions() {
         return max(GetGameVersionsCount(GTASA), max(GetGameVersionsCount(GTAVC), GetGameVersionsCount(GTA3)));
     }
 
-    inline static Games::IDs Games::ToID(unsigned int intId) {
+    inline static Games::IDs ToID(unsigned int intId) {
         return static_cast<IDs>(intId);
     }
 
-    inline static string Games::GetGameFolder(IDs game) {
+    inline static string GetGameFolder(IDs game) {
         if (game == GTAVC)
             return "gtavc";
         else if (game == GTA3)
@@ -43,7 +43,7 @@ public:
         return "gtasa";
     }
 
-    inline static string Games::GetGameAbbr(IDs game) {
+    inline static string GetGameAbbr(IDs game) {
         if (game == GTAVC)
             return "VC";
         else if (game == GTA3)
@@ -51,7 +51,7 @@ public:
         return "SA";
     }
 
-    inline static string Games::GetGameAbbrLow(IDs game) {
+    inline static string GetGameAbbrLow(IDs game) {
         if (game == GTAVC)
             return "vc";
         else if (game == GTA3)
@@ -59,7 +59,15 @@ public:
         return "sa";
     }
 
-    inline static string Games::GetGameVersionName(IDs game, unsigned int version) {
+    inline static string GetGameFullName(IDs game) {
+        if (game == GTAVC)
+            return "Grand Theft Auto: Vice City";
+        else if (game == GTA3)
+            return "Grand Theft Auto 3";
+        return "Grand Theft Auto: San Andreas";
+    }
+
+    inline static string GetGameVersionName(IDs game, unsigned int version) {
         if (version < GetGameVersionsCount(game)) {
             if (game == GTASA)
                 return VersionNamesSA[version];

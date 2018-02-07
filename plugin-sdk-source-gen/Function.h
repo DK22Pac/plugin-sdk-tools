@@ -3,6 +3,7 @@
 #include <vector>
 #include "Type.h"
 #include "..\shared\Games.h"
+#include "Tabs.h"
 
 using namespace std;
 
@@ -27,7 +28,6 @@ public:
     struct Parameter {
         string mName;
         Type mType;
-        string mComment;
     };
 
     vector<Parameter> mParameters;
@@ -39,4 +39,7 @@ public:
     ExeVersionInfo mVersionInfo[Games::GetMaxGameVersions()];
 
     string GetFullName(); // combine name + scope
+
+    void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
+    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool isStatic);
 };

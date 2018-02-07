@@ -63,7 +63,7 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Modu
     // variables
     if (mVariables.size() > 0) {
         for (unsigned int i = 0; i < mVariables.size(); i++) {
-            mVariables[i].WriteDeclaration(stream, t, true, game);
+            mVariables[i].WriteDeclaration(stream, t, game, true);
             stream << endl;
         }
     }

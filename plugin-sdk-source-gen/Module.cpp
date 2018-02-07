@@ -35,6 +35,7 @@ Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
 void Module::Write(path const &folder, vector<Module> const &allModules, Games::IDs game) {
     cout << "GTA" << Games::GetGameAbbr(game) << ": Writing module '" << mName << "'" << endl;
     WriteHeader(folder, allModules, game);
+    WriteSource(folder, allModules, game);
 }
 
 bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game) {
@@ -45,7 +46,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
     tabs t(0);
     // file header
     stream << "/*" << endl;
-    stream << "    Plugin-SDK (Grand Theft Auto) header file" << endl;
+    stream << "    Plugin-SDK (" << Games::GetGameFullName(game) << ") header file" << endl;
     stream << "    Authors: GTA Community. See more here" << endl;
     stream << "    https://github.com/GTAmodding/plugin-sdk" << endl;
     stream << "    Do not delete this comment block. Respect others' work!" << endl;
@@ -80,19 +81,51 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
     // variables
     if (mVariables.size() > 0) {
         for (unsigned int i = 0; i < mVariables.size(); i++) {
-            if (mVariables[i].mScope.empty()) {
-                stream << endl;
-                mVariables[i].WriteDeclaration(stream, t, false, game);
-                stream << endl;
-            }
+            stream << endl;
+            mVariables[i].WriteDeclaration(stream, t, game, false);
+            stream << endl;
         }
     }
-
     //functions
 
     return true;
 }
 
 bool Module::WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game) {
-    return false;
+    ofstream stream(folder / (mName + ".cpp"));
+    if (!stream.is_open()) {
+        return false;
+    }
+    tabs t(0);
+    // file header
+    stream << "/*" << endl;
+    stream << "    Plugin-SDK (" << Games::GetGameFullName(game) << ") source file" << endl;
+    stream << "    Authors: GTA Community. See more here" << endl;
+    stream << "    https://github.com/GTAmodding/plugin-sdk" << endl;
+    stream << "    Do not delete this comment block. Respect others' work!" << endl;
+    stream << "*/" << endl;
+    // include files
+    stream << "#include " << '"' << mName + ".h" << '"' << endl << endl;
+    // class variables
+    if (mStructs.size() > 0) {
+        for (unsigned int i = 0; i < mStructs.size(); i++) {
+            if (mStructs[i].mVariables.size() > 0) {
+                for (unsigned int j = 0; j < mStructs[i].mVariables.size(); j++) {
+                    mStructs[i].mVariables[j].WriteDefinition(stream, t, game);
+                    stream << endl;
+                }
+            }
+        }
+    }
+    // global variables
+    if (mVariables.size() > 0) {
+        for (unsigned int i = 0; i < mVariables.size(); i++) {
+            stream << endl;
+            mVariables[i].WriteDefinition(stream, t, game);
+            stream << endl;
+        }
+    }
+    //functions
+
+    return true;
 }

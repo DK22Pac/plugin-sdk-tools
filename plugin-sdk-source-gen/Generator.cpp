@@ -207,13 +207,45 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                         if (!varRefAddress.empty()) {
                             unsigned int refAddress = String::ToNumber(varRefAddress);
                             if (refAddress != 0) {
-
+                                //
+                                // TODO
+                                //
                             }
                         }
                     }
                 }
+                varsFile.close();
             }
-            varsFile.close();
+        }
+
+        // read functions file for each game version:
+        // 1.0 us/english version should be always present, and its index is always '0'.
+        for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+            // example filepath: plugin-sdk.sa.functions.10us.csv
+            path funcsFilePath = gameDbPath / ("plugin-sdk." + Games::GetGameAbbrLow(game) + ".functions." + Games::GetGameVersionName(game, i) + ".csv");
+            std::ifstream funcsFile(funcsFilePath);
+            if (!funcsFile.is_open()) {
+                // exit if can't open base file
+                if (i == 0) {
+                    Message("%s: Unable to open base file for functions (%s)", __FUNCTION__, funcsFilePath.string().c_str());
+                    break;
+                }
+            }
+            else {
+                auto csvLines = CSV::ReadLines(funcsFile);
+                // if base version
+                if (i == 0) {
+                    for (string const &csvLine : csvLines) {
+                        
+                    }
+                }
+                else {
+                    for (string const &csvLine : csvLines) {
+                        
+                    }
+                }
+                funcsFile.close();
+            }
         }
     }
 

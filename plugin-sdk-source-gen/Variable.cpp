@@ -16,14 +16,30 @@ string Variable::GetNameWithRefType(bool bFullName) {
     return refType.BeforeName() + (bFullName ? GetFullName() : mName) + refType.AfterName();
 }
 
-void Variable::WriteDefinition(ofstream &stream, tabs t) {
+void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     bool isConst = mType.mIsConst;
     mType.mIsConst = false;
-    stream << t() << GetNameWithRefType(true) << ';';
+    stream << t() << GetNameWithRefType(true) << " = ";
+    if (mType.mArraySize[0] == 0)
+        stream << '*';
+    stream << "reinterpret_cast<";
+    stream << mType.BeforeName() << '*';
+    stream << ">(";
+    stream << "plugin::patch::GetGlobalAddress(";
+    stream << "plugin::by_version_dyn(";
+    bool first = true;
+    for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+        if (!first)
+            stream << ", ";
+        else
+            first = false;
+        stream << String::ToHexString(mVersionInfo[i].mAddress);
+    }
+    stream << ")));";
     mType.mIsConst = isConst;
 }
 
-void Variable::WriteDeclaration(ofstream &stream, tabs t, bool isStatic, Games::IDs game) {
+void Variable::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool isStatic) {
     WriteComment(stream, mComment, t, 0);
     stream << t();
     if (isStatic)

@@ -20,6 +20,8 @@ public:
 
     template <typename T, typename t = enable_if_t<is_integral_v<T>>>
     static string ToHexString(T intVal) {
+        if (intVal == 0)
+            return "0";
         return Format("0x%X", intVal);
     }
 
