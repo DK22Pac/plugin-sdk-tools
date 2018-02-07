@@ -7,7 +7,7 @@
 Type::Type(Type const &rhs) {
     mName = rhs.mName;
     mIsNumber = rhs.mIsNumber;
-    mIsEpsilon = rhs.mIsEpsilon;
+    mIsEllipsis = rhs.mIsEllipsis;
     mIsVoid = rhs.mIsVoid;
     mIsPointerToFixedSizeArray = rhs.mIsPointerToFixedSizeArray;
     mArraySize[0] = rhs.mArraySize[0];
@@ -126,7 +126,7 @@ string GetCorrectTypeName(string const &typeName, bool &corrected) {
 
 bool ObtainRegularToken(string const &tokenWord, Token &outToken) {
     if (tokenWord == "...") {
-        outToken = { tokenWord, Token::EPSILON };
+        outToken = { tokenWord, Token::ELLIPSIS };
         return true;
     }
     if (tokenWord == "const") {
@@ -405,8 +405,8 @@ void Type::AddRetTypeForFunction() {
     mIsConst = false;
     mFunctionRetType->mIsInBuilt = mIsInBuilt;
     mIsInBuilt = false;
-    mFunctionRetType->mIsEpsilon = mIsEpsilon;
-    mIsEpsilon = false;
+    mFunctionRetType->mIsEllipsis = mIsEllipsis;
+    mIsEllipsis = false;
     mFunctionRetType->mIsRenderWare = mIsRenderWare;
     mIsRenderWare = false;
     mFunctionRetType->mIsVoid = mIsVoid;
@@ -509,8 +509,8 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                     }
                 }
             }
-            else if (t.type == Token::EPSILON) {
-                mIsEpsilon = true;
+            else if (t.type == Token::ELLIPSIS) {
+                mIsEllipsis = true;
                 mName = t.value;
                 mIsInBuilt = true;
             }
@@ -578,7 +578,7 @@ void Type::DbgPrint(size_t offset) const {
     if (mIsNumber) {
         cout << StrOffset(offset) << "Number '" << mName << "'" << endl;
     }
-    else if (mIsEpsilon) {
+    else if (mIsEllipsis) {
         cout << StrOffset(offset) << "Type '...'" << endl;
     }
     else if (mIsFunction) {

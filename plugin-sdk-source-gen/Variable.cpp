@@ -42,11 +42,12 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
 void Variable::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool isStatic) {
     WriteComment(stream, mComment, t, 0);
     stream << t();
-    if (isStatic)
-        stream << "static ";
-    else
-        stream << "extern ";
     stream << Games::GetSupportedGameVersionsMacro(game, mVersionInfo) << ' ';
+    if (isStatic)
+        stream << "static";
+    else
+        stream << "extern";
+    stream << ' ';
     string originalVarTypeAndName = GetNameWithType(false);
     bool isConst = mType.mIsConst;
     mType.mIsConst = false;

@@ -7,7 +7,7 @@ using namespace std;
 struct Token {
     enum Type {
         SPECIAL_CHAR,
-        EPSILON,
+        ELLIPSIS,
         KEYWORD_CONST,
         INBUILT_TYPE_NAME,
         CUSTOM_TYPE_NAME,
@@ -43,7 +43,7 @@ public:
     // only for template types...
     bool mIsNumber = false;
 
-    bool mIsEpsilon = false;
+    bool mIsEllipsis = false;
 
     bool mIsVoid = false;
 

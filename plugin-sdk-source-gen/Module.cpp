@@ -1,5 +1,7 @@
 #include "Module.h"
 #include <iostream>
+#include "Comments.h"
+#include "..\shared\Utility.h"
 
 Module *Module::Find(vector<Module> &modules, string const &name) {
     for (unsigned int i = 0; i < modules.size(); i++) {
@@ -39,18 +41,15 @@ void Module::Write(path const &folder, vector<Module> const &allModules, Games::
 }
 
 bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game) {
-    ofstream stream(folder / (mName + ".h"));
+    path headerFilePath = folder / (mName + ".h");
+    ofstream stream(headerFilePath);
     if (!stream.is_open()) {
+        Message("Unable to open header file '%s'", headerFilePath.string().c_str());
         return false;
     }
     tabs t(0);
     // file header
-    stream << "/*" << endl;
-    stream << "    Plugin-SDK (" << Games::GetGameFullName(game) << ") header file" << endl;
-    stream << "    Authors: GTA Community. See more here" << endl;
-    stream << "    https://github.com/GTAmodding/plugin-sdk" << endl;
-    stream << "    Do not delete this comment block. Respect others' work!" << endl;
-    stream << "*/" << endl;
+    stream << GetPluginSdkComment(game, true) << endl;
     stream << "#pragma once" << endl << endl;
     // include files
     stream << "#include " << '"' << ("plbase/PluginBase_" + Games::GetGameAbbr(mGame) + ".h") << '"' << endl;
@@ -92,18 +91,15 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
 }
 
 bool Module::WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game) {
-    ofstream stream(folder / (mName + ".cpp"));
+    path sourceFilePath = folder / (mName + ".cpp");
+    ofstream stream(sourceFilePath);
     if (!stream.is_open()) {
+        Message("Unable to open source file '%s'", sourceFilePath.string().c_str());
         return false;
     }
     tabs t(0);
     // file header
-    stream << "/*" << endl;
-    stream << "    Plugin-SDK (" << Games::GetGameFullName(game) << ") source file" << endl;
-    stream << "    Authors: GTA Community. See more here" << endl;
-    stream << "    https://github.com/GTAmodding/plugin-sdk" << endl;
-    stream << "    Do not delete this comment block. Respect others' work!" << endl;
-    stream << "*/" << endl;
+    stream << GetPluginSdkComment(game, false) << endl;
     // include files
     stream << "#include " << '"' << mName + ".h" << '"' << endl << endl;
     // class variables

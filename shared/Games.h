@@ -9,12 +9,17 @@ char const * const VersionNamesSA[] = { "10us", "10eu", "11us", "11eu", "sr2", "
 char const * const VersionNamesVC[] = { "10en", "11en", "steam" };
 char const * const VersionNamesIII[] = { "10en", "11en", "steam" };
 
+char const * const VersionDetailedNamesSA[] = { "1.0 US", "1.0 EU", "1.01 US", "1.1 EU", "'NewSteam R2'", "'NewSteam R2-LV'" };
+char const * const VersionDetailedNamesVC[] = { "1.0 EN", "1.1 EN", "Steam" };
+char const * const VersionDetailedNamesIII[] = { "1.0 EN", "1.1 EN", "Steam" };
+
 class Games {
 public:
     enum IDs {
         GTASA,
         GTAVC,
-        GTA3
+        GTA3,
+        Unknown = 255
     };
 
     static constexpr unsigned int GetGameVersionsCount(IDs game) {
@@ -40,7 +45,9 @@ public:
             return "gtavc";
         else if (game == GTA3)
             return "gta3";
-        return "gtasa";
+        else if (game == GTASA)
+            return "gtasa";
+        return "unknown";
     }
 
     inline static string GetGameAbbr(IDs game) {
@@ -48,7 +55,9 @@ public:
             return "VC";
         else if (game == GTA3)
             return "III";
-        return "SA";
+        else if (game == GTASA)
+            return "SA";
+        return "Unknown";
     }
 
     inline static string GetGameAbbrLow(IDs game) {
@@ -56,7 +65,9 @@ public:
             return "vc";
         else if (game == GTA3)
             return "iii";
-        return "sa";
+        else if (game == GTASA)
+            return "sa";
+        return "unknown";
     }
 
     inline static string GetGameFullName(IDs game) {
@@ -64,7 +75,9 @@ public:
             return "Grand Theft Auto: Vice City";
         else if (game == GTA3)
             return "Grand Theft Auto 3";
-        return "Grand Theft Auto: San Andreas";
+        else if (game == GTASA)
+            return "Grand Theft Auto: San Andreas";
+        return "Unknown";
     }
 
     inline static string GetGameVersionName(IDs game, unsigned int version) {
@@ -75,6 +88,18 @@ public:
                 return VersionNamesVC[version];
             if (game == GTA3)
                 return VersionNamesIII[version];
+        }
+        return "";
+    }
+
+    inline static string GetGameVersionDetailedName(IDs game, unsigned int version) {
+        if (version < GetGameVersionsCount(game)) {
+            if (game == GTASA)
+                return VersionDetailedNamesSA[version];
+            if (game == GTAVC)
+                return VersionDetailedNamesVC[version];
+            if (game == GTA3)
+                return VersionDetailedNamesIII[version];
         }
         return "";
     }

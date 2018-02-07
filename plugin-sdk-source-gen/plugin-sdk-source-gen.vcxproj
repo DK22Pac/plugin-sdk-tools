@@ -57,8 +57,10 @@
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="Generator.h" />
+    <ClInclude Include="GvsMacroGenerator.h" />
     <ClInclude Include="JsonIO.h" />
     <ClInclude Include="Module.h" />
+    <ClInclude Include="Paths.h" />
     <ClInclude Include="String.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Tabs.h" />
@@ -71,9 +73,11 @@
     <ClCompile Include="Enum.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="Generator.cpp" />
+    <ClCompile Include="GvsMacroGenerator.cpp" />
     <ClCompile Include="JsonIO.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Module.cpp" />
+    <ClCompile Include="Paths.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Struct.cpp" />
     <ClCompile Include="Tabs.cpp" />

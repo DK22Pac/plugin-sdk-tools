@@ -21,3 +21,28 @@ void WriteComment(ofstream &stream, string const &comment, tabs t, unsigned int 
             stream << endl;
     }
 }
+
+std::string GetPluginSdkComment(Games::IDs game, bool isHeader) {
+    std::string result = "/*";
+    result += '\n';
+    result += "    Plugin-SDK ";
+    if (game != Games::Unknown) {
+        result += '(';
+        result += Games::GetGameFullName(game);
+        result += ") ";
+        if (isHeader)
+            result += "header";
+        else
+            result += "source";
+        result += " file";
+    }
+    result += '\n';
+    result += "    Authors: GTA Community. See more here";
+    result += '\n';
+    result += "    https://github.com/GTAmodding/plugin-sdk";
+    result += '\n';
+    result += "    Do not delete this comment block. Respect others' work!";
+    result += '\n';
+    result +=  "*/";
+    return result;
+}

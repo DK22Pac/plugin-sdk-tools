@@ -13,7 +13,8 @@ public:
         CC_CDECL,
         CC_STDCALL,
         CC_FASTCALL,
-        CC_THISCALL
+        CC_THISCALL,
+        CC_UNKNOWN = 255
     };
 
     string mName; // only function name
@@ -23,6 +24,7 @@ public:
     CC mCC = CC_CDECL;
     Type mRetType;
     bool mIsConst = false;
+    bool mIsEllipsis = false;
     string mComment;
 
     struct Parameter {

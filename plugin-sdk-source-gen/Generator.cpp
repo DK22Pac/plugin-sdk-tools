@@ -3,20 +3,22 @@
 #include "JsonIO.h"
 #include "String.h"
 #include "CSV.h"
+#include "Paths.h"
 #include <fstream>
 #include "..\shared\Utility.h"
+#include "GvsMacroGenerator.h"
 
 void Generator::Generate(path const &sdkpath) {
     for (unsigned int i = 0; i < 3; i++) {
-        vector<Module> modules = ReadGame(sdkpath, Games::ToID(i));
+        vector<Module> modules;
+        ReadGame(modules, sdkpath, Games::ToID(i));
         ReadHierarchy(sdkpath, Games::ToID(i), modules);
+        GvsMacroGenerator::Generate(sdkpath, Games::ToID(i));
         WriteModules(sdkpath, Games::ToID(i), modules);
     }
 }
 
-vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
-
-    vector<Module> modules;
+void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::IDs game) {
 
     path gameDbPath = sdkpath / Games::GetGameFolder(game) / "database";
 
@@ -193,9 +195,9 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                                 }
                             }
                             else {
-                                m->mWarnings.push_back(String::Format("wrong variable '(%s) %s'",
+                                m->mWarnings.push_back(String::Format("wrong variable '(%s) %s' (address %s)",
                                     (finalVarType.empty()? "<no-type>" : finalVarType.c_str()),
-                                    (varDemName.empty() ? "<no-name>" : varDemName.c_str())));
+                                    (varDemName.empty() ? "<no-name>" : varDemName.c_str()), varAddress.c_str()));
                             }
                         }
                     }
@@ -236,26 +238,72 @@ vector<Module> Generator::ReadGame(path const &sdkpath, Games::IDs game) {
                 // if base version
                 if (i == 0) {
                     for (string const &csvLine : csvLines) {
-                        
+                        // 10us,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Comment
+                        string fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnComment;
+                        CSV::Read(csvLine, fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnComment);
+                        if (!fnModuleName.empty()) {
+                            // get module for this function
+                            Module *m = Module::Find(modules, fnModuleName);
+                            if (!m) {
+                                Module tmp;
+                                tmp.mName = fnModuleName;
+                                modules.push_back(tmp);
+                                m = &modules.back();
+                            }
+                            Function::CC cc = Function::CC_UNKNOWN;
+                            bool isEllipsis = false;
+                            if (fnCC == "thiscall")
+                                cc = Function::CC_THISCALL;
+                            else if(fnCC == "cdecl" || fnCC == "voidarg")
+                                cc = Function::CC_CDECL;
+                            else if (fnCC == "ellipsis") {
+                                cc = Function::CC_CDECL;
+                                isEllipsis = true;
+                            }
+                            // if function name empty
+                            if (fnDemName.empty()) {
+                                m->mWarnings.push_back(String::Format("function '%s' has no name", fnAddress.c_str()));
+                            }
+                            else if (fnType.empty()) {
+                                m->mWarnings.push_back(String::Format("function '%s' (address %s) has no type",
+                                    fnDemName.c_str(), fnAddress.c_str()));
+                            }
+                            else if (cc == Function::CC_UNKNOWN) {
+                                m->mWarnings.push_back(String::Format("function '%s' (address %s) has non-supported calling convention type",
+                                    fnDemName.c_str(), fnAddress.c_str()));
+                            }
+                            else {
+                                string fnScope;
+                                auto bp = fnDemName.find('(');
+                                if (bp != string::npos)
+                                    fnDemName = fnDemName.substr(0, bp);
+                                String::Break(fnDemName, "::", fnScope, fnDemName, true);
+                                Function newFn;
+                                newFn.mName = fnDemName;
+                                newFn.mMangledName = fnName;
+                                newFn.mModuleName = fnModuleName;
+                                newFn.mScope = fnScope;
+                                newFn.mCC = cc;
+                                // TODO
+                            }
+                        }
                     }
                 }
                 else {
                     for (string const &csvLine : csvLines) {
-                        
+                        //
+                        // TODO
+                        //
                     }
                 }
                 funcsFile.close();
             }
         }
     }
-
-    return modules;
 }
 
 void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
-    path folder = sdkpath / "generated" / ("plugin_" + Games::GetGameAbbrLow(game)) / ("game_" + Games::GetGameAbbrLow(game));
-    if (!exists(folder))
-        create_directories(folder);
+    path folder = Paths::GetPluginGameDir(sdkpath, game);
     for (auto &module : modules) {
         module.Write(folder, modules, game);
     }

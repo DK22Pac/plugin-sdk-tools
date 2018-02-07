@@ -10,7 +10,7 @@ using namespace std::experimental::filesystem;
 class Generator {
 public:
     static void Generate(path const &sdkpath);
-    static vector<Module> ReadGame(path const &sdkpath, Games::IDs game);
+    static void ReadGame(vector<Module> &modules, path const &sdkpath, Games::IDs game);
     static void WriteModules(path const &sdkpath, Games::IDs game, vector<Module> &modules);
     static void ReadHierarchy(path const &sdkpath, Games::IDs game, vector<Module> &modules);
 };
