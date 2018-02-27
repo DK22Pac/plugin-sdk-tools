@@ -177,6 +177,7 @@ namespace PluginSdkWizard {
         private void cbSA_Checked(object sender, RoutedEventArgs e) {
             EnableNextFinishButtons(true);
             grdBasicOptions.IsEnabled = true;
+            dpVersionsSA.IsEnabled = true;
             UpdatePathsState();
             UpdatePathTextBoxState(tbTargetName, errTargetName, true, false, true, true);
             UpdatePathTextBoxState(tbOutputFolder, errOutputFolder, true, true, true, true);
@@ -187,6 +188,7 @@ namespace PluginSdkWizard {
                 EnableNextFinishButtons(false);
                 grdBasicOptions.IsEnabled = false;
             }
+            dpVersionsSA.IsEnabled = false;
             UpdatePathsState();
             UpdatePathTextBoxState(tbTargetName, errTargetName, true, false, true, true);
             UpdatePathTextBoxState(tbOutputFolder, errOutputFolder, true, true, true, true);
@@ -206,6 +208,7 @@ namespace PluginSdkWizard {
             if (cbVC.IsChecked == true) {
                 EnableNextFinishButtons(true);
                 grdBasicOptions.IsEnabled = true;
+                dpVersionsVC.IsEnabled = true;
                 UpdatePathsState();
                 UpdatePathTextBoxState(tbTargetName, errTargetName, true, false, true, true);
                 UpdatePathTextBoxState(tbOutputFolder, errOutputFolder, true, true, true, true);
@@ -217,6 +220,7 @@ namespace PluginSdkWizard {
                 EnableNextFinishButtons(false);
                 grdBasicOptions.IsEnabled = false;
             }
+            dpVersionsVC.IsEnabled = false;
             UpdatePathsState();
             UpdatePathTextBoxState(tbTargetName, errTargetName, true, false, true, true);
             UpdatePathTextBoxState(tbOutputFolder, errOutputFolder, true, true, true, true);
@@ -236,6 +240,7 @@ namespace PluginSdkWizard {
             if (cbIII.IsChecked == true) {
                 EnableNextFinishButtons(true);
                 grdBasicOptions.IsEnabled = true;
+                dpVersionsIII.IsEnabled = true;
                 UpdatePathsState();
                 UpdatePathTextBoxState(tbTargetName, errTargetName, true, false, true, true);
                 UpdatePathTextBoxState(tbOutputFolder, errOutputFolder, true, true, true, true);
@@ -247,6 +252,7 @@ namespace PluginSdkWizard {
                 EnableNextFinishButtons(false);
                 grdBasicOptions.IsEnabled = false;
             }
+            dpVersionsIII.IsEnabled = false;
             UpdatePathsState();
             UpdatePathTextBoxState(tbTargetName, errTargetName, true, false, true, true);
             UpdatePathTextBoxState(tbOutputFolder, errOutputFolder, true, true, true, true);

@@ -460,7 +460,8 @@ ENV/
 # User settings
 user.settings
 
-plugin-sdk-templates-gen/tool/templates/temp/Main.cpp
-plugin-sdk-templates-gen/tool/templates/temp/MyTemplate.vstemplate
-plugin-sdk-templates-gen/tool/templates/temp/Project.vcxproj
-plugin-sdk-templates-gen/tool/settings.ini
+deprecated/plugin-sdk-templates-gen/third-party/
+deprecated/plugin-sdk-templates-gen/tool/templates/temp/Main.cpp
+deprecated/plugin-sdk-templates-gen/tool/templates/temp/MyTemplate.vstemplate
+deprecated/plugin-sdk-templates-gen/tool/templates/temp/Project.vcxproj
+deprecated/plugin-sdk-templates-gen/tool/settings.ini

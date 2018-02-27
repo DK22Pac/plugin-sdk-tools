@@ -116,7 +116,7 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
             qstring retType;
             if (i.m_rawRetType)
                 retType = "raw ";
-            retType += i.m_rawRetType;
+            retType += i.m_retType;
             qfprintf(outFile, "0x%X,%s,%s,%s,%s,%s,%s,", i.m_address,
                 csvvalue(i.m_module).c_str(),
                 csvvalue(i.m_name).c_str(),

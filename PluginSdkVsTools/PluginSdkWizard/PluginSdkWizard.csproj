@@ -116,6 +116,12 @@
   <ItemGroup>
     <Resource Include="Icons\error.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Icons\gtasa_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\gta3_small.png" />
+    <Resource Include="Icons\gtavc_small.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

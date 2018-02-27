@@ -152,54 +152,6 @@ namespace PluginSdkWizardInstaller {
             }
         }
 
-        private void installVsTemplates_Click(object sender, RoutedEventArgs e) {
-            Button vsBtn = sender as Button;
-            string vsNumber = "2010";
-            if (vsBtn.Name == "btnVs2013")
-                vsNumber = "2013";
-            else if (vsBtn.Name == "btnVs2012")
-                vsNumber = "2012";
-            FolderInputWindow dlg = new FolderInputWindow(String.Format( "Select Visual Studio {0} Documents folder",
-                vsNumber));
-            dlg.Owner = this;
-            dlg.ShowDialog();
-            if (dlg.DialogResult == true) {
-                if (Directory.Exists(dlg.txbFolder.Text)) {
-                    string sdkDir = GetPluginSdkDir();
-                    if (sdkDir != "") {
-                        string templatesPath = Path.Combine(sdkDir, "tools\\templates\\vs" + vsNumber);
-                        if (Directory.Exists(templatesPath)) {
-                            string targetDirPath = Path.Combine(dlg.txbFolder.Text, "Templates\\ProjectTemplates\\Plugin-SDK");
-                            DirectoryInfo source = new DirectoryInfo(templatesPath);
-                            DirectoryInfo target = new DirectoryInfo(targetDirPath);
-                            try {
-                                CopyAll(source, target);
-                                MessageBox.Show(
-                                    String.Format("Successfully installed Plugin-SDK Templates for Visual Studio {0}",
-                                    vsNumber));
-                            }
-                            catch (Exception ex) {
-                                MessageBox.Show(String.Format("Unable to copy folder '{0}' to '{1}':\n{2}", templatesPath,
-                                    targetDirPath, ex.Message));
-                            }
-                        }
-                        else
-                            MessageBox.Show(String.Format("Can't find templates folder ('{0}')", templatesPath));
-                    }
-                }
-                else {
-                    MessageBox.Show(String.Format("Visual Studio Documents folder is not available ('{0}')",
-                        dlg.txbFolder.Text));
-                }
-            }
-            if (vsBtn.Name == "btnVs2013")
-                cmbGenerateSlnFor.SelectedIndex = 2;
-            else if (vsBtn.Name == "btnVs2012")
-                cmbGenerateSlnFor.SelectedIndex = 3;
-            else if (vsBtn.Name == "btnVs2010")
-                cmbGenerateSlnFor.SelectedIndex = 4;
-        }
-
         static private string GetPluginSdkDir()
         {
             string sdkDir = PathLogic.GetOsVariable("PLUGIN_SDK_DIR");
@@ -361,15 +313,6 @@ namespace PluginSdkWizardInstaller {
                     info.Arguments = "vs2015";
                     break;
                 case 2:
-                    info.Arguments = "vs2013 --custombuildtool";
-                    break;
-                case 3:
-                    info.Arguments = "vs2012 --custombuildtool";
-                    break;
-                case 4:
-                    info.Arguments = "vs2010 --custombuildtool";
-                    break;
-                case 5:
                     info.Arguments = "codeblocks";
                     break;
             }

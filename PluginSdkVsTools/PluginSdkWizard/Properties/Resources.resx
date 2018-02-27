@@ -164,7 +164,7 @@ libraries</value>
     <value>GTA 3 CLEO SDK</value>
   </data>
   <data name="strLaCompatibility" xml:space="preserve">
-    <value>LA compatibility</value>
+    <value>LA comp.</value>
   </data>
   <data name="strLaCompatibilityDescr" xml:space="preserve">
     <value>Make plugin compatible with Limit Adjuster</value>
@@ -230,7 +230,7 @@ libraries</value>
     <value>MoonLoader Module</value>
   </data>
   <data name="strUseDirectXSdk" xml:space="preserve">
-    <value>Use DirectX SDK</value>
+    <value>DX SDK</value>
   </data>
   <data name="strUseDirectXSdkDescr" xml:space="preserve">
     <value>Include DirectX SDK headers/libraries</value>
@@ -279,5 +279,8 @@ libraries</value>
   </data>
   <data name="strClassName" xml:space="preserve">
     <value>Class name:</value>
+  </data>
+  <data name="strGameVersions" xml:space="preserve">
+    <value>Game versions:</value>
   </data>
 </root>

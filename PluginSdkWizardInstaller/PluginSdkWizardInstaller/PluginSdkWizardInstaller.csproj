@@ -75,7 +75,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>PluginSDK.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>CE84DF1FC89A5436687417918E9C714941F651AC</ManifestCertificateThumbprint>
@@ -160,9 +161,6 @@
     <Resource Include="Icons\notset.png" />
     <Resource Include="Icons\ok.png" />
     <Resource Include="Icons\packageicon.ico" />
-    <Resource Include="Icons\vs2010.png" />
-    <Resource Include="Icons\vs2012.png" />
-    <Resource Include="Icons\vs2013.png" />
     <Resource Include="Icons\vs2015.png" />
     <Resource Include="Icons\vs2017.png" />
   </ItemGroup>

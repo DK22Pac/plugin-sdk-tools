@@ -194,6 +194,15 @@ namespace PluginSdkWizard.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Game versions:.
+        /// </summary>
+        public static string strGameVersions {
+            get {
+                return ResourceManager.GetString("strGameVersions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to GTA 3 CLEO SDK.
         /// </summary>
         public static string strIIICleoSdk {
@@ -212,7 +221,7 @@ namespace PluginSdkWizard.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to LA compatibility.
+        ///   Looks up a localized string similar to LA comp..
         /// </summary>
         public static string strLaCompatibility {
             get {
@@ -464,7 +473,7 @@ namespace PluginSdkWizard.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use DirectX SDK.
+        ///   Looks up a localized string similar to DX SDK.
         /// </summary>
         public static string strUseDirectXSdk {
             get {

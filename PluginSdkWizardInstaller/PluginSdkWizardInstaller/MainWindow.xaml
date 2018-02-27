@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.6.8" Height="635" Width="880" MinWidth="880" MinHeight="635" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
+        Title="Plugin-SDK Installer v0.7.0" Height="580" Width="880" MinWidth="880" MinHeight="580" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
     <Grid Margin="0,0,0.333,0.667">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -33,10 +33,6 @@
                         <Setter Property="FontSize" Value="16" />
                     </Style>
                 </Grid.Resources>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -54,25 +50,7 @@
                         <Label Grid.Column="1" Content="Visual Studio 2015" />
                     </StackPanel>
                 </Button>
-                <Button x:Name="btnVs2013" Grid.Column="2" Click="installVsTemplates_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/vs2013.png" />
-                        <Label Content="Visual Studio 2013" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnVs2012" Grid.Row="1" Click="installVsTemplates_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/vs2012.png" />
-                        <Label Content="Visual Studio 2012" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnVs2010" Grid.Row="1" Grid.Column="1" Click="installVsTemplates_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/vs2010.png" />
-                        <Label Content="Visual Studio 2010" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnCB" Grid.Row="1" Grid.Column="2" Click="installCB_Click">
+                <Button x:Name="btnCB" Grid.Column="2" Click="installCB_Click">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/Icons/cb.png" Width="20" Height="20" />
                         <Label Content="Code::Blocks" />
@@ -252,9 +230,6 @@
                 <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,5,5,5" SelectionChanged="cmbGenerateSlnFor_SelectionChanged" Height="27" Padding="6,5,5,0" >
                     <ComboBoxItem Content="Visual Studio 2017"/>
                     <ComboBoxItem Content="Visual Studio 2015"/>
-                    <ComboBoxItem Content="Visual Studio 2013"/>
-                    <ComboBoxItem Content="Visual Studio 2012"/>
-                    <ComboBoxItem Content="Visual Studio 2010"/>
                     <ComboBoxItem Content="Code::Blocks"/>
                 </ComboBox>
                 <Button x:Name="btnGenerateSln" Grid.Column="2" Width="100" Height="27" Content="Generate" Margin="5" IsEnabled="False" Click="btnGenerateSln_Click" />

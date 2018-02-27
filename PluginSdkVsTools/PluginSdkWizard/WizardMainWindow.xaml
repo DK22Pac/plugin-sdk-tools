@@ -47,7 +47,7 @@
                             <Label Content="{x:Static res:Resources.strBasicSetup}" Margin="15,0,0,0" HorizontalContentAlignment="Stretch" FontSize="14" VerticalContentAlignment="Stretch" Padding="0"/>
                             <Grid Margin="20,0" Grid.Row="1">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="110"/>
+                                    <RowDefinition Height="104"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Top">
@@ -75,13 +75,17 @@
                                         <RowDefinition Height="30"/>
                                         <RowDefinition Height="30"/>
                                         <RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="76"/>
                                         <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
                                     
-                                    <DockPanel Grid.Row="0" Margin="0">
+                                    <DockPanel Grid.Row="0" Margin="0" HorizontalAlignment="Left">
                                         <Label x:Name="lblPluginName" Content="{x:Static res:Resources.strPluginType}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
-                                        <ComboBox x:Name="cmbProjectType" Height="23"/>
+                                        <ComboBox x:Name="cmbProjectType" Height="23" Width="150"/>
+                                        <Separator Width="10" Background="Transparent"/>
+                                        <CheckBox x:Name="cbUseDirectXSdk" Content="{x:Static res:Resources.strUseDirectXSdk}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strUseDirectXSdkDescr}" Padding="4,-1,0,0"/>
+                                        <Separator Width="10" Background="Transparent"/>
+                                        <CheckBox x:Name="cbLimitAdjusterCompatibilityMode" Content="{x:Static res:Resources.strLaCompatibility}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strLaCompatibilityDescr}" Padding="4,-1,0,0"/>
                                     </DockPanel>
                                     <DockPanel Grid.Row="1" Margin="0">
                                         <Label Content="{x:Static res:Resources.strPluginName}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
@@ -97,15 +101,55 @@
                                             <Image x:Name="errBaseClassName" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" Margin="0,5,1,0" IsEnabled="False" />
                                         </Grid>
                                     </DockPanel>
-                                    <Grid Margin="0" Grid.Row="3" VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <CheckBox x:Name="cbUseDirectXSdk" Content="{x:Static res:Resources.strUseDirectXSdk}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strUseDirectXSdkDescr}" Padding="4,-1,0,0"/>
-                                        <CheckBox x:Name="cbLimitAdjusterCompatibilityMode" Content="{x:Static res:Resources.strLaCompatibility}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strLaCompatibilityDescr}" Padding="4,-1,0,0" Grid.Column="1"/>
+                                    
+                                    <Grid Grid.Row="3" VerticalAlignment="Top">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="24"></RowDefinition>
+                                            <RowDefinition Height="24"></RowDefinition>
+                                            <RowDefinition Height="24"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Content="{x:Static res:Resources.strGameVersions}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
+                                        <DockPanel x:Name="dpVersionsSA" HorizontalAlignment="Left" Grid.Row="1" IsEnabled="False" >
+                                            <Image Source="Icons/gtasa_small.png" Style="{StaticResource SmallIcon}" ToolTip="GTA San Andreas" Width="18"/>
+                                            <Separator Width="5" Background="Transparent"/>
+                                            <CheckBox x:Name="cbVersionSA_10US" Content="1.0 US" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0" IsChecked="True" IsEnabled="False"/>
+                                            <Separator Width="5" Background="Transparent"/>
+                                            <CheckBox x:Name="cbVersionSA_10EU" Content="1.0 EU" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                            <Separator Width="5" Background="Transparent"/>
+                                            <CheckBox x:Name="cbVersionSA_11US" Content="1.01 US" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                            <Separator Width="5" Background="Transparent"/>
+                                            <CheckBox x:Name="cbVersionSA_11EU" Content="1.01 EU" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                            <Separator Width="5" Background="Transparent"/>
+                                            <CheckBox x:Name="cbVersionSA_Steam" Content="Steam" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                            <Separator Width="5" Background="Transparent"/>
+                                            <CheckBox x:Name="cbVersionSA_SteamLV" Content="Steam-lv" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                        </DockPanel>
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <DockPanel x:Name="dpVersionsVC" HorizontalAlignment="Left" IsEnabled="False">
+                                                <Image Source="Icons/gtavc_small.png" Style="{StaticResource SmallIcon}" Width="18" ToolTip="GTA Vice City"/>
+                                                <Separator Width="5" Background="Transparent"/>
+                                                <CheckBox x:Name="cbVersionVC_10" Content="1.0" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0" IsChecked="True" IsEnabled="False"/>
+                                                <Separator Width="5" Background="Transparent"/>
+                                                <CheckBox x:Name="cbVersionVC_11" Content="1.1" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                                <Separator Width="5" Background="Transparent"/>
+                                                <CheckBox x:Name="cbVersionVC_Steam" Content="Steam" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                            </DockPanel>
+                                            <DockPanel x:Name="dpVersionsIII" HorizontalAlignment="Left" Grid.Column="1" IsEnabled="False">
+                                                <Image Source="Icons/gta3_small.png" Style="{StaticResource SmallIcon}" ToolTip="GTA III" Width="18"/>
+                                                <Separator Width="5" Background="Transparent"/>
+                                                <CheckBox x:Name="cbVersionIII_10" Content="1.0" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0" IsChecked="True" IsEnabled="False"/>
+                                                <Separator Width="5" Background="Transparent"/>
+                                                <CheckBox x:Name="cbVersionIII_11" Content="1.1" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                                <Separator Width="5" Background="Transparent"/>
+                                                <CheckBox x:Name="cbVersionIII_Steam" Content="Steam" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="4,-1,0,0"/>
+                                            </DockPanel>
+                                        </Grid>
                                     </Grid>
+
                                     <Grid Margin="0" Grid.Row="4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -127,6 +171,7 @@
                                         </Button>
                                         <Button x:Name="btnBrowseOutputFolder" VerticalAlignment="Center" Style="{DynamicResource SmallBrowseButtonStyle}" HorizontalAlignment="Left" Grid.Column="4"/>
                                     </Grid>
+                                    
                                 </Grid>
                             </Grid>
                         </Grid>

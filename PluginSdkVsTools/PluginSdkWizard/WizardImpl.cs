@@ -84,16 +84,13 @@ namespace PluginSdkWizard {
             pluginSdkDir = VsUtility.NormalisePath(pluginSdkDir);
             includeDirs.Add(pluginSdkDir + "plugin_" + gameId.ToLower() + "\\");
             includeDirs.Add(pluginSdkDir + "plugin_" + gameId.ToLower() + "\\game_" + gameId.ToLower() + "\\");
+            includeDirs.Add(pluginSdkDir + "shared\\");
             libraryDirs.Add(pluginSdkDir + "output\\lib\\");
-            string pathsLibName = "paths";
             string pluginLibName = "plugin";
             if (gameId != "SA")
                 pluginLibName += "_" + gameId.ToLower();
-            if (isDebug) {
-                pathsLibName += "_d";
+            if (isDebug)
                 pluginLibName += "_d";
-            }
-            libraries.Add(pathsLibName);
             libraries.Add(pluginLibName);
 
             if (usesD3d) {
@@ -171,6 +168,38 @@ namespace PluginSdkWizard {
             if (usesD3d)
                 defs.Add("_DX9_SDK_INSTALLED");
 
+            // game versions
+            if (gameId == "SA") {
+                if (window.cbVersionSA_10US.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_10US");
+                if (window.cbVersionSA_10EU.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_10EU");
+                if (window.cbVersionSA_11US.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_11US");
+                if (window.cbVersionSA_11EU.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_11EU");
+                if (window.cbVersionSA_Steam.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_SR2");
+                if (window.cbVersionSA_SteamLV.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_SR2LV");
+            }
+            else if (gameId == "VC") {
+                if (window.cbVersionVC_10.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_10EN");
+                if (window.cbVersionVC_11.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_11EN");
+                if (window.cbVersionVC_Steam.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_STEAM");
+            }
+            else {
+                if (window.cbVersionIII_10.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_10EN");
+                if (window.cbVersionIII_11.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_11EN");
+                if (window.cbVersionIII_Steam.IsChecked == true)
+                    defs.Add("PLUGIN_SGV_STEAM");
+            }
+
             List<string> additionalIncludeDirs = VsUtility.SplitListLine(isDebug ? window.tbDbgAdditionalIncDirs.Text : window.tbRelAdditionalIncDirs.Text);
             List<string> additionalLibraryDirs = VsUtility.SplitListLine(isDebug ? window.tbDbgAdditionalLibDirs.Text : window.tbRelAdditionalLibDirs.Text);
             List<string> additionalLibraries = VsUtility.SplitListLine(isDebug ? window.tbDbgAdditionalLibs.Text : window.tbRelAdditionalLibs.Text);
@@ -242,6 +271,7 @@ namespace PluginSdkWizard {
             VsUtility.AddLine(ref idg, "      <RuntimeLibrary>" + (isDebug ? "MultiThreadedDebug" : "MultiThreaded") + "</RuntimeLibrary>");
             VsUtility.AddLine(ref idg, "      <AdditionalIncludeDirectories>" + VsUtility.JoinList(includeDirs, true) + "%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>");
             VsUtility.AddLine(ref idg, "      <PreprocessorDefinitions>" + VsUtility.JoinList(defs, true) + "%(PreprocessorDefinitions)</PreprocessorDefinitions>");
+            VsUtility.AddLine(ref idg, "      <LanguageStandard>stdcpplatest</LanguageStandard>");
             VsUtility.AddLine(ref idg, "      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>");
             if (pluginType == 2) {
                 VsUtility.AddLine(ref idg, "      <PrecompiledHeader>Create</PrecompiledHeader>");

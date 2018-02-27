@@ -165,7 +165,7 @@
     <value>GTA 3 CLEO SDK</value>
   </data>
   <data name="strLaCompatibility" xml:space="preserve">
-    <value>Совместимость с LA</value>
+    <value>Совм. с LA</value>
   </data>
   <data name="strLaCompatibilityDescr" xml:space="preserve">
     <value>Сделать плагин совместимым с Limit Adjuster</value>
@@ -231,7 +231,7 @@
     <value>MoonLoader Модуль</value>
   </data>
   <data name="strUseDirectXSdk" xml:space="preserve">
-    <value>Исп. DirectX SDK</value>
+    <value>DX SDK</value>
   </data>
   <data name="strUseDirectXSdkDescr" xml:space="preserve">
     <value>Включить заголовочные файлы и библиотеки DirectX SDK</value>
@@ -277,5 +277,8 @@
   </data>
   <data name="strEnvVarNotFound" xml:space="preserve">
     <value>ПРЕДУПРЕЖДЕНИЕ: Не найдена переменная среды '{0}'</value>
+  </data>
+  <data name="strGameVersions" xml:space="preserve">
+    <value>Версии игры:</value>
   </data>
 </root>
