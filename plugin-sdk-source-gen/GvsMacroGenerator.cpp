@@ -5,7 +5,7 @@
 #include <fstream>
 
 bool GvsMacroGenerator::Generate(path const &sdkpath, Games::IDs game) {
-    path filePath = Paths::GetPluginBaseDir(sdkpath, game) / ("VersionsMacro_" + Games::GetGameAbbr(game) + ".h");
+    path filePath = Paths::GetOtherDir(sdkpath, game) / "VersionsMacro.h";
     ofstream stream(filePath);
     if (!stream.is_open()) {
         Message("Unable to open VersionsMacro file '%s'", filePath.string().c_str());

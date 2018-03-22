@@ -25,6 +25,7 @@ public:
     Type mRetType;
     bool mIsConst = false;
     bool mIsEllipsis = false;
+    string mRefsStr;
     string mComment;
 
     struct Parameter {

@@ -13,6 +13,7 @@
 #include "ut_func.h"
 #include "ut_variable.h"
 #include "ut_enum.h"
+#include "ut_ref.h"
 #include "ut_ida.h"
 #include "ut_options.h"
 #include "translator.h"
@@ -31,15 +32,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
     bool isBaseVersion = selectedVersion == 0;
     string versionName = Games::GetGameVersionName(Games::ToID(selectedGame), selectedVersion);
     string baseVersionName = Games::GetGameVersionName(Games::ToID(selectedGame), 0);
-    string gameFolder = Games::GetGameFolder(Games::ToID(selectedGame));
-    path gameFolderPath = output / gameFolder;
 
-    if(!exists(gameFolderPath)) {
-        warning("Folder '%s' (%s) does not exist", gameFolder.c_str(), gameFolderPath.string().c_str());
-        return;
-    }
-
-    path dbFolderPath = gameFolderPath / "database";
+    path dbFolderPath = output / "database" / Games::GetGameFolder(Games::ToID(selectedGame));
 
     if (!exists(dbFolderPath)) {
         error_code errCode;
@@ -140,6 +134,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     entry.m_retType = funcRawRetType;
                     entry.m_rawRetType = true;
                 }
+                entry.m_refsStr = getXrefsToAddressAsString(ea);
                 functions.push_back(entry);
             }
             func = get_next_func(func->start_ea);
@@ -149,11 +144,13 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0) {
-                if (gTranslateAddresses) {
-                    qvector<unsigned int> addresses;
-                    for (size_t i = 0; i < baseEntries.size(); i++)
-                        addresses.push_back(translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address));
-                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), addresses, versionName.c_str(),
+                if (gTranslateAddresses) { // NOTE: that's a temporary feature
+                    qvector<Function> tmpfuncs;
+                    for (size_t i = 0; i < baseEntries.size(); i++) {
+                        Function &f = tmpfuncs.push_back();
+                        f.m_address = translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address);
+                    }
+                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), tmpfuncs, versionName.c_str(),
                         filePath.string().c_str());
                 }
                 else {

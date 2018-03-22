@@ -20,9 +20,10 @@ public:
     qstring m_cc;
     qvector<Param> m_params;
     bool m_isConst = false;
+    qstring m_refsStr;
     qstring m_comment;
 
-    static unsigned int Find(qstring const &name, qvector<Function> const &entries);
+    static Function const *Find(qstring const &name, qvector<Function> const &entries);
 
     static qvector<Function> FromCSV(char const *filepath);
     static qvector<Function> FromReferenceCSV(char const *filepath, qvector<Function> const &baseFuncs);
@@ -31,5 +32,5 @@ public:
     static bool ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
         qvector<Function> const &entries, char const *version, char const *filepath);
     static bool ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
-        qvector<unsigned int> const &addresses, char const *version, char const *filepath);
+        qvector<Function const *> const &refEntries, char const *version, char const *filepath);
 };

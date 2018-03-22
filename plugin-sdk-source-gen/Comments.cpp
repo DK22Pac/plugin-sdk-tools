@@ -39,7 +39,7 @@ std::string GetPluginSdkComment(Games::IDs game, bool isHeader) {
     result += '\n';
     result += "    Authors: GTA Community. See more here";
     result += '\n';
-    result += "    https://github.com/GTAmodding/plugin-sdk";
+    result += "    https://github.com/DK22Pac/plugin-sdk";
     result += '\n';
     result += "    Do not delete this comment block. Respect others' work!";
     result += '\n';

@@ -73,6 +73,7 @@
     <ClCompile Include="ut_ida.cpp" />
     <ClCompile Include="ut_options.cpp" />
     <ClCompile Include="ut_range.cpp" />
+    <ClCompile Include="ut_ref.cpp" />
     <ClCompile Include="ut_string.cpp" />
     <ClCompile Include="ut_struct.cpp" />
     <ClCompile Include="ut_variable.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="ut_ida.h" />
     <ClInclude Include="ut_options.h" />
     <ClInclude Include="ut_range.h" />
+    <ClInclude Include="ut_ref.h" />
     <ClInclude Include="ut_string.h" />
     <ClInclude Include="ut_struct.h" />
     <ClInclude Include="ut_variable.h" />

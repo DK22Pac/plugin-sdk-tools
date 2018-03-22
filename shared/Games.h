@@ -72,11 +72,11 @@ public:
 
     inline static string GetGameFullName(IDs game) {
         if (game == GTAVC)
-            return "Grand Theft Auto: Vice City";
+            return "Grand Theft Auto Vice City";
         else if (game == GTA3)
             return "Grand Theft Auto 3";
         else if (game == GTASA)
-            return "Grand Theft Auto: San Andreas";
+            return "Grand Theft Auto San Andreas";
         return "Unknown";
     }
 

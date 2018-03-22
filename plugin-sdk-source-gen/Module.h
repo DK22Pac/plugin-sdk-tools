@@ -31,4 +31,5 @@ public:
     void Write(path const &folder, vector<Module> const &allModules, Games::IDs game);
     bool WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game);
     bool WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game);
+    bool WriteMeta(path const &folder, vector<Module> const &allModules, Games::IDs game);
 };

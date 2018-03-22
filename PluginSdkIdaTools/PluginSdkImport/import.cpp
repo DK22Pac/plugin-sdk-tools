@@ -68,15 +68,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
     bool isBaseVersion = selectedVersion == 0;
     string versionName = Games::GetGameVersionName(Games::ToID(selectedGame), selectedVersion);
     string baseVersionName = Games::GetGameVersionName(Games::ToID(selectedGame), 0);
-    string gameFolder = Games::GetGameFolder(Games::ToID(selectedGame));
-    path gameFolderPath = input / gameFolder;
 
-    if(!exists(gameFolderPath)) {
-        warning("Folder '%s' (%s) does not exist", gameFolder.c_str(), gameFolderPath.string().c_str());
-        return;
-    }
-
-    path dbFolderPath = gameFolderPath / "database";
+    path dbFolderPath = input / "database" / Games::GetGameFolder(Games::ToID(selectedGame));
 
     if (!exists(dbFolderPath)) {
         warning("Database folder does not exist (%s)", dbFolderPath.string().c_str());

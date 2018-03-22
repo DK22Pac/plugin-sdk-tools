@@ -38,6 +38,7 @@ void Module::Write(path const &folder, vector<Module> const &allModules, Games::
     cout << "GTA" << Games::GetGameAbbr(game) << ": Writing module '" << mName << "'" << endl;
     WriteHeader(folder, allModules, game);
     WriteSource(folder, allModules, game);
+    WriteMeta(folder / "meta", allModules, game);
 }
 
 bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game) {
@@ -52,7 +53,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
     stream << GetPluginSdkComment(game, true) << endl;
     stream << "#pragma once" << endl << endl;
     // include files
-    stream << "#include " << '"' << ("plbase/PluginBase_" + Games::GetGameAbbr(mGame) + ".h") << '"' << endl;
+    stream << "#include " << '"' << "PluginBase.h" << '"' << endl;
     if (mStructs.size() > 0) {
         sort(mStructs.begin(), mStructs.end(), [](Struct const &s1, Struct const &s2) {
             return !s1.ContainsType(s2.mName, false);
@@ -87,6 +88,8 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
     }
     //functions
 
+    stream << endl << "#include " << '"' << "meta/meta." << mName + ".h" << '"' << endl;
+
     return true;
 }
 
@@ -102,6 +105,8 @@ bool Module::WriteSource(path const &folder, vector<Module> const &allModules, G
     stream << GetPluginSdkComment(game, false) << endl;
     // include files
     stream << "#include " << '"' << mName + ".h" << '"' << endl << endl;
+    // source macro
+    stream << "PLUGIN_SOURCE_FILE" << endl << endl;
     // class variables
     if (mStructs.size() > 0) {
         for (unsigned int i = 0; i < mStructs.size(); i++) {
@@ -123,5 +128,21 @@ bool Module::WriteSource(path const &folder, vector<Module> const &allModules, G
     }
     //functions
 
+    return true;
+}
+
+bool Module::WriteMeta(path const &folder, vector<Module> const &allModules, Games::IDs game) {
+    path metaFilePath = folder / ("meta." + mName + ".h");
+    ofstream stream(metaFilePath);
+    if (!stream.is_open()) {
+        Message("Unable to open meta file '%s'", metaFilePath.string().c_str());
+        return false;
+    }
+    tabs t(0);
+    // file header
+    stream << GetPluginSdkComment(game, true) << endl;
+    // include files
+    stream << "#include " << '"' << "PluginBase.h" << '"' << endl;
+    
     return true;
 }

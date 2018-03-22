@@ -20,7 +20,7 @@ void Generator::Generate(path const &sdkpath) {
 
 void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::IDs game) {
 
-    path gameDbPath = sdkpath / Games::GetGameFolder(game) / "database";
+    path gameDbPath = Paths::GetDatabaseDir(sdkpath, game);
 
     // read enums
     for (const auto& p : recursive_directory_iterator(gameDbPath / "enums")) {
@@ -239,8 +239,8 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                 if (i == 0) {
                     for (string const &csvLine : csvLines) {
                         // 10us,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Comment
-                        string fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnComment;
-                        CSV::Read(csvLine, fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnComment);
+                        string fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnRefsStr, fnComment;
+                        CSV::Read(csvLine, fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnRefsStr, fnComment);
                         if (!fnModuleName.empty()) {
                             // get module for this function
                             Module *m = Module::Find(modules, fnModuleName);
@@ -284,6 +284,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                 newFn.mModuleName = fnModuleName;
                                 newFn.mScope = fnScope;
                                 newFn.mCC = cc;
+                                newFn.mRefsStr = fnRefsStr;
                                 // TODO
                             }
                         }
@@ -303,7 +304,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
 }
 
 void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
-    path folder = Paths::GetPluginGameDir(sdkpath, game);
+    path folder = Paths::GetModulesDir(sdkpath, game);
     for (auto &module : modules) {
         module.Write(folder, modules, game);
     }
@@ -312,7 +313,7 @@ void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module
 void Generator::ReadHierarchy(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
     if (modules.size() == 0)
         return;
-    path filePath = sdkpath / Games::GetGameFolder(game) / "class-hierarchy.txt";
+    path filePath = Paths::GetDatabaseDir(sdkpath, game) / "class-hierarchy.txt";
     ifstream file(filePath);
     if (!file.is_open()) {
         Message("Unable to open class-hierarchy.txt (%s)", filePath.string().c_str());

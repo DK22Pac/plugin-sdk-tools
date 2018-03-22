@@ -6,22 +6,22 @@ using namespace std::experimental::filesystem;
 
 class Paths {
 public:
-    static inline path GetPluginDir(path const &sdkpath, Games::IDs game) {
-        path p = sdkpath / "generated" / ("plugin_" + Games::GetGameAbbrLow(game));
+    static inline path GetDatabaseDir(path const &sdkpath, Games::IDs game) {
+        path p = sdkpath / "database" / Games::GetGameFolder(game);
         if (!exists(p))
             create_directories(p);
         return p;
     }
 
-    static inline path GetPluginGameDir(path const &sdkpath, Games::IDs game) {
-        path p = sdkpath / "generated" / ("plugin_" + Games::GetGameAbbrLow(game)) / ("game_" + Games::GetGameAbbrLow(game));
+    static inline path GetModulesDir(path const &sdkpath, Games::IDs game) {
+        path p = sdkpath / "generated" / "modules" / Games::GetGameFolder(game);
         if (!exists(p))
             create_directories(p);
         return p;
     }
 
-    static inline path GetPluginBaseDir(path const &sdkpath, Games::IDs game) {
-        path p = sdkpath / "generated" / ("plugin_" + Games::GetGameAbbrLow(game)) / "plbase";
+    static inline path GetOtherDir(path const &sdkpath, Games::IDs game) {
+        path p = sdkpath / "generated" / "other" / Games::GetGameFolder(game);
         if (!exists(p))
             create_directories(p);
         return p;

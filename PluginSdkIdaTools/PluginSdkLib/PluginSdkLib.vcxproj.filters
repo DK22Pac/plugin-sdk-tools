@@ -31,6 +31,9 @@
     <ClCompile Include="ut_struct.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="ut_ref.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ut_range.h">
@@ -55,6 +58,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="ut_struct.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="ut_ref.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

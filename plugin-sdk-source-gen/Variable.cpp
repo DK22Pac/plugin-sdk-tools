@@ -19,14 +19,13 @@ string Variable::GetNameWithRefType(bool bFullName) {
 void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     bool isConst = mType.mIsConst;
     mType.mIsConst = false;
-    stream << t() << GetNameWithRefType(true) << " = ";
+    stream << t() << "PLUGIN_VARIABLE" << ' ' << GetNameWithRefType(true) << " = ";
     if (mType.mArraySize[0] == 0)
         stream << '*';
     stream << "reinterpret_cast<";
     stream << mType.BeforeName() << '*';
     stream << ">(";
-    stream << "plugin::patch::GetGlobalAddress(";
-    stream << "plugin::by_version_dyn(";
+    stream << "GLOBAL_ADDRESS_BY_VERSION(";
     bool first = true;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
         if (!first)
