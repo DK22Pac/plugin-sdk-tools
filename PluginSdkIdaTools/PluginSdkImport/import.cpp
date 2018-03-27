@@ -60,6 +60,7 @@ json jsonReadFromFile(qstring const &path) {
 }
 
 void importdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &input) {
+    msg("--------------------\nImport started\n--------------------\n");
     if (selectedGame == -1) {
         warning("Can't detect game version");
         return;
@@ -425,7 +426,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         // update ida variables
         for (size_t i = 0; i < variables.size(); i++) {
             Variable const &v = variables[i];
-            if (v.m_address != 0 && !v.m_type.empty()) {
+            if (v.m_address != 0) {
                 if (IsInRange(v.m_address, dataSegments)) {
                     if (!del_items(v.m_address, DELIT_DELNAMES, v.m_size)) {
                         msg("Unable to clear space for '%s' variable at address 0x%X (%d bytes)\n",
@@ -437,9 +438,13 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         warning("Unable to set variable '%s' name at address 0x%X",
                             v.m_demangledName.c_str(), v.m_address);
                     }
-                    if (!setType(v.m_address, v.m_type)) {
-                        msg("Errors while setting variable '%s' type ('%s') at address 0x%X\n",
-                            v.m_demangledName.c_str(), v.m_type.c_str(), v.m_address);
+                    if (!v.m_type.empty()) {
+                        qstring fixedType = v.m_type;
+                        fixedType.replace("[]", "[1]");
+                        if (!setType(v.m_address, fixedType)) {
+                            msg("Errors while setting variable '%s' type ('%s') at address 0x%X\n",
+                                v.m_demangledName.c_str(), v.m_type.c_str(), v.m_address);
+                        }
                     }
                     qstring varFullComment = "module:";
                     varFullComment += v.m_module;

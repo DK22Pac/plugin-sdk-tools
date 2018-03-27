@@ -86,3 +86,7 @@ void endWritingToJson() {
 int toNumber(qstring const &str) {
     return (startsWith(str, "0x") ? strtol(str.substr(2).c_str(), nullptr, 16) : strtol(str.c_str(), nullptr, 10));
 }
+
+bool contains(qstring const &str, qstring const &substr) {
+    return str.find(substr) != qstring::npos;
+}

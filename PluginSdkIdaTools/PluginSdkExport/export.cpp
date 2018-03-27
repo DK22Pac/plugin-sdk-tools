@@ -24,6 +24,7 @@ using namespace std;
 const bool gTranslateAddresses = true;
 
 void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
+    msg("--------------------\nExport started\n--------------------\n");
     if (selectedGame == -1) {
         warning("Can't detect game version");
         return;

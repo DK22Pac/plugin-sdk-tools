@@ -4,7 +4,7 @@
 #include "xref.hpp"
 #include "ut_string.h"
 
-qvector<XRef> getXrefToAddress(ea_t ea) {
+qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc) {
     qvector<XRef> xrefs;
     unsigned int lastobjid = 0;
     unsigned int xrefindex = 0;
@@ -20,7 +20,7 @@ qvector<XRef> getXrefToAddress(ea_t ea) {
             xref.m_type = XRef::Callback;
         else
             continue;
-        if (xb.type == dr_O) { // vtable
+        if (isFunc && xb.type == dr_O) { // vtable
             lastobjid = 0;
             xrefindex = 0;
             xref.m_index = 1;

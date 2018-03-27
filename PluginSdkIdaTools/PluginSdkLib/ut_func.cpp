@@ -39,7 +39,7 @@ qvector<Function> Function::FromCSV(char const *filepath) {
                     else
                         param.m_type = paramType;
                     auto spacePos = paramsStr.find(' ', colonPos + 1);
-                    if (spacePos = qstring::npos) {
+                    if (spacePos == qstring::npos) {
                         param.m_name = paramsStr.substr(colonPos + 1);
                         entry.m_params.push_back(param);
                         break;

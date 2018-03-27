@@ -14,5 +14,5 @@ struct XRef {
     unsigned int m_index;
 };
 
-qvector<XRef> getXrefToAddress(ea_t ea);
+qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc = true);
 qstring getXrefsToAddressAsString(ea_t ea);

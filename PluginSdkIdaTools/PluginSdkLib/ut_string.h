@@ -88,9 +88,18 @@ qstring format(const qstring &format, ArgTypes... args) {
 }
 
 template <typename T>
-qstring toHexString(T intVal) {
-    return format("0x%X", intVal);
+qstring toHexString(T intVal, bool prefix = true) {
+    if (prefix)
+        return format("0x%X", intVal);
+    return format("%X", intVal);
+}
+
+template <typename T>
+qstring toString(T intVal) {
+    return format("%d", intVal);
 }
 
 
 int toNumber(qstring const &str);
+
+bool contains(qstring const &str, qstring const &substr);
