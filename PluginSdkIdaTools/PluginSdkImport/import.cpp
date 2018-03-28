@@ -428,11 +428,11 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             Variable const &v = variables[i];
             if (v.m_address != 0) {
                 if (IsInRange(v.m_address, dataSegments)) {
-                    if (!del_items(v.m_address, DELIT_DELNAMES, v.m_size)) {
-                        msg("Unable to clear space for '%s' variable at address 0x%X (%d bytes)\n",
-                            v.m_demangledName.c_str(), v.m_address, v.m_size);
-                    }
                     if (!v.m_type.empty()) {
+                        if (!del_items(v.m_address, DELIT_DELNAMES, v.m_size)) {
+                            msg("Unable to clear space for '%s' variable at address 0x%X (%d bytes)\n",
+                                v.m_demangledName.c_str(), v.m_address, v.m_size);
+                        }
                         for (unsigned int i = 0; i < v.m_size; i++)
                             setType(v.m_address + i, "");
                     }
