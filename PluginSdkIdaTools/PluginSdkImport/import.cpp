@@ -432,8 +432,10 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         msg("Unable to clear space for '%s' variable at address 0x%X (%d bytes)\n",
                             v.m_demangledName.c_str(), v.m_address, v.m_size);
                     }
-                    for (unsigned int i = 0; i < v.m_size; i++)
-                        setType(v.m_address + i, "");
+                    if (!v.m_type.empty()) {
+                        for (unsigned int i = 0; i < v.m_size; i++)
+                            setType(v.m_address + i, "");
+                    }
                     if (!set_name(v.m_address, v.m_name.c_str())) {
                         warning("Unable to set variable '%s' name at address 0x%X",
                             v.m_demangledName.c_str(), v.m_address);
