@@ -19,6 +19,7 @@ public:
         unsigned int m_size = 0;
         unsigned int m_offset = 0;
         bool m_isAnonymous = false;
+        bool m_isString = false;
 
         Member() = default;
     };
@@ -40,3 +41,5 @@ public:
 
     Struct() = default;
 };
+
+bool isSystemStruct(qstring const &s);

@@ -364,10 +364,10 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 j[jsonOrderedName("name")] = name.c_str();
                 j[jsonOrderedName("module")] = moduleName.c_str();
                 j[jsonOrderedName("scope")] = scope.c_str();
-                if (isStruct)
-                    j[jsonOrderedName("kind")] = "struct";
-                else if (isUnion)
+                if (isUnion)
                     j[jsonOrderedName("kind")] = "union";
+                else if (isStruct)
+                    j[jsonOrderedName("kind")] = "struct";
                 else
                     j[jsonOrderedName("kind")] = "class";
                 if (size >= 10)
@@ -393,7 +393,6 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         tinfo_t mtinfo;
                         if (get_or_guess_member_tinfo(&mtinfo, member))
                             mtinfo.print(&mtype);
-                        unsigned int mflag = member->flag;
 
                         qstring memberCmtLine;
                         get_member_cmt(&memberCmtLine, mid, false);
@@ -415,6 +414,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             jmember[jsonOrderedName("size")] = toHexString(msize).c_str();
                         else
                             jmember[jsonOrderedName("size")] = msize;
+                        if ((member->flag & 0x50000000) == 0x50000000)
+                            jmember[jsonOrderedName("isString")] = true;
                         if (isMemberAnonymous)
                             jmember[jsonOrderedName("isAnonymous")] = isMemberAnonymous;
                         if (!memberComment.empty())
