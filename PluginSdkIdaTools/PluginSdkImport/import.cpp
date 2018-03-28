@@ -164,11 +164,17 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                     enFullMemberComment += enMemberComment;
                                 }
                                 if (!enFullMemberComment.empty()) {
-                                    enum_member_comment_info commentInfo;
-                                    commentInfo.memberName = enMemberName;
-                                    commentInfo.comment = enFullMemberComment;
-                                    commentInfo.used = false;
-                                    enumMemberComments.push_back(commentInfo);
+                                    const_t enumMember = get_enum_member_by_name(enMemberName.c_str());
+                                    if (enumMember != static_cast<const_t>(-1)) {
+                                        if (!set_enum_member_cmt(enumMember, enFullMemberComment.c_str(), false)) {
+                                            msg("Comment for enum member '%s' in enum '%s' was not set\n",
+                                                enMemberName.c_str(), enumName.c_str());
+                                        }
+                                    }
+                                    else {
+                                        msg("Unable to retrive reference for enum member '%s' (in enum '%s')\n",
+                                            enMemberName.c_str(), enumName.c_str());
+                                    }
                                 }
                             }
                             else {
@@ -191,8 +197,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                 }
                                 for (auto &cm : m_comments) {
                                     if (!cm.used) {
-                                        msg("Comment for enum member '%s' in enum '%s' was not set\n",
-                                            cm.memberName.c_str(), m_enumName.c_str());
+                                        
                                     }
                                 }
                                 return 0;
