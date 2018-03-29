@@ -1,11 +1,20 @@
 #pragma once
 #include "ida.hpp"
+#include "idp.hpp"
 
-#define IDA_TOOLS
+#ifdef snprintf
+#undef snprintf
+#endif
+#ifdef strtoull
+#undef strtoull
+#endif
 
 #include "..\..\shared\json\json.hpp"
 
 using json = nlohmann::json;
+
+bool startsWith(qstring const &strToCheck, qstring const &strStart);
+bool contains(qstring const &str, qstring const &substr);
 
 qstring csvvalue(qstring const &value);
 
@@ -62,23 +71,21 @@ void readcsv(qstring const &line, ArgTypes&... args) {
     readcsvparameter(line, currentIndex, args...);
 }
 
-bool startsWith(qstring const &strToCheck, qstring const &strStart);
-
 void addValueToStringLineList(qstring &line, qstring const &value);
-
 void addValueCSVLine(qstring &line, qstring const &value);
 
 bool isValidCharacterForFileName(char c);
-
 qstring getValidFileName(qstring const &oldFileName);
 
 void startWritingToJson();
-
 void endWritingToJson();
-
 char const *jsonOrderedName(char const *name);
-
 void jsonRemoveOrderingSigns(qstring &str);
+int jsonReadNumber(json const &node, qstring const &key);
+qstring jsonReadString(json const &node, qstring const &key);
+bool jsonReadBool(json const &node, qstring const &key);
+json jsonReadFromFile(char const *filepath);
+bool jsonWriteToFile(json const &j, char const *filepath);
 
 template<typename ...ArgTypes>
 qstring format(const qstring &format, ArgTypes... args) {
@@ -99,7 +106,4 @@ qstring toString(T intVal) {
     return format("%d", intVal);
 }
 
-
 int toNumber(qstring const &str);
-
-bool contains(qstring const &str, qstring const &substr);

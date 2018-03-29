@@ -57,13 +57,22 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
 
         auto func = get_next_func(0);
         while (func) {
+        #if (IDA_VER >= 70)
             auto ea = func->start_ea;
+        #else
+            auto ea = func->startEA;
+        #endif
             if (!isBaseVersion || !IsInRange(ea, skipRanges)) {
                 Function entry;
                 tinfo_t type;
                 entry.m_address = ea;
+            #if (IDA_VER >= 70)
                 get_tinfo(&type, ea);
                 get_func_name(&entry.m_name, ea);
+            #else
+                get_tinfo2(ea, &type);
+                get_func_name2(&entry.m_name, ea);
+            #endif
                 type.print(&entry.m_type);
                 if (isFunctionPrefixReserved(entry.m_name))
                     entry.m_name.clear();
@@ -74,8 +83,12 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     if (entry.m_name == tmpdem)
                         entry.m_demangledName = entry.m_name;
                 }
+            #if (IDA_VER >= 70)
                 qstring cmtLine;
                 get_func_cmt(&cmtLine, func, false);
+            #else
+                qstring cmtLine = get_func_cmt(func, false);
+            #endif
                 switch (type.get_cc()) {
                 case CM_CC_INVALID:
                     entry.m_cc = "";
@@ -138,7 +151,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 entry.m_refsStr = getXrefsToAddressAsString(ea);
                 functions.push_back(entry);
             }
+        #if (IDA_VER >= 70)
             func = get_next_func(func->start_ea);
+        #else
+            func = get_next_func(func->startEA);
+        #endif
         }
         if (!isBaseVersion) {
             string baseFileName = "plugin-sdk." + gameName + ".functions." + baseVersionName + ".csv";
@@ -173,15 +190,31 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         auto seg = get_first_seg();
         while (seg) {
             qstring segName;
+        #if (IDA_VER >= 70)
             get_segm_name(&segName, seg);
+        #else
+            static char segNameBuf[32];
+            if (get_true_segm_name(seg, segNameBuf, 32) != static_cast<ssize_t>(-1))
+                segName = segNameBuf;
+        #endif
             if (isDataSegment(segName)) {
+            #if (IDA_VER >= 70)
                 msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->start_ea, seg->end_ea);
                 auto ea = seg->start_ea;
                 while (ea < seg->end_ea) {
+            #else
+                msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->startEA, seg->endEA);
+                auto ea = seg->startEA;
+                while (ea < seg->endEA) {
+            #endif
                     int size = 1;
                     bool hasType = false;
                     tinfo_t type;
+                #if (IDA_VER >= 70)
                     if (get_tinfo(&type, ea)) {
+                #else
+                    if (get_tinfo2(ea, &type)) {
+                #endif
                         // get type size
                         size = type.get_size();
                         if (size < 1)
@@ -191,7 +224,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             size = itemSize;
                         hasType = true;
                     }
+                #if (IDA_VER >= 70)
                     qstring addrName = get_name(ea);
+                #else
+                    qstring addrName = get_true_name(ea);
+                #endif
                     if (!addrName.empty() && !isDataPrefixReserved(addrName) && get_str_type(ea) == -1) {
                         Variable entry;
                         entry.m_address = ea;
@@ -201,7 +238,13 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         entry.m_name = addrName;
                         entry.m_demangledName = get_short_name(ea);
                         qstring cmtLine;
+                    #if (IDA_VER >= 70)
                         get_cmt(&cmtLine, ea, false);
+                    #else
+                        static char cmtLineBuf[2048];
+                        if (get_cmt(ea, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                            cmtLine = cmtLineBuf;
+                    #endif
                         getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
                         // get default value(s) for constant variable
                         if (hasType && type.is_const()) {
@@ -222,7 +265,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                     arrEa += 1;
                                 }
                                 else if (compType.is_float()) {
+                                #if (IDA_VER >= 70)
                                     unsigned int u32 = get_dword(arrEa);
+                                #else
+                                    unsigned int u32 = get_long(arrEa);
+                                #endif
                                     float f32 = *reinterpret_cast<float *>(&u32);
                                     qsnprintf(fmtbuf, 32, "%g", f32);
                                     qstring strval = fmtbuf;
@@ -243,7 +290,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                     arrEa += 8;
                                 }
                                 else if (compType.is_int32() || compType.is_uint32()) {
+                                #if (IDA_VER >= 70)
                                     unsigned int u32 = get_dword(arrEa);
+                                #else
+                                    unsigned int u32 = get_long(arrEa);
+                                #endif
                                     if (compType.is_int32()) {
                                         int i32 = *reinterpret_cast<float *>(&u32);
                                         qsnprintf(fmtbuf, 32, "%d", i32);
@@ -294,7 +345,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     ea += size;
                 }
             }
+        #if (IDA_VER >= 70)
             seg = get_next_seg(seg->start_ea);
+        #else
+            seg = get_next_seg(seg->startEA);
+        #endif
         }
         if (!isBaseVersion) {
             string baseFileName = "plugin-sdk." + gameName + ".variables." + baseVersionName + ".csv";
@@ -353,7 +408,13 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 int alignment = s->get_alignment();
 
                 qstring cmtLine;
+            #if (IDA_VER >= 70)
                 get_struc_cmt(&cmtLine, stid, false);
+            #else
+                static char cmtLineBuf[2048];
+                if (get_struc_cmt(stid, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                    cmtLine = cmtLineBuf;
+            #endif
                 qstring comment, moduleName, scope;
                 bool isStruct, isAnonymous;
                 getStructExtraInfo(cmtLine, comment, moduleName, scope, isStruct, isAnonymous);
@@ -388,14 +449,28 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         auto mid = member->id;
                         unsigned int msize = get_member_size(member);
                         unsigned int moffset = member->get_soff();
+                    #if (IDA_VER >= 70)
                         qstring mname = get_member_name(mid);
+                    #else
+                        qstring mname = get_member_name2(mid);
+                    #endif
                         qstring mtype;
                         tinfo_t mtinfo;
+                    #if (IDA_VER >= 70)
                         if (get_or_guess_member_tinfo(&mtinfo, member))
+                    #else
+                        if (get_or_guess_member_tinfo2(member, &mtinfo))
+                    #endif
                             mtinfo.print(&mtype);
 
                         qstring memberCmtLine;
+                    #if (IDA_VER >= 70)
                         get_member_cmt(&memberCmtLine, mid, false);
+                    #else
+                        static char memberCmtLineBuf[2048];
+                        if (get_member_cmt(mid, false, memberCmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                            memberCmtLine = memberCmtLineBuf;
+                    #endif
 
                         qstring memberComment, memberRawType;
                         bool isMemberAnonymous;
@@ -427,17 +502,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
 
                 string fileName = "gta" + gameName + "." + getValidFileName(name).c_str() + ".json";
                 path filePath = structFolderPath / fileName;
-
-                auto outFile = qfopen(filePath.string().c_str(), "wt");
-                if (outFile) {
-                    qstring jsonStr = j.dump(4).c_str();
-                    jsonRemoveOrderingSigns(jsonStr);
-                    qfputs(jsonStr.c_str(), outFile);
-                    qfclose(outFile);
-                }
-                else
-                    warning("Unable to open '%s'", filePath.string().c_str());
-
+                jsonWriteToFile(j, filePath.string().c_str());
                 endWritingToJson();
             }
         }
@@ -473,13 +538,33 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 auto e = getn_enum(i);
                 qstring name = get_enum_name(e);
                 qstring cmtLine;
+            #if (IDA_VER >= 70)
                 get_enum_cmt(&cmtLine, e, false);
+            #else
+                static char cmtLineBuf[2048];
+                if (get_enum_cmt(e, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                    cmtLine = cmtLineBuf;
+            #endif
                 qstring comment, moduleName, scope;
                 bool isClass;
                 getEnumExtraInfo(cmtLine, comment, moduleName, scope, isClass);
 
                 auto flags = get_enum_flag(e);
+            #if (IDA_VER >= 70)
                 bool isHexademical = (flags & hex_flag()) == hex_flag();
+                int enumWidth = get_enum_width(e);
+            #else
+                bool isHexademical = (flags & hexflag()) == hexflag();
+                int enumWidth = get_enum_width(e);
+                if (enumWidth == 3)
+                    enumWidth = 4;
+                else if (enumWidth == 4)
+                    enumWidth = 8;
+                else if (enumWidth != 0)
+                    enumWidth = 0;
+            #endif
+                if (enumWidth > 8)
+                    enumWidth = 0;
 
                 startWritingToJson();
 
@@ -487,7 +572,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 j[jsonOrderedName("name")] = name.c_str();
                 j[jsonOrderedName("module")] = moduleName.c_str();
                 j[jsonOrderedName("scope")] = scope.c_str();
-                j[jsonOrderedName("width")] = static_cast<int>(get_enum_width(e));
+                j[jsonOrderedName("width")] = enumWidth;
                 j[jsonOrderedName("isClass")] = isClass;
                 j[jsonOrderedName("isHexademical")] = isHexademical;
                 j[jsonOrderedName("isSigned")] = (flags & 0x20000) == 0x20000;
@@ -511,7 +596,13 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         else
                             jenumm[jsonOrderedName("value")] = value;
                         qstring memberCmtLine;
+                    #if (IDA_VER >= 70)
                         get_enum_member_cmt(&memberCmtLine, cid, false);
+                    #else
+                        static char memberCmtLineBuf[2048];
+                        if (get_enum_member_cmt(cid, false, memberCmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                            memberCmtLine = memberCmtLineBuf;
+                    #endif
                         qstring memberComment;
                         int bitWidth;
                         bool isCounter;
@@ -534,19 +625,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
 
                 string fileName = "gta" + gameName + "." + getValidFileName(name).c_str() + ".json";
                 path filePath = enumFolderPath / fileName;
-
-                auto outFile = qfopen(filePath.string().c_str(), "wt");
-                if (outFile) {
-                    qstring jsonStr = j.dump(4).c_str();
-                    jsonRemoveOrderingSigns(jsonStr);
-                    qfputs(jsonStr.c_str(), outFile);
-                    qfclose(outFile);
-                }
-                else
-                    warning("Unable to open '%s'", filePath.string().c_str());
-
+                jsonWriteToFile(j, filePath.string().c_str());
                 endWritingToJson();
             }
         }
     }
+
+    warning("Export finished");
 }

@@ -56,8 +56,13 @@ bool parseType(qstring const &typeName, tinfo_t &out, bool silent) {
     if (typeName.last() != ';')
         fixedTypeName += ";";
     qstring outTypeName;
-    if (parse_decl(&out, &outTypeName, NULL, fixedTypeName.c_str(), silent ? PT_SIL : 0))
+#if (IDA_VER >= 70)
+    if (parse_decl(&out, &outTypeName, NULL, fixedTypeName.c_str(), silent ? PT_SIL : 0)) {
+#else
+    if (parse_decl2(idati, fixedTypeName.c_str(), &outTypeName, &out, PT_TYP | (silent ? PT_SIL : 0))) {
+#endif
         return true;
+    }
     return false;
 }
 
@@ -67,7 +72,11 @@ bool setType(ea_t ea, qstring const &typeName, bool silent) {
         if (!parseType(typeName, tif, silent))
             return false;
     }
+#if (IDA_VER >= 70)
     return apply_tinfo(ea, tif, TINFO_DEFINITE);
+#else
+    return apply_tinfo2(ea, tif, TINFO_DEFINITE);
+#endif
 }
 
 bool setType(struc_t *struc, size_t offset, qstring const &typeName, bool silent) {
@@ -83,5 +92,9 @@ bool setType(struc_t *struc, member_t *member, size_t offset, qstring const &typ
         if (!parseType(typeName, tif, silent))
             return false;
     }
+#if (IDA_VER >= 70)
     return set_member_tinfo(struc, member, offset, tif, 0) == SMT_OK;
+#else
+    return set_member_tinfo2(struc, member, offset, tif, 0) == SMT_OK;
+#endif
 }

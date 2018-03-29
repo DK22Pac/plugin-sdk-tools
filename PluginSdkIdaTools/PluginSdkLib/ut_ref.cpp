@@ -28,7 +28,11 @@ qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc) {
             const int max_vmethods_search = 200;
             for (int i = 0; i < max_vmethods_search; i++) {
                 ea_t searchaddr = xref.m_address - i * 4;
-                qstring searchaddrname = get_name(searchaddr);
+                #if (IDA_VER >= 70)
+                    qstring searchaddrname = get_name(searchaddr);
+                #else
+                    qstring searchaddrname = get_true_name(searchaddr);
+                #endif
                 if (!searchaddrname.empty()) {
                     if (startsWith(searchaddrname, "_ZTV"))
                         xref.m_objectid = searchaddr;
@@ -39,7 +43,11 @@ qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc) {
         else {
             func_t *xreffunc = get_func(xb.from);
             if (xreffunc) {
-                xref.m_objectid = xreffunc->start_ea;
+                #if (IDA_VER >= 70)
+                    xref.m_objectid = xreffunc->start_ea;
+                #else
+                    xref.m_objectid = xreffunc->startEA;
+                #endif
                 if (xref.m_objectid != lastobjid) {
                     xrefindex = 0;
                     lastobjid = xref.m_objectid;

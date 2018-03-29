@@ -7,9 +7,15 @@ int idaapi init(void) {
     return PLUGIN_OK;
 }
 
+#if (IDA_VER >= 70)
 bool idaapi run(size_t) {
+#else
+void idaapi run(int) {
+#endif
     showform();
+#if (IDA_VER >= 70)
     return true;
+#endif
 }
 
 plugin_t __declspec(dllexport) PLUGIN = {

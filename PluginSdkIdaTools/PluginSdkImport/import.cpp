@@ -20,45 +20,6 @@
 
 using namespace std;
 
-int jsonReadNumber(json const &node, qstring const &key) {
-    std::string strKey = key.c_str();
-    auto it = node.find(strKey);
-    if (it == node.end())
-        return 0;
-    if ((*it).is_string()) {
-        unsigned int value = 0;
-        sscanf_s((*it).get<std::string>().c_str(), "0x%X", &value);
-        return value;
-    }
-    return (*it).get<int>();
-}
-
-qstring jsonReadString(json const &node, qstring const &key) {
-    std::string strKey = key.c_str();
-    return qstring(node.value(strKey, "").c_str());
-}
-
-bool jsonReadBool(json const &node, qstring const &key) {
-    return node.value(key.c_str(), false);
-}
-
-json jsonReadFromFile(qstring const &path) {
-    json result;
-    FILE *f = qfopen(path.c_str(), "rb");
-    if (f) {
-        qfseek(f, 0, SEEK_END);
-        auto length = qftell(f);
-        qfseek(f, 0, SEEK_SET);
-        auto buffer = new char[length + 1];
-        qfread(f, buffer, length);
-        buffer[length] = '\0';
-        qfclose(f);
-        result = json::parse(buffer);
-        delete[] buffer;
-    }
-    return result;
-}
-
 void importdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &input) {
     msg("--------------------\nImport started\n--------------------\n");
     if (selectedGame == -1) {
@@ -83,6 +44,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         for (const auto& p : recursive_directory_iterator(dbFolderPath / "enums")) {
             if (p.path().extension() == ".json") {
                 json j = jsonReadFromFile(p.path().string().c_str());
+                if (j.empty())
+                    continue;
                 qstring enumName = jsonReadString(j, "name");
                 if (!enumName.empty()) {
                     auto et = get_enum(enumName.c_str());
@@ -104,13 +67,24 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         set_enum_type_ordinal(et, ord);
                     // width
                     int enWidth = jsonReadNumber(j, "width");
-                    if (enWidth != 0)
+                    if (enWidth != 0) {
+                    #if (IDA_VER < 70)
+                        if (enWidth == 4)
+                            enWidth = 3;
+                        else if (enWidth == 8)
+                            enWidth = 4;
+                    #endif
                         set_enum_width(et, enWidth);
+                    }
                     flags_t enFlags = get_enum_flag(et);
                     // hexademical
                     bool enIsHexademical = jsonReadBool(j, "isHexademical");
                     if (enIsHexademical)
+                    #if (IDA_VER >= 70)
                         enFlags |= hex_flag();
+                    #else
+                        enFlags |= hexflag();
+                    #endif
                     // signed
                     bool enIsSigned = jsonReadBool(j, "isSigned");
                     if (enIsSigned)
@@ -178,8 +152,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                 }
                             }
                             else {
-                                warning("Error: Unable to create enum member '%s' in enum '%s'",
-                                    enMemberName.c_str(), enumName.c_str());
+                                warning("Error: Unable to create enum member '%s' in enum '%s':\n\"%s\"",
+                                    enMemberName.c_str(), enumName.c_str(), enumMemberErrorMessage(addEnMemberResult).c_str());
                             }
                         }
                         // set comments for enum members
@@ -335,7 +309,11 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     for (auto const &m : entry.m_members) {
                         flags_t mflags = 0;
                         opinfo_t mtinfo;
+                    #if (IDA_VER >= 70)
                         mtinfo.strtype = STRTYPE_C;
+                    #else
+                        mtinfo.strtype = ASCSTR_C;
+                    #endif
                         opinfo_t *pmtinfo = nullptr;
                         if (m.m_isString) {
                             mflags = 0x50000400;
@@ -343,18 +321,18 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         }
                         struc_error_t err = add_struc_member(s, m.m_name.c_str(), m.m_offset, mflags, pmtinfo, m.m_size);
                         if (err != STRUC_ERROR_MEMBER_OK) {
-                            warning("Error: Unable to create struct member '%s' in struct '%s' (error %d)",
-                                m.m_name.c_str(), entry.m_name.c_str(), err);
+                            warning("Error: Unable to create struct member '%s' in struct '%s':\n\"%s\"",
+                                m.m_name.c_str(), entry.m_name.c_str(), structMemberErrorMessage(err).c_str());
                         }
                     }
                     // validate struct size
                     auto newSize = get_struc_size(s);
                     if (newSize < entry.m_size) {
-                        if (add_struc_member(s, format("_pad%X", newSize).c_str(), newSize, 0, nullptr,
-                            entry.m_size - newSize) != STRUC_ERROR_MEMBER_OK)
-                        {
-                            warning("Error: Unable to pad struct '%s' (at offset %d with %d bytes)", entry.m_name.c_str(),
-                                newSize, entry.m_size - newSize);
+                        struc_error_t err = add_struc_member(s, format("_pad%X", newSize).c_str(), newSize, 0, nullptr,
+                            entry.m_size - newSize);
+                        if (err != STRUC_ERROR_MEMBER_OK) {
+                            warning("Error: Unable to pad struct '%s' (at offset %d with %d bytes):\n\"%s\"",
+                                entry.m_name.c_str(), newSize, entry.m_size - newSize, structMemberErrorMessage(err).c_str());
                         }
                     }
                     structs.push_back(entry);
@@ -367,7 +345,11 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         end_type_updating(UTP_STRUCT);
         // update types & comments for ida structs members
         begin_type_updating(UTP_STRUCT);
+    #if (IDA_VER >= 70)
         auto til = get_idati();
+    #else
+        auto til = idati;
+    #endif
         for (size_t i = 0; i < structs.size(); i++) {
             Struct &entry = structs[i];
             auto stid = entry.m_idaStructId;
@@ -432,10 +414,21 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         auto seg = get_first_seg();
         while (seg) {
             qstring segName;
+        #if (IDA_VER >= 70)
             get_segm_name(&segName, seg);
+        #else
+            static char segNameBuf[2048];
+            if (get_true_segm_name(seg, segNameBuf, 2048) != static_cast<ssize_t>(-1))
+                segName = segNameBuf;
+        #endif
             if (isDataSegment(segName))
+        #if (IDA_VER >= 70)
                 AddRange(dataSegments, seg->start_ea, seg->end_ea);
             seg = get_next_seg(seg->start_ea);
+        #else
+                AddRange(dataSegments, seg->startEA, seg->endEA);
+            seg = get_next_seg(seg->startEA);
+        #endif
         }
 
         // read variables file
@@ -456,10 +449,14 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             if (v.m_address != 0) {
                 if (IsInRange(v.m_address, dataSegments)) {
                     if (!v.m_type.empty()) {
+                    #if (IDA_VER >= 70)
                         if (!del_items(v.m_address, DELIT_DELNAMES, v.m_size)) {
                             msg("Unable to clear space for '%s' variable at address 0x%X (%d bytes)\n",
                                 v.m_demangledName.c_str(), v.m_address, v.m_size);
                         }
+                    #else
+                        do_unknown_range(v.m_address, v.m_size, DOUNK_DELNAMES);
+                    #endif
                         for (unsigned int i = 0; i < v.m_size; i++)
                             setType(v.m_address + i, "");
                     }
@@ -516,7 +513,6 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         }
         else
             functions = Function::FromCSV(filePath.string().c_str());
-        warning("%d", functions.size());
         // update ida functions
         for (size_t i = 0; i < functions.size(); i++) {
             Function const &f = functions[i];
@@ -524,7 +520,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 auto func = get_func(f.m_address);
                 if (!func) {
                     msg("Creating function '%s' at address 0x%X\n", f.m_demangledName.c_str(), f.m_address);
-                    if (!add_func(f.m_address)) {
+                    if (!add_func(f.m_address, BADADDR)) {
                         warning("Unable to create function '%s' at address 0x%X", f.m_demangledName.c_str(), f.m_address);
                         continue;
                     }
@@ -587,4 +583,6 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             }
         }
     }
+
+    warning("Import finished");
 }

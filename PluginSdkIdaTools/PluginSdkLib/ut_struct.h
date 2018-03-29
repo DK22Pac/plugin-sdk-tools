@@ -43,3 +43,5 @@ public:
 };
 
 bool isSystemStruct(qstring const &s);
+
+qstring structMemberErrorMessage(int errorCode);

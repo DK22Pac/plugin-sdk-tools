@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="IDA 32-bit|x64">
-      <Configuration>IDA 32-bit</Configuration>
+    <ProjectConfiguration Include="IDA 6.8|Win32">
+      <Configuration>IDA 6.8</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="IDA 7.0|Win32">
+      <Configuration>IDA 7.0</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="IDA 7.0|x64">
+      <Configuration>IDA 7.0</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="IDA 64-bit|x64">
-      <Configuration>IDA 64-bit</Configuration>
+    <ProjectConfiguration Include="IDA 6.8|x64">
+      <Configuration>IDA 6.8</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -15,16 +23,24 @@
     <ProjectGuid>{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>PluginSdkLib</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
     <ProjectName>PluginSdkLib</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.0|x64'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 32-bit|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.0|Win32'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|Win32'" Label="Configuration">
+    <PlatformToolset>v141_xp</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -33,16 +49,35 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
-    <TargetName>$(ProjectName)64</TargetName>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.0|x64'">
+    <OutDir>$(SolutionDir)shared\lib\</OutDir>
+    <IntDir>$(ProjectDir).obj\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)70</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.0|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|x64'">
     <OutDir>$(SolutionDir)shared\lib\</OutDir>
     <IntDir>$(ProjectDir).obj\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 32-bit|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|Win32'">
     <OutDir>$(SolutionDir)shared\lib\</OutDir>
     <IntDir>$(ProjectDir).obj\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)68</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 32-bit|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.0|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__NT__;__IDP__;__X64__;IDA_VER=70;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ida.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.0|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__NT__;__IDP__;__X64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -55,14 +90,28 @@
       <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 64-bit|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk70\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__NT__;__IDP__;__X64__;__EA64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__NT__;__IDP__;__X64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ida.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk68\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__NT__;__IDP__;IDA_VER=68;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ida.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Projects\ida_plugin\idasdk70\lib\x64_win_vc_32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
     </Link>

@@ -83,6 +83,70 @@ void endWritingToJson() {
     OrderingSignsCount() = 0;
 }
 
+int jsonReadNumber(json const &node, qstring const &key) {
+    std::string strKey = key.c_str();
+    auto it = node.find(strKey);
+    if (it == node.end())
+        return 0;
+    if ((*it).is_string()) {
+        unsigned int value = 0;
+        sscanf_s((*it).get<std::string>().c_str(), "0x%X", &value);
+        return value;
+    }
+    return (*it).get<int>();
+}
+
+qstring jsonReadString(json const &node, qstring const &key) {
+    std::string strKey = key.c_str();
+    return qstring(node.value(strKey, "").c_str());
+}
+
+bool jsonReadBool(json const &node, qstring const &key) {
+    return node.value(key.c_str(), false);
+}
+
+json jsonReadFromFile(char const *filepath) {
+    json result;
+    FILE *f = qfopen(filepath, "rb");
+    if (f) {
+        qfseek(f, 0, SEEK_END);
+        auto length = qftell(f);
+        qfseek(f, 0, SEEK_SET);
+        auto buffer = new char[length + 1];
+        qfread(f, buffer, length);
+        buffer[length] = '\0';
+        qfclose(f);
+        try {
+            result = json::parse(buffer);
+        }
+        catch (std::exception &e) {
+            warning("Unable to read json from file \n%s\n%s", filepath, e.what());
+        }
+        delete[] buffer;
+    }
+    return result;
+}
+
+bool jsonWriteToFile(json const &j, char const *filepath) {
+    auto outFile = qfopen(filepath, "wt");
+    if (outFile) {
+        bool result = true;
+        try {
+            qstring jsonStr = j.dump(4).c_str();
+            jsonRemoveOrderingSigns(jsonStr);
+            qfputs(jsonStr.c_str(), outFile);
+        }
+        catch (std::exception &e) {
+            warning("Unable to write json data to file\n%s\n%s", filepath, e.what());
+            result = false;
+        }
+        qfclose(outFile);
+        return result;
+    }
+    warning("Unable to open '%s'", filepath);
+    return false;
+}
+
 int toNumber(qstring const &str) {
     return (startsWith(str, "0x") ? strtol(str.substr(2).c_str(), nullptr, 16) : strtol(str.c_str(), nullptr, 10));
 }
