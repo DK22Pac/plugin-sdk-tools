@@ -16,12 +16,9 @@
 #include "ut_ref.h"
 #include "ut_ida.h"
 #include "ut_options.h"
-#include "translator.h"
 #include "Games.h"
 
 using namespace std;
-
-const bool gTranslateAddresses = true;
 
 void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
     msg("--------------------\nExport started\n--------------------\n");
@@ -162,19 +159,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0) {
-                if (gTranslateAddresses) { // NOTE: that's a temporary feature
-                    qvector<Function> tmpfuncs;
-                    for (size_t i = 0; i < baseEntries.size(); i++) {
-                        Function &f = tmpfuncs.push_back();
-                        f.m_address = translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address);
-                    }
-                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), tmpfuncs, versionName.c_str(),
-                        filePath.string().c_str());
-                }
-                else {
-                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
-                        filePath.string().c_str());
-                }
+                Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
+                    filePath.string().c_str());
             }
         }
         else
@@ -356,17 +342,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0) {
-                if (gTranslateAddresses) {
-                    qvector<unsigned int> addresses;
-                    for (size_t i = 0; i < baseEntries.size(); i++)
-                        addresses.push_back(translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address));
-                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), addresses, versionName.c_str(),
-                        filePath.string().c_str());
-                }
-                else {
-                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
-                        filePath.string().c_str());
-                }
+                Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
+                    filePath.string().c_str());
             }
         }
         else

@@ -1,7 +1,7 @@
+#include "..\shared\Utility.h"
 #include "Module.h"
 #include <iostream>
 #include "Comments.h"
-#include "..\shared\Utility.h"
 
 Module *Module::Find(vector<Module> &modules, string const &name) {
     for (unsigned int i = 0; i < modules.size(); i++) {
@@ -35,7 +35,6 @@ Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
 }
 
 void Module::Write(path const &folder, vector<Module> const &allModules, Games::IDs game) {
-    cout << "GTA" << Games::GetGameAbbr(game) << ": Writing module '" << mName << "'" << endl;
     WriteHeader(folder, allModules, game);
     WriteSource(folder, allModules, game);
     WriteMeta(folder / "meta", allModules, game);
@@ -87,6 +86,13 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
         }
     }
     //functions
+    if (mFunctions.size() > 0) {
+        for (unsigned int i = 0; i < mFunctions.size(); i++) {
+            stream << endl;
+            mFunctions[i].WriteDeclaration(stream, t, game);
+            stream << endl;
+        }
+    }
 
     stream << endl << "#include " << '"' << "meta/meta." << mName + ".h" << '"' << endl;
 
@@ -126,8 +132,25 @@ bool Module::WriteSource(path const &folder, vector<Module> const &allModules, G
             stream << endl;
         }
     }
+    // class functions
+    if (mStructs.size() > 0) {
+        for (unsigned int i = 0; i < mStructs.size(); i++) {
+            if (mStructs[i].mFunctions.size() > 0) {
+                for (unsigned int j = 0; j < mStructs[i].mFunctions.size(); j++) {
+                    mStructs[i].mFunctions[j].WriteDefinition(stream, t, game);
+                    stream << endl;
+                }
+            }
+        }
+    }
     //functions
-
+    if (mFunctions.size() > 0) {
+        for (unsigned int i = 0; i < mFunctions.size(); i++) {
+            stream << endl;
+            mFunctions[i].WriteDefinition(stream, t, game);
+            stream << endl;
+        }
+    }
     return true;
 }
 
@@ -143,6 +166,67 @@ bool Module::WriteMeta(path const &folder, vector<Module> const &allModules, Gam
     stream << GetPluginSdkComment(game, true) << endl;
     // include files
     stream << "#include " << '"' << "PluginBase.h" << '"' << endl;
-    
+    // class functions
+    if (mStructs.size() > 0) {
+        for (unsigned int i = 0; i < mStructs.size(); i++) {
+            if (mStructs[i].mFunctions.size() > 0) {
+                for (unsigned int j = 0; j < mStructs[i].mFunctions.size(); j++) {
+                    mStructs[i].mFunctions[j].WriteMeta(stream, t, game);
+                    stream << endl;
+                }
+            }
+        }
+    }
+    //functions
+    if (mFunctions.size() > 0) {
+        for (unsigned int i = 0; i < mFunctions.size(); i++) {
+            stream << endl;
+            mFunctions[i].WriteMeta(stream, t, game);
+            stream << endl;
+        }
+    }
     return true;
+}
+
+void Module::AddFunction(Function const &fn) {
+    bool overloaded = false;
+    for (auto &f : mFunctions) {
+        if (f.GetFullName() == fn.GetFullName()) {
+            if (!f.mIsOverloaded)
+                f.mIsOverloaded = true;
+            overloaded = true;
+            break;
+        }
+    }
+    Function &addedFn = mFunctions.emplace_back(fn);
+    if (overloaded)
+        addedFn.mIsOverloaded = true;
+}
+
+Variable *Module::GetVariable(unsigned int baseAddress) {
+    for (auto &v : mVariables) {
+        if (v.mVersionInfo[0].mAddress == baseAddress)
+            return &v;
+    }
+    for (auto &s : mStructs) {
+        for (auto &sv : s.mVariables) {
+            if (sv.mVersionInfo[0].mAddress == baseAddress)
+                return &sv;
+        }
+    }
+    return nullptr;
+}
+
+Function *Module::GetFunction(unsigned int baseAddress) {
+    for (auto &f : mFunctions) {
+        if (f.mVersionInfo[0].mAddress == baseAddress)
+            return &f;
+    }
+    for (auto &s : mStructs) {
+        for (auto &sf : s.mFunctions) {
+            if (sf.mVersionInfo[0].mAddress == baseAddress)
+                return &sf;
+        }
+    }
+    return nullptr;
 }

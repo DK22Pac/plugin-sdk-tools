@@ -1,7 +1,7 @@
+#include "..\shared\Utility.h"
 #include "GvsMacroGenerator.h"
 #include "Paths.h"
 #include "Comments.h"
-#include "..\shared\Utility.h"
 #include <fstream>
 
 bool GvsMacroGenerator::Generate(path const &sdkpath, Games::IDs game) {

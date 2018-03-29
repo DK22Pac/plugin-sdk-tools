@@ -1,5 +1,5 @@
 #include "Type.h"
-#include "String.h"
+#include "StringEx.h"
 #include <algorithm>
 #include <iostream>
 #include <iomanip>

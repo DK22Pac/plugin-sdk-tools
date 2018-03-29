@@ -1,5 +1,5 @@
 #include "Comments.h"
-#include "String.h"
+#include "StringEx.h"
 
 void WriteComment(ofstream &stream, string const &comment, tabs t, unsigned int pos) {
     if (comment.empty())

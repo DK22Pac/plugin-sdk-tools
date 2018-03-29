@@ -1,6 +1,6 @@
 #include "Struct.h"
 #include "Comments.h"
-#include "String.h"
+#include "StringEx.h"
 
 bool Struct::Member::IsPadding() {
     return !strncmp(mName.c_str(), "_pad", 4) || !strncmp(mName.c_str(), "__pad", 5);
@@ -65,9 +65,19 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, vector<Modu
         for (unsigned int i = 0; i < mVariables.size(); i++) {
             mVariables[i].WriteDeclaration(stream, t, game, true);
             stream << endl;
+            ++numWrittenMembers;
         }
     }
+    if (numWrittenMembers > 0)
+        stream << endl;
     // functions
+    if (mFunctions.size() > 0) {
+        for (unsigned int i = 0; i < mFunctions.size(); i++) {
+            mFunctions[i].WriteDeclaration(stream, t, game);
+            stream << endl;
+            ++numWrittenMembers;
+        }
+    }
 
     --t;
     stream << t() << '}' << ';';
@@ -108,8 +118,23 @@ bool Struct::ContainsType(string const &typeName, bool withPointers) const {
     return false;
 }
 
-string Struct::GetFullName() {
+string Struct::GetFullName() const {
     if (mScope.empty())
         return mName;
     return mScope + "::" + mName;
+}
+
+void Struct::AddFunction(Function const &fn) {
+    bool overloaded = false;
+    for (auto &f : mFunctions) {
+        if (f.GetFullName() == fn.GetFullName()) {
+            if (!f.mIsOverloaded)
+                f.mIsOverloaded = true;
+            overloaded = true;
+            break;
+        }
+    }
+    Function &addedFn = mFunctions.emplace_back(fn);
+    if (overloaded)
+        addedFn.mIsOverloaded = true;
 }

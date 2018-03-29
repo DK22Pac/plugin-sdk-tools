@@ -50,3 +50,12 @@ vector<string> CSV::ReadLines(ifstream &file) {
     }
     return result;
 }
+
+string CSV::Value(string const &value) {
+    string retval = value;
+    if (value.find(',') != string::npos) {
+        retval.insert(0, "\"");
+        retval.append("\"");
+    }
+    return retval;
+}

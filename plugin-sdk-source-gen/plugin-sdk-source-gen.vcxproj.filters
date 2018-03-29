@@ -9,12 +9,12 @@
     <ClInclude Include="Comments.h" />
     <ClInclude Include="Type.h" />
     <ClInclude Include="Struct.h" />
-    <ClInclude Include="String.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="Variable.h" />
     <ClInclude Include="CSV.h" />
     <ClInclude Include="GvsMacroGenerator.h" />
     <ClInclude Include="Paths.h" />
+    <ClInclude Include="StringEx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -26,11 +26,11 @@
     <ClCompile Include="Comments.cpp" />
     <ClCompile Include="Struct.cpp" />
     <ClCompile Include="Type.cpp" />
-    <ClCompile Include="String.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="Variable.cpp" />
     <ClCompile Include="CSV.cpp" />
     <ClCompile Include="GvsMacroGenerator.cpp" />
     <ClCompile Include="Paths.cpp" />
+    <ClCompile Include="StringEx.cpp" />
   </ItemGroup>
 </Project>

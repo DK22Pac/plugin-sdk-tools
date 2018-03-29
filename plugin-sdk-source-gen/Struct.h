@@ -46,9 +46,11 @@ public:
     vector<Function> mFunctions;
 
 
-    string GetFullName(); // combine name + scope
+    string GetFullName() const; // combine name + scope
 
     void Write(ofstream &stream, tabs t, Module const &myModule, vector<Module> const &allModules, Games::IDs game);
 
     bool ContainsType(string const &typeName, bool withPointers = true) const;
+
+    void AddFunction(Function const &fn);
 };

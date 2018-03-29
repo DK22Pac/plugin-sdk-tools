@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <functional>
 #include "Type.h"
 #include "..\shared\Games.h"
 #include "Tabs.h"
@@ -25,8 +26,9 @@ public:
     Type mRetType;
     bool mIsConst = false;
     bool mIsEllipsis = false;
-    string mRefsStr;
     string mComment;
+    string mType;
+    bool mIsOverloaded = false;
 
     struct Parameter {
         string mName;
@@ -37,12 +39,20 @@ public:
 
     struct ExeVersionInfo {
         unsigned int mAddress = 0;
+        string mRefsStr;
     };
 
     ExeVersionInfo mVersionInfo[Games::GetMaxGameVersions()];
 
-    string GetFullName(); // combine name + scope
+    string GetFullName() const; // combine name + scope
+
+    void ForAllParameters(std::function<void(Parameter &p, bool first, bool last)> callback);
+    void ForAllParameters(std::function<void(Parameter &p)> callback);
+    void ForAllParameters(std::function<void(Parameter &p, unsigned int index)> callback);
 
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
-    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool isStatic);
+    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
+    void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
+
+    string GetPtrTypeStr() const;
 };

@@ -1,5 +1,5 @@
 #pragma once
-#include "String.h"
+#include "StringEx.h"
 #include <fstream>
 
 class CSV {
@@ -19,4 +19,6 @@ public:
     }
 
     static vector<string> ReadLines(ifstream &file);
+
+    static string Value(string const &value);
 };

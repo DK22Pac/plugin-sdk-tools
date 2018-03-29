@@ -1,14 +1,17 @@
 #include "translator.h"
+#include "translators\gtasa10eu_translator.h"
 #include "translators\gtavc11en_translator.h"
 
 unsigned int translateAddr(Games::IDs game, unsigned int version, unsigned int address) {
+    if (address == 0)
+        return 0;
     switch (game) {
     case Games::GTASA:
         switch (version) {
         case 0: // 10us
             return address;
         case 1: // 10eu
-            return 0;
+            return translate_gtasa_10eu(address);
         case 2: // 11us
             return 0;
         case 3: // 11eu

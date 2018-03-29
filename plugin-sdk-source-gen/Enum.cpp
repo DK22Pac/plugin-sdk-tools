@@ -1,7 +1,7 @@
 #pragma once
 #include "Enum.h"
 #include "Comments.h"
-#include "String.h"
+#include "StringEx.h"
 
 void Enum::Write(ofstream &stream, tabs t) {
     WriteComment(stream, mComment, t, 0);

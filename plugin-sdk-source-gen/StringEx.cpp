@@ -1,4 +1,4 @@
-#include "String.h"
+#include "StringEx.h"
 #include <algorithm>
 
 vector<string> String::Split(string const &str, string const &delim) {
