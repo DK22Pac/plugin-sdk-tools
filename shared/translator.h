@@ -1,8 +1,10 @@
+#pragma once
+#include "Games.h"
 #include "translator.h"
 #include "translators\gtasa10eu_translator.h"
 #include "translators\gtavc11en_translator.h"
 
-unsigned int translateAddr(Games::IDs game, unsigned int version, unsigned int address) {
+inline unsigned int translateAddr(Games::IDs game, unsigned int version, unsigned int address) {
     if (address == 0)
         return 0;
     switch (game) {

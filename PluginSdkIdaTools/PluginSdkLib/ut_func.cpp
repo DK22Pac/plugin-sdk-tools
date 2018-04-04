@@ -151,9 +151,13 @@ bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *
     if (outFile) {
         qfprintf(outFile, "%s,%s,Refs_%s,NameComment\n", baseVersion, version, version);
         for (size_t i = 0; i < baseEntries.size(); i++) {
-            qfprintf(outFile, "0x%X,0x%X,%s,%s\n",
-                baseEntries[i].m_address, refEntries[i]->m_address, 
-                csvvalue(refEntries[i]->m_refsStr).c_str(),
+            unsigned int addr = 0;
+            qstring refsStr;
+            if (refEntries[i]) {
+                addr = refEntries[i]->m_address;
+                refsStr = refEntries[i]->m_refsStr;
+            }
+            qfprintf(outFile, "0x%X,0x%X,%s,%s\n", baseEntries[i].m_address, addr, csvvalue(refsStr).c_str(),
                 csvvalue(baseEntries[i].m_demangledName).c_str());
         }
         qfclose(outFile);
@@ -168,11 +172,10 @@ bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *
 {
     qvector<Function const *> refFunctions;
     for (size_t i = 0; i < baseEntries.size(); i++) {
+        Function const *pf = nullptr;
         if (!baseEntries[i].m_name.empty())
-            refFunctions.push_back(Function::Find(baseEntries[i].m_name, entries));
-        else
-            refFunctions.push_back(nullptr);
-        
+            pf = Function::Find(baseEntries[i].m_name, entries);
+        refFunctions.push_back(pf);
     }
     return ToReferenceCSV(baseEntries, baseVersion, refFunctions, version, filepath);
 }

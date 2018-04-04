@@ -77,15 +77,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="translator.h" />
-    <ClInclude Include="translators\gtasa10eu_translator.h" />
-    <ClInclude Include="translators\gtavc11en_translator.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\plugin-sdk-source-gen\CSV.cpp" />
     <ClCompile Include="..\plugin-sdk-source-gen\StringEx.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="translator.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

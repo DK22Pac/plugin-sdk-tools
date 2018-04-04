@@ -12,6 +12,7 @@ public:
     qstring m_module;
     qstring m_defaultValues;
     qstring m_comment;
+    bool m_isReadOnly = false;
 
     static unsigned int Find(qstring const &name, qvector<Variable> const &entries);
 

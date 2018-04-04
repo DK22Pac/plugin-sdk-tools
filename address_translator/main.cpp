@@ -2,7 +2,7 @@
 #include "..\shared\Games.h"
 #include "CSV.h"
 #include "StringEx.h"
-#include "translator.h"
+#include "..\shared\translator.h"
 #include <filesystem>
 
 using namespace std::experimental::filesystem;

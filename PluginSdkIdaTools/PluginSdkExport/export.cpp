@@ -16,9 +16,12 @@
 #include "ut_ref.h"
 #include "ut_ida.h"
 #include "ut_options.h"
-#include "Games.h"
+#include "..\..\shared\translator.h"
+#include "..\..\shared\Games.h"
 
 using namespace std;
+
+const bool gTranslateAddresses = true;
 
 void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
     msg("--------------------\nExport started\n--------------------\n");
@@ -159,8 +162,19 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0) {
-                Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
-                    filePath.string().c_str());
+                if (gTranslateAddresses) { // NOTE: that's a temporary feature
+                    qvector<Function> tmpfuncs;
+                    for (size_t i = 0; i < baseEntries.size(); i++) {
+                        Function &f = tmpfuncs.push_back();
+                        f.m_address = translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address);
+                    }
+                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), tmpfuncs, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+                else {
+                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
+                        filePath.string().c_str());
+                }
             }
         }
         else
@@ -326,6 +340,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                 entry.m_defaultValues = values;
                             }
                         }
+                        if (segName == ".rdata")
+                            entry.m_isReadOnly = true;
                         variables.push_back(entry);
                     }
                     ea += size;
@@ -342,8 +358,17 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0) {
-                Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
-                    filePath.string().c_str());
+                if (gTranslateAddresses) {
+                    qvector<unsigned int> addresses;
+                    for (size_t i = 0; i < baseEntries.size(); i++)
+                        addresses.push_back(translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address));
+                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), addresses, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+                else {
+                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
+                        filePath.string().c_str());
+                }
             }
         }
         else

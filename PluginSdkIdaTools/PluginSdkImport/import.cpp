@@ -16,7 +16,7 @@
 #include "ut_struct.h"
 #include "ut_ida.h"
 #include "ut_options.h"
-#include "Games.h"
+#include "..\..\shared\Games.h"
 
 using namespace std;
 
