@@ -137,6 +137,7 @@ bool Module::WriteSource(path const &folder, vector<Module> const &allModules, G
         for (unsigned int i = 0; i < mStructs.size(); i++) {
             if (mStructs[i].mFunctions.size() > 0) {
                 for (unsigned int j = 0; j < mStructs[i].mFunctions.size(); j++) {
+                    stream << endl;
                     mStructs[i].mFunctions[j].WriteDefinition(stream, t, game);
                     stream << endl;
                 }

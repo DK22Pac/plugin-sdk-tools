@@ -24,11 +24,14 @@ public:
     string mModuleName;
     CC mCC = CC_CDECL;
     Type mRetType;
+
     bool mIsConst = false;
     bool mIsEllipsis = false;
+    bool mIsOverloaded = false;
+    int mRVOParamIndex = -1;
+    unsigned int mNumParamsToSkipForWrapper = 0;
     string mComment;
     string mType;
-    bool mIsOverloaded = false;
 
     struct Parameter {
         string mName;
@@ -46,13 +49,13 @@ public:
 
     string GetFullName() const; // combine name + scope
 
-    void ForAllParameters(std::function<void(Parameter &p, bool first, bool last)> callback);
-    void ForAllParameters(std::function<void(Parameter &p)> callback);
-    void ForAllParameters(std::function<void(Parameter &p, unsigned int index)> callback);
+    void ForAllParameters(std::function<void(Parameter &p, bool first, bool last)> callback, unsigned int startParam = 0);
+    void ForAllParameters(std::function<void(Parameter &p)> callback, unsigned int startParam = 0);
+    void ForAllParameters(std::function<void(Parameter &p, unsigned int index)> callback, unsigned int startParam = 0);
 
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
     void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
 
-    string GetPtrTypeStr() const;
+    string NameForWrapper(Games::IDs game, bool definition);
 };

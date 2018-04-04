@@ -290,6 +290,15 @@ string Type::GetFullType() const {
     return BeforeName() + AfterName();
 }
 
+string Type::GetFullTypeRemovePointer() {
+    string savedPtrs = mPointers;
+    if (mPointers.size() > 0)
+        mPointers.pop_back();
+    string result = GetFullType();
+    mPointers = savedPtrs;
+    return result;
+}
+
 bool Type::IsPointer() const {
     return mPointers.size() > 0 || mIsPointerToFixedSizeArray;
 }

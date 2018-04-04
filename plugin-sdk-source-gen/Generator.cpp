@@ -150,8 +150,8 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                 // if base version
                 if (i == 0) {
                     for (string const &csvLine : csvLines) {
-                        string varAddress, varModuleName, varName, varDemName, varType, varRawType, varSize, varDefaultValues, varComment;
-                        CSV::Read(csvLine, varAddress, varModuleName, varName, varDemName, varType, varRawType, varSize, varDefaultValues, varComment);
+                        string varAddress, varModuleName, varName, varDemName, varType, varRawType, varSize, varDefaultValues, varComment, varIsReadOnly;
+                        CSV::Read(csvLine, varAddress, varModuleName, varName, varDemName, varType, varRawType, varSize, varDefaultValues, varComment, varIsReadOnly);
                         if (!varModuleName.empty()) {
                             // get module for this variable
                             Module *m = Module::Find(modules, varModuleName);
@@ -179,6 +179,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                 newVar.mType.SetFromString(finalVarType);
                                 newVar.mSize = String::ToNumber(varSize);
                                 newVar.mVersionInfo[0].mAddress = String::ToNumber(varAddress);
+                                newVar.mIsReadOnly = String::ToNumber(varIsReadOnly);
                                 if (varScope.empty())
                                     m->mVariables.push_back(newVar);
                                 else {
@@ -315,8 +316,11 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                     string paramType = fnParameters.substr(currPos, colonPos - currPos);
                                     String::Trim(paramType);
                                     Function::Parameter param;
-                                    if (String::StartsWith(paramType, "raw "))
+                                    bool isRawParam = false;
+                                    if (String::StartsWith(paramType, "raw ")) {
                                         param.mType.SetFromString(paramType.substr(4));
+                                        isRawParam = true;
+                                    }
                                     else
                                         param.mType.SetFromString(paramType);
                                     auto spacePos = fnParameters.find(' ', colonPos + 1);
@@ -329,10 +333,31 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                     currPos = spacePos + 1;
                                     newFn.mParameters.push_back(param);
                                 }
-                                newFn.ForAllParameters([](Function::Parameter &p, unsigned int index) {
-                                    if (p.mName.empty())
-                                        p.mName = String::Format("arg%d", index + 1);
+                                bool isThiscall = newFn.mCC == Function::CC_THISCALL;
+                                unsigned int rvoParamIndex = isThiscall ? 1 : 0;
+                                newFn.ForAllParameters([&](Function::Parameter &p, unsigned int index) {
+                                    if (index == 0 && isThiscall)
+                                        p.mName = "this";
+                                    else {
+                                        if (p.mName.empty())
+                                            p.mName = String::Format("arg%d", index + 1);
+                                        else {
+                                            if (index == rvoParamIndex && String::StartsWith(p.mName, "ret_")) {
+                                                newFn.mRVOParamIndex = index;
+                                            }
+                                            else if (String::StartsWith(p.mName, "ref_")) {
+                                                if (p.mType.mPointers.size() > 0 && p.mType.mPointers.back() == '*') {
+                                                    p.mType.mPointers.back() = '&';
+                                                    p.mName = p.mName.substr(4);
+                                                }
+                                            }
+                                        }
+                                    }
                                 });
+                                if (newFn.mRVOParamIndex != -1)
+                                    newFn.mNumParamsToSkipForWrapper = newFn.mRVOParamIndex + 1;
+                                else if (isThiscall)
+                                    newFn.mNumParamsToSkipForWrapper = 1;
 
                                 if (fnScope.empty())
                                     m->AddFunction(newFn);

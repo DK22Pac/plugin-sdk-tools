@@ -84,6 +84,7 @@ public:
     void SetFromString(string const &str);
     void SetFromTokens(vector<Token> const &tokens);
     string GetFullType() const;
+    string GetFullTypeRemovePointer();
     string BeforeName() const;
     string AfterName() const;
 

@@ -17,6 +17,7 @@ public:
     string mDefaultValues;
     string mComment;
     unsigned int mSize;
+    bool mIsReadOnly;
 
     struct ExeVersionInfo {
         unsigned int mAddress = 0;

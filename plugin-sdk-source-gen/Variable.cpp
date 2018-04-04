@@ -1,5 +1,6 @@
 #include "Variable.h"
 #include "Comments.h"
+#include "StringEx.h"
 
 string Variable::GetFullName() {
     if (mScope.empty())
@@ -18,7 +19,10 @@ string Variable::GetNameWithRefType(bool bFullName) {
 
 void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     bool isConst = mType.mIsConst;
-    mType.mIsConst = false;
+    if (mIsReadOnly)
+        mType.mIsConst = true;
+    else
+        mType.mIsConst = false;
     stream << t() << "PLUGIN_VARIABLE" << ' ' << GetNameWithRefType(true) << " = ";
     if (mType.mArraySize[0] == 0)
         stream << '*';
@@ -49,7 +53,10 @@ void Variable::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool 
     stream << ' ';
     string originalVarTypeAndName = GetNameWithType(false);
     bool isConst = mType.mIsConst;
-    mType.mIsConst = false;
+    if (mIsReadOnly)
+        mType.mIsConst = true;
+    else
+        mType.mIsConst = false;
     stream << GetNameWithRefType(false) << ';';
     string additionalComment;
     if (mType.mArraySize[0] > 0) {
