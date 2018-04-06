@@ -3,6 +3,12 @@
 #include "Comments.h"
 #include "StringEx.h"
 
+string Enum::GetFullName() const {
+    if (mScope.empty())
+        return mName;
+    return mScope + "::" + mName;
+}
+
 void Enum::Write(ofstream &stream, tabs t) {
     WriteComment(stream, mComment, t, 0);
     stream << t() << "enum" << ' ';

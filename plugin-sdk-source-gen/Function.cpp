@@ -1,6 +1,7 @@
 #include "Function.h"
 #include "Comments.h"
 #include "StringEx.h"
+#include <sstream>
 
 string Function::GetFullName() const {
     if (mScope.empty())
@@ -51,9 +52,11 @@ string Function::NameForWrapper(Games::IDs game, bool definition) {
 }
 
 void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
+    stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
+    stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
+    stream << endl;
     stream << t() << NameForWrapper(game, true) << " {" << endl;
     ++t;
-    bool isMethod = mCC == CC_THISCALL;
     bool noReturn = mRetType.mIsVoid;
     if (mRVOParamIndex != -1) {
         Parameter &retParam = mParameters[mRVOParamIndex];
@@ -64,39 +67,25 @@ void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     if (!noReturn)
         stream << "return ";
     stream << "plugin::Call";
-    if (isMethod)
+    if (mCC == CC_THISCALL)
         stream << "Method";
     if (!noReturn)
         stream << "AndReturn";
-    stream << "Dyn";
-    if (mParameters.size() > 0) {
+    stream << "DynGlobal";
+    if (mParameters.size() > 0 || !noReturn) {
         stream << "<";
+        if (!noReturn)
+            stream << mRetType.GetFullType(false);
         ForAllParameters([&](Parameter &p, unsigned int index) {
-            if (index != 0)
+            if (index != 0 || !noReturn)
                 stream << ", ";
-            stream << p.mType.GetFullType();
+            stream << p.mType.GetFullType(false);
         });
         stream << ">(";
     }
     else
         stream << "(";
-    stream << "addrof";
-    if (mIsOverloaded)
-        stream << "_o";
-    stream << "(" << GetFullName();
-    if (mIsOverloaded) {
-        stream << ", " << mRetType.GetFullType() << "(";
-        if (isMethod)
-            stream << mScope << "::";
-        stream << "*)(";
-        ForAllParameters([&](Parameter &p, unsigned int index) {
-            if (index != 0)
-                stream << ", ";
-            stream << p.mType.GetFullType();
-        }, mNumParamsToSkipForWrapper);
-        stream << ")";
-    }
-    stream << ")";
+    stream << AddrOfMacro(true);
     ForAllParameters([&](Parameter &p, unsigned int index) {
         stream << ", ";
         if (index == mRVOParamIndex)
@@ -118,11 +107,131 @@ void Function::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game) {
 }
 
 void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
-    stream << t() << "META_BEGIN(" << GetFullName() << ")" << endl;
+    stream << t() << "META_BEGIN";
+    if (mIsOverloaded)
+        stream << "_OVERLOADED";
+    stream << "(" << MetaDesc() << ")" << endl;
     t++;
     stream << t() << "static int address;" << endl;
+    stream << t() << "static int global_address;" << endl;
     stream << t() << "static const int id = " << String::ToHexString(mVersionInfo[0].mAddress) << ";" << endl;
-
+    stream << t() << "using mv_addresses_t = MvAddresses<" << Addresses(game) << ">;" << endl;
+    stream << t() << "using refs_t = RefList<";
+    vector<Reference> refs;
+    for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+        std::istringstream ss(mVersionInfo[i].mRefsStr);
+        std::string token;
+        while (ss >> token) {
+            Reference ref;
+            ref.mGameVersion = i;
+            ref.mRefAddr = String::ToNumber(token);
+            ss >> token;
+            ref.mRefType = String::ToNumber(token);
+            ss >> token;
+            ref.mRefObjectId = String::ToNumber(token);
+            ss >> token;
+            ref.mRefIndexInObject = String::ToNumber(token);
+            refs.push_back(ref);
+        }
+    }
+    if (refs.size() > 0) {
+        t++;
+        unsigned int last = refs.size() - 1;
+        for (unsigned int i = 0; i < refs.size(); i++) {
+            stream << endl << t();
+            Reference &ref = refs[i];
+            stream << String::ToHexString(ref.mRefAddr) << ", ";
+            stream << "GAME_" << String::ToUpper(Games::GetGameVersionName(game, ref.mGameVersion)) << ", ";
+            if (ref.mRefType == 0)
+                stream << "H_CALL";
+            else if (ref.mRefType == 1)
+                stream << "H_JUMP";
+            else if (ref.mRefType == 2)
+                stream << "H_CALLBACK";
+            stream << ", ";
+            stream << String::ToHexString(ref.mRefObjectId) << ", ";
+            stream << ref.mRefIndexInObject;
+            if (i != last)
+                stream << ",";
+        }
+        t--;
+    }
+    stream << ">;" << endl;
+    stream << t() << "using def_t = ";
+    if (mRVOParamIndex != -1 || mRetType.mIsVoid)
+        stream << "void";
+    else
+        stream << mRetType.GetFullType(false);
+    stream << "(";
+    ForAllParameters([&](Parameter &p, unsigned int index) {
+        if (index != 0)
+            stream << ", ";
+        stream << p.mType.GetFullType(false);
+    }, mNumParamsToSkipForWrapper);
+    stream << ");" << endl;
+    stream << t() << "static const int cb_priority = PRIORITY_AFTER;" << endl;
+    stream << t() << "using calling_convention_t = CallingConventions::";
+    if (mCC == Function::CC_CDECL)
+        stream << "Cdecl";
+    else if (mCC == Function::CC_THISCALL)
+        stream << "Thiscall";
+    stream << ";" << endl;
+    stream << t() << "using args_t = ArgPick<ArgTypes<";
+    ForAllParameters([&](Parameter &p, unsigned int index) {
+        if (index != 0)
+            stream << ",";
+        stream << p.mType.GetFullType(false);
+    }, mNumParamsToSkipForWrapper);
+    stream << ">";
+    ForAllParameters([&](Parameter &p, unsigned int index) {
+        if (index == 0)
+            stream << ", ";
+        else
+            stream << ",";
+        stream << index;
+    }, mNumParamsToSkipForWrapper);
+    stream << ">;" << endl;
     t--;
     stream << t() << "META_END";
+}
+
+string Function::MetaDesc() {
+    string result = GetFullName();
+    if (mIsOverloaded) {
+        result += ", " + mRetType.GetFullType() + "(";
+        if (mCC == CC_THISCALL)
+            result += mScope + "::";
+        result += "*)(";
+        ForAllParameters([&](Parameter &p, unsigned int index) {
+            if (index != 0)
+                result += ", ";
+            result += p.mType.GetFullType(false);
+        }, mNumParamsToSkipForWrapper);
+        result += ")";
+    }
+    return result;
+}
+
+string Function::AddrOfMacro(bool global) {
+    string result;
+    if (global)
+        result = "g";
+    result += "addrof";
+    if (mIsOverloaded)
+        result += "_o";
+    result += "(" + MetaDesc() + ")";
+    return result;
+}
+
+string Function::Addresses(Games::IDs game) {
+    string result;
+    bool first = true;
+    for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+        if (!first)
+            result += ", ";
+        else
+            first = false;
+        result += String::ToHexString(mVersionInfo[i].mAddress);
+    }
+    return result;
 }

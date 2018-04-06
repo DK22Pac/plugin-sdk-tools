@@ -286,8 +286,8 @@ vector<Token> GetTokens(string const &line) {
     return result;
 }
 
-string Type::GetFullType() const {
-    return BeforeName() + AfterName();
+string Type::GetFullType(bool leaveSpaceAtTheEnd) const {
+    return BeforeName(leaveSpaceAtTheEnd) + AfterName();
 }
 
 string Type::GetFullTypeRemovePointer() {
@@ -307,7 +307,7 @@ bool Type::IsTemplate() const {
     return mTemplateTypes.size() > 0;
 }
 
-string Type::BeforeName() const {
+string Type::BeforeName(bool leaveSpaceAtTheEnd) const {
     string result = mName;
     if (IsTemplate()) {
         result += '<';
@@ -336,7 +336,7 @@ string Type::BeforeName() const {
         }
         result += mFunctionOrArrayPointers;
     }
-    if (!mIsFunction && !mIsPointerToFixedSizeArray && mPointers.size() == 0)
+    if (leaveSpaceAtTheEnd && !mIsFunction && !mIsPointerToFixedSizeArray && mPointers.size() == 0)
         result += ' ';
     return result;
 }

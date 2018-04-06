@@ -21,7 +21,7 @@
 
 using namespace std;
 
-const bool gTranslateAddresses = true;
+const bool gTranslateAddresses = false;
 
 void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
     msg("--------------------\nExport started\n--------------------\n");

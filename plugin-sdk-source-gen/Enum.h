@@ -27,5 +27,7 @@ public:
 
     vector<Member> mMembers;
 
+    string GetFullName() const; // combine name + scope
+
     void Write(ofstream &stream, tabs t);
 };

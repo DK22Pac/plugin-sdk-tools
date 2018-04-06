@@ -38,7 +38,7 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
             first = false;
         stream << String::ToHexString(mVersionInfo[i].mAddress);
     }
-    stream << ")));";
+    stream << "));";
     mType.mIsConst = isConst;
 }
 

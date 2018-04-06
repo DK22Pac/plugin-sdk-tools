@@ -2,6 +2,7 @@
 #include "Module.h"
 #include <iostream>
 #include "Comments.h"
+#include <unordered_set>
 
 Module *Module::Find(vector<Module> &modules, string const &name) {
     for (unsigned int i = 0; i < modules.size(); i++) {
@@ -53,12 +54,90 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
     stream << "#pragma once" << endl << endl;
     // include files
     stream << "#include " << '"' << "PluginBase.h" << '"' << endl;
+    // find all types in this module
+    vector<pair<string, bool>> usedTypes;
+
+    auto addUsedTypeName = [&](string const &typeName, bool needsHeader = true) {
+        bool found = false;
+        for (auto &e : usedTypes) {
+            if (e.first == typeName) {
+                if (!e.second && needsHeader)
+                    e.second = true;
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            usedTypes.emplace_back(typeName, needsHeader);
+    };
+
+    auto addUsedType = [&](Type const &type, bool needsHeader = true) {
+        if (type.mIsRenderWare)
+            addUsedTypeName("RenderWare", needsHeader);
+        else if (type.mIsCustom) {
+            addUsedTypeName(type.mName, needsHeader && type.IsPointer());
+            if (type.mIsTemplate) {
+                for (auto &t : type.mTemplateTypes) {
+                    if (t.mIsCustom)
+                        addUsedTypeName(t.mName, false);
+                }
+            }
+            if (type.mIsFunction) {
+                for (auto &t : type.mFunctionParams) {
+                    if (t.mIsCustom)
+                        addUsedTypeName(t.mName, false);
+                }
+                if (type.mFunctionRetType)
+                    addUsedTypeName(type.mFunctionRetType->mName, false);
+            }
+        }
+    };
+
+    auto numDefinedTypes = mStructs.size() + mEnums.size();
+    for (auto &s : mStructs) // structs and enums - put them at begin
+        addUsedTypeName(s.GetFullName(), false);
+    for (auto &e : mEnums)
+        addUsedTypeName(e.GetFullName(), false);
+    for (auto &s : mStructs) { // struct members
+        for (auto &m : s.mMembers)
+            addUsedType(m.mType);
+    }
+    for (auto &v : mVariables) // variables
+        addUsedType(v.mType);
+    for (auto &f : mFunctions) { // function parameters
+        for (auto &p : f.mParameters)
+            addUsedType(p.mType, false);
+    }
+
+    // print include headers
+    for (size_t i = numDefinedTypes; i < usedTypes.size(); i++) {
+        auto &t = usedTypes[i];
+        // TODO: check if we can include this header here
+        {
+            stream << "#include " << '"' << t.first << ".h" << '"' << endl;
+            t.second = true;
+        }
+    }
+
+    // print forward declarations
+    int numForwardDeclarations = 0;
+    for (size_t i = numDefinedTypes; i < usedTypes.size(); i++) {
+        auto &t = usedTypes[i];
+        if (!t.second) {
+            stream << endl << "class " << t.first;
+            numForwardDeclarations++;
+        }
+    }
+
+    if (numForwardDeclarations > 0)
+        stream << endl;
+
     if (mStructs.size() > 0) {
         sort(mStructs.begin(), mStructs.end(), [](Struct const &s1, Struct const &s2) {
             return !s1.ContainsType(s2.mName, false);
         });
-
     }
+
     // enums
     if (mEnums.size() > 0) {
         for (unsigned int i = 0; i < mEnums.size(); i++) {
@@ -167,11 +246,14 @@ bool Module::WriteMeta(path const &folder, vector<Module> const &allModules, Gam
     stream << GetPluginSdkComment(game, true) << endl;
     // include files
     stream << "#include " << '"' << "PluginBase.h" << '"' << endl;
+    stream << endl;
+    stream << "namespace plugin {" << endl;
     // class functions
     if (mStructs.size() > 0) {
         for (unsigned int i = 0; i < mStructs.size(); i++) {
             if (mStructs[i].mFunctions.size() > 0) {
                 for (unsigned int j = 0; j < mStructs[i].mFunctions.size(); j++) {
+                    stream << endl;
                     mStructs[i].mFunctions[j].WriteMeta(stream, t, game);
                     stream << endl;
                 }
@@ -186,6 +268,7 @@ bool Module::WriteMeta(path const &folder, vector<Module> const &allModules, Gam
             stream << endl;
         }
     }
+    stream << endl << "}" << endl;
     return true;
 }
 

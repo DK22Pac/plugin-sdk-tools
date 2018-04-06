@@ -18,6 +18,14 @@ public:
         CC_UNKNOWN = 255
     };
 
+    struct Reference {
+        int mRefAddr = 0;
+        int mGameVersion = -1;
+        int mRefType = -1;
+        int mRefObjectId = -1;
+        int mRefIndexInObject = -1;
+    };
+
     string mName; // only function name
     string mMangledName; // full name
     string mScope; // scope
@@ -58,4 +66,7 @@ public:
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
 
     string NameForWrapper(Games::IDs game, bool definition);
+    string MetaDesc();
+    string AddrOfMacro(bool global);
+    string Addresses(Games::IDs game);
 };
