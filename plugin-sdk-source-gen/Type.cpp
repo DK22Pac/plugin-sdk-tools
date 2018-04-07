@@ -308,7 +308,15 @@ bool Type::IsTemplate() const {
 }
 
 string Type::BeforeName(bool leaveSpaceAtTheEnd) const {
-    string result = mName;
+    string result;
+    if (mIsFunction) {
+        if (mFunctionRetType)
+            result = mFunctionRetType->GetFullType(false);
+        else
+            result = "void";
+    }
+    else
+        result = mName;
     if (IsTemplate()) {
         result += '<';
         for (size_t i = 0; i < mTemplateTypes.size(); i++) {

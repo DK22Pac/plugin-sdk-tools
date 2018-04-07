@@ -27,7 +27,7 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     if (mType.mArraySize[0] == 0)
         stream << '*';
     stream << "reinterpret_cast<";
-    stream << mType.BeforeName() << '*';
+    stream << mType.BeforeName() << '*' << mType.AfterName();
     stream << ">(";
     stream << "GLOBAL_ADDRESS_BY_VERSION(";
     bool first = true;
