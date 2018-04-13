@@ -267,7 +267,7 @@ namespace PluginSdkWizard {
                 VsUtility.AddLine(ref idg, "      <FunctionLevelLinking>true</FunctionLevelLinking>");
                 VsUtility.AddLine(ref idg, "      <IntrinsicFunctions>true</IntrinsicFunctions>");
             }
-            VsUtility.AddLine(ref idg, "      <SDLCheck>true</SDLCheck>");
+            VsUtility.AddLine(ref idg, "      <SDLCheck>false</SDLCheck>");
             VsUtility.AddLine(ref idg, "      <RuntimeLibrary>" + (isDebug ? "MultiThreadedDebug" : "MultiThreaded") + "</RuntimeLibrary>");
             VsUtility.AddLine(ref idg, "      <AdditionalIncludeDirectories>" + VsUtility.JoinList(includeDirs, true) + "%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>");
             VsUtility.AddLine(ref idg, "      <PreprocessorDefinitions>" + VsUtility.JoinList(defs, true) + "%(PreprocessorDefinitions)</PreprocessorDefinitions>");

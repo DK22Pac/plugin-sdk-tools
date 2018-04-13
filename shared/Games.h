@@ -5,11 +5,11 @@
 
 using namespace std;
 
-char const * const VersionNamesSA[] = { "10us", "10eu", "11us", "11eu", "sr2", "sr2lv" };
+char const * const VersionNamesSA[] = { "10us", "10ushl", "10eu", "11us", "11eu", "sr2", "sr2lv" };
 char const * const VersionNamesVC[] = { "10en", "11en", "steam" };
 char const * const VersionNamesIII[] = { "10en", "11en", "steam" };
 
-char const * const VersionDetailedNamesSA[] = { "1.0 US", "1.0 EU", "1.01 US", "1.1 EU", "'NewSteam R2'", "'NewSteam R2-LV'" };
+char const * const VersionDetailedNamesSA[] = { "1.0 US 'Compact'", "1.0 US 'HoodLum'", "1.0 EU", "1.01 US", "1.1 EU", "'NewSteam R2'", "'NewSteam R2-LV'" };
 char const * const VersionDetailedNamesVC[] = { "1.0 EN", "1.1 EN", "Steam" };
 char const * const VersionDetailedNamesIII[] = { "1.0 EN", "1.1 EN", "Steam" };
 
@@ -108,6 +108,8 @@ public:
     static string GetSupportedGameVersionsMacro(IDs game, T *exeVersionInfos) {
         string result = "SUPPORTED";
         for (unsigned int i = 0; i < GetGameVersionsCount(game); i++) {
+            if (game == IDs::GTASA && i == 1) // skip GTASA 1.0 US HoodLum
+                continue;
             if (exeVersionInfos[i].mAddress != 0)
                 result += "_" + String::ToUpper(GetGameVersionName(game, i));
         }

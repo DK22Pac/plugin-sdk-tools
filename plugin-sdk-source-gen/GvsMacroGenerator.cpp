@@ -2,6 +2,7 @@
 #include "GvsMacroGenerator.h"
 #include "Paths.h"
 #include "Comments.h"
+#include "StringEx.h"
 #include <fstream>
 
 bool GvsMacroGenerator::Generate(path const &sdkpath, Games::IDs game) {

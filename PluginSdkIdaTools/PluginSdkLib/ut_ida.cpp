@@ -40,7 +40,9 @@ bool isDataPrefixReserved(qstring const &name) {
         startsWith(name, "unk_") ||
         startsWith(name, "GUID_") ||
         startsWith(name, "IID_") ||
-        startsWith(name, "CLSID_");
+        startsWith(name, "CLSID_") ||
+        startsWith(name, "??_") ||
+        startsWith(name, "_eh_");
 }
 
 bool isPrefixReserved(qstring const &name) {
@@ -96,5 +98,22 @@ bool setType(struc_t *struc, member_t *member, size_t offset, qstring const &typ
     return set_member_tinfo(struc, member, offset, tif, 0) == SMT_OK;
 #else
     return set_member_tinfo2(struc, member, offset, tif, 0) == SMT_OK;
+#endif
+}
+
+bool getLine(qstring *buf, FILE *fp) {
+#if (IDA_VER >= 70)
+    return qgetline(buf, fp) != -1;
+#else
+    buf->clear();
+    if (feof(fp))
+        return false;
+    while (true) {
+        int c = qfgetc(fp);
+        if (c == EOF || c == '\n')
+            break;
+        buf->append(c);
+    }
+    return true;
 #endif
 }

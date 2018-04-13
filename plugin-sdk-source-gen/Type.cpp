@@ -349,11 +349,11 @@ string Type::BeforeName(bool leaveSpaceAtTheEnd) const {
     return result;
 }
 
-string Type::AfterName() const {
+string Type::AfterName(bool includeArrays) const {
     string result;
     if (mIsPointerToFixedSizeArray)
         result += ')';
-    if (mArraySize[0] > 0) {
+    if (includeArrays && mArraySize[0] > 0) {
         result += '[' + to_string(mArraySize[0]) + ']';
         if (mArraySize[1] > 0)
             result += '[' + to_string(mArraySize[1]) + ']';

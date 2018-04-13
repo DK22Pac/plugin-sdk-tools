@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="PluginSdkVSTools.ae8caae3-b338-4fb4-9a8c-505425687c53" Version="0.7.2.0" Language="en-US" Publisher="Plugin-SDK" />
+        <Identity Id="PluginSdkVSTools.ae8caae3-b338-4fb4-9a8c-505425687c53" Version="0.7.2.1" Language="en-US" Publisher="Plugin-SDK" />
         <DisplayName>Plugin-SDK Visual Studio Tools</DisplayName>
         <Description xml:space="preserve">Plugin-SDK Visual Studio Tools for creating plugins (ASI/CLEO/MoonLoader) for Grand Theft Auto.</Description>
         <MoreInfo>https://github.com/DK22Pac/plugin-sdk</MoreInfo>

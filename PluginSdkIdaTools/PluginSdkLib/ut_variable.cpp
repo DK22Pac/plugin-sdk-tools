@@ -1,5 +1,6 @@
 #include "ut_variable.h"
 #include "ut_string.h"
+#include "ut_ida.h"
 
 unsigned int Variable::Find(qstring const &name, qvector<Variable> const &entries) {
     for (auto const &i : entries) {
@@ -13,9 +14,9 @@ qvector<Variable> Variable::FromCSV(char const *filepath) {
     qvector<Variable> entries;
     auto inFile = qfopen(filepath, "rt");
     if (inFile) {
-        static char line[1024];
-        if (qfgets(line, 1024, inFile)) {
-            while (qfgets(line, 1024, inFile)) {
+        qstring line;
+        if (getLine(&line, inFile)) {
+            while (getLine(&line, inFile)) {
                 Variable entry;
                 qstring addr, size, isReadOnly;
                 readcsv(line, addr, entry.m_module, entry.m_name, entry.m_demangledName, entry.m_type,
@@ -43,10 +44,10 @@ qvector<Variable> Variable::FromReferenceCSV(char const *filepath, qvector<Varia
     if (baseVarsCount > 0) {
         auto inFile = qfopen(filepath, "rt");
         if (inFile) {
-            static char line[1024];
-            if (qfgets(line, 1024, inFile)) {
+            qstring line;
+            if (getLine(&line, inFile)) {
                 unsigned int counter = 0;
-                while (qfgets(line, 1024, inFile)) {
+                while (getLine(&line, inFile)) {
                     counter++;
                     if (baseVarsCount < counter) {
                         entries.clear();

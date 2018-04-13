@@ -27,11 +27,13 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     if (mType.mArraySize[0] == 0)
         stream << '*';
     stream << "reinterpret_cast<";
-    stream << mType.BeforeName() << '*' << mType.AfterName();
+    stream << mType.BeforeName() << '*' << mType.AfterName(false);
     stream << ">(";
     stream << "GLOBAL_ADDRESS_BY_VERSION(";
     bool first = true;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+        if (game == Games::IDs::GTASA && i == 1) // skip GTASA 1.0 US HoodLum
+            continue;
         if (!first)
             stream << ", ";
         else

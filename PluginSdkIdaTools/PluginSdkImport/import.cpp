@@ -521,8 +521,19 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 if (!func) {
                     msg("Creating function '%s' at address 0x%X\n", f.m_demangledName.c_str(), f.m_address);
                     if (!add_func(f.m_address, BADADDR)) {
-                        warning("Unable to create function '%s' at address 0x%X", f.m_demangledName.c_str(), f.m_address);
-                        continue;
+                        // try to clear area at @m_address
+                    #if (IDA_VER >= 70)
+                        if (!del_items(f.m_address, DELIT_SIMPLE, 2)) {
+                            msg("Unable to clear space for '%s' function at address 0x%X\n",
+                                f.m_demangledName.c_str(), f.m_address);
+                        }
+                    #else
+                        do_unknown_range(f.m_address, 2, DOUNK_SIMPLE);
+                    #endif
+                        if (!add_func(f.m_address, BADADDR)) {
+                            warning("Unable to create function '%s' at address 0x%X", f.m_demangledName.c_str(), f.m_address);
+                            continue;
+                        }
                     }
                     func = get_func(f.m_address);
                     if (!func) {

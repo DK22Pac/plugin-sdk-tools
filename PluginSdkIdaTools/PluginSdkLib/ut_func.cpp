@@ -1,5 +1,6 @@
 #include "ut_func.h"
 #include "ut_string.h"
+#include "ut_ida.h"
 
 Function const *Function::Find(qstring const &name, qvector<Function> const &entries) {
     for (Function const &i : entries) {
@@ -13,9 +14,9 @@ qvector<Function> Function::FromCSV(char const *filepath) {
     qvector<Function> entries;
     auto inFile = qfopen(filepath, "rt");
     if (inFile) {
-        static char line[1024];
-        if (qfgets(line, 1024, inFile)) {
-            while (qfgets(line, 1024, inFile)) {
+        qstring line;
+        if (getLine(&line, inFile)) {
+            while (getLine(&line, inFile)) {
                 Function entry;
                 qstring addr, isConstStr, paramsStr;
                 readcsv(line, addr, entry.m_module, entry.m_name, entry.m_demangledName, entry.m_type,
@@ -67,10 +68,10 @@ qvector<Function> Function::FromReferenceCSV(char const *filepath, qvector<Funct
     if (baseCount > 0) {
         auto inFile = qfopen(filepath, "rt");
         if (inFile) {
-            static char line[1024];
-            if (qfgets(line, 1024, inFile)) {
+            qstring line;
+            if (getLine(&line, inFile)) {
                 unsigned int counter = 0;
-                while (qfgets(line, 1024, inFile)) {
+                while (getLine(&line, inFile)) {
                     counter++;
                     if (baseCount < counter) {
                         entries.clear();
@@ -82,8 +83,8 @@ qvector<Function> Function::FromReferenceCSV(char const *filepath, qvector<Funct
                     int intAddrBase = toNumber(addrBase);
                     int intAddrRef = toNumber(addrRef);
                     if (intAddrBase != baseFuncs[counter - 1].m_address) {
-                        warning("Address '0x%X' in reference file doesn't match with address ('0x%X') in base file ('%s')",
-                            intAddrBase, baseFuncs[counter - 1].m_address, filepath);
+                        warning("Address '0x%X' in reference file doesn't match with address ('0x%X') in base file ('%s')\non line %d",
+                            intAddrBase, baseFuncs[counter - 1].m_address, filepath, counter);
                         wrongAddresses = true;
                         break;
                     }

@@ -86,7 +86,7 @@ public:
     string GetFullType(bool leaveSpaceAtTheEnd = true) const;
     string GetFullTypeRemovePointer();
     string BeforeName(bool leaveSpaceAtTheEnd = true) const;
-    string AfterName() const;
+    string AfterName(bool includeArrays = true) const;
 
     bool IsPointer() const;
     bool IsTemplate() const;

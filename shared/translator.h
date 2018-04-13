@@ -10,17 +10,18 @@ inline unsigned int translateAddr(Games::IDs game, unsigned int version, unsigne
     switch (game) {
     case Games::GTASA:
         switch (version) {
-        case 0: // 10us
+        case 0: // 10us compact
+        case 1: // 10us hoodlum
             return address;
-        case 1: // 10eu
+        case 2: // 10eu
             return translate_gtasa_10eu(address);
-        case 2: // 11us
+        case 3: // 11us
             return 0;
-        case 3: // 11eu
+        case 4: // 11eu
             return 0;
-        case 4: // sr2
+        case 5: // sr2
             return 0;
-        case 5: // sr2lv
+        case 6: // sr2lv
             return 0;
         }
         break;

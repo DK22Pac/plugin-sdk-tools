@@ -14,7 +14,7 @@ void Generator::Generate(path const &sdkpath) {
         cout << "Reading GTA " << Games::GetGameAbbr(Games::ToID(i)) << endl;
         ReadGame(modules, sdkpath, Games::ToID(i));
         ReadHierarchy(sdkpath, Games::ToID(i), modules);
-        GvsMacroGenerator::Generate(sdkpath, Games::ToID(i));
+        // GvsMacroGenerator::Generate(sdkpath, Games::ToID(i));
         cout << "Writing modules for GTA " << Games::GetGameAbbr(Games::ToID(i)) << endl;
         WriteModules(sdkpath, Games::ToID(i), modules);
     }
@@ -392,6 +392,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                         Function *pf = m.GetFunction(baseAddress);
                                         if (pf) {
                                             pf->mVersionInfo[i].mAddress = refAddress;
+                                            pf->mVersionInfo[i].mRefsStr = fnRefsList;
                                             break;
                                         }
                                     }

@@ -141,7 +141,14 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
             stream << endl << t();
             Reference &ref = refs[i];
             stream << String::ToHexString(ref.mRefAddr) << ", ";
-            stream << "GAME_" << String::ToUpper(Games::GetGameVersionName(game, ref.mGameVersion)) << ", ";
+            stream << "GAME_";
+            if (game == Games::IDs::GTASA && ref.mGameVersion == 0)
+                stream << "10US_COMPACT";
+            else if (game == Games::IDs::GTASA && ref.mGameVersion == 1)
+                stream << "10US_HOODLUM";
+            else
+                stream << String::ToUpper(Games::GetGameVersionName(game, ref.mGameVersion));
+            stream << ", ";
             if (ref.mRefType == 0)
                 stream << "H_CALL";
             else if (ref.mRefType == 1)
@@ -227,6 +234,8 @@ string Function::Addresses(Games::IDs game) {
     string result;
     bool first = true;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+        if (game == Games::IDs::GTASA && i == 1) // skip GTASA 1.0 US HoodLum
+            continue;
         if (!first)
             result += ", ";
         else
