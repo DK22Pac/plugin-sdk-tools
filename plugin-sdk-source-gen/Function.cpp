@@ -176,7 +176,12 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
         stream << p.mType.GetFullType(false);
     }, mNumParamsToSkipForWrapper);
     stream << ");" << endl;
-    stream << t() << "static const int cb_priority = PRIORITY_AFTER;" << endl;
+    stream << t() << "static const int cb_priority = PRIORITY_";
+    if (mPriority == 1)
+        stream << "AFTER";
+    else
+        stream << "BEFORE";
+    stream << "; " << endl;
     stream << t() << "using calling_convention_t = CallingConventions::";
     if (mCC == Function::CC_CDECL)
         stream << "Cdecl";

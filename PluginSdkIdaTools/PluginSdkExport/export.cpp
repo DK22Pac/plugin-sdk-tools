@@ -142,12 +142,13 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         entry.m_params.push_back(funcParam);
                     }
                 }
-                qstring funcRawRetType;
-                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, funcRawRetType, entry.m_isConst);
+                qstring funcRawRetType, funcPriority;
+                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, funcRawRetType, funcPriority, entry.m_isConst);
                 if (!funcRawRetType.empty()) {
                     entry.m_retType = funcRawRetType;
                     entry.m_rawRetType = true;
                 }
+                entry.m_priority = funcPriority == "after";
                 entry.m_refsStr = getXrefsToAddressAsString(ea);
                 functions.push_back(entry);
             }

@@ -40,6 +40,7 @@ public:
     unsigned int mNumParamsToSkipForWrapper = 0;
     string mComment;
     string mType;
+    unsigned int mPriority = 1;
 
     struct Parameter {
         string mName;

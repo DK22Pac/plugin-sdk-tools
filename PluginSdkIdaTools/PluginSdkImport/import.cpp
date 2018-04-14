@@ -532,6 +532,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     #endif
                         if (!add_func(f.m_address, BADADDR)) {
                             warning("Unable to create function '%s' at address 0x%X", f.m_demangledName.c_str(), f.m_address);
+                            msg("Unable to create function '%s' at address 0x%X\n", f.m_demangledName.c_str(), f.m_address);
                             continue;
                         }
                     }
@@ -570,6 +571,9 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 // isconst
                 if (f.m_isConst)
                     fnFullComment += " isconst:true";
+                // priority
+                if (f.m_priority != 0)
+                    fnFullComment += " priority:before";
                 // raw parameters types
                 for (auto const &fp : f.m_params) {
                     if (!fp.m_name.empty() && startsWith(fp.m_name, "rt_") && fp.m_rawType) {

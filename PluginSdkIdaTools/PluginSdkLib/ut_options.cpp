@@ -93,10 +93,11 @@ void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBi
     getExtraInfo(line, outComment, options, outBitWidth, outIsCounter);
 }
 
-void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, bool &outIsConst) {
+void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, qstring &outPriority, bool &outIsConst) {
     qvector<qstring> options;
     options.push_back("module");
     options.push_back("rettype");
+    options.push_back("priority");
     options.push_back("isconst");
     getExtraInfo(line, outComment, options, outModuleName, outRetType, outIsConst);
 }

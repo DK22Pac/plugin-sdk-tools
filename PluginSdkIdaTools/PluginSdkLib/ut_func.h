@@ -22,6 +22,7 @@ public:
     bool m_isConst = false;
     qstring m_refsStr;
     qstring m_comment;
+    unsigned int m_priority = 1;
 
     static Function const *Find(qstring const &name, qvector<Function> const &entries);
 

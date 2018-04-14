@@ -18,10 +18,12 @@ qvector<Function> Function::FromCSV(char const *filepath) {
         if (getLine(&line, inFile)) {
             while (getLine(&line, inFile)) {
                 Function entry;
-                qstring addr, isConstStr, paramsStr;
+                qstring addr, isConstStr, paramsStr, priority;
                 readcsv(line, addr, entry.m_module, entry.m_name, entry.m_demangledName, entry.m_type,
-                    entry.m_cc, entry.m_retType, paramsStr, isConstStr, entry.m_refsStr, entry.m_comment);
+                    entry.m_cc, entry.m_retType, paramsStr, isConstStr, entry.m_refsStr, entry.m_comment,
+                    priority);
                 entry.m_address = toNumber(addr);
+                entry.m_priority = toNumber(priority);
                 entry.m_isConst = isConstStr != "0";
                 // raw CPool<CPed> *:pool int:value
                 // [raw] Type : Name
@@ -111,7 +113,7 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
         // header
-        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Refs,Comment\n", version);
+        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Refs,Comment,Priority\n", version);
         // entries
         for (auto const &i : entries) {
             qstring retType;
@@ -135,8 +137,8 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
                 if (p != (i.m_params.size() - 1))
                     parameters += ' ';
             }
-            qfprintf(outFile, "%s,%d,%s,%s\n", csvvalue(parameters).c_str(), i.m_isConst, csvvalue(i.m_refsStr).c_str(),
-                csvvalue(i.m_comment).c_str());
+            qfprintf(outFile, "%s,%d,%s,%s,%d\n", csvvalue(parameters).c_str(), i.m_isConst, csvvalue(i.m_refsStr).c_str(),
+                csvvalue(i.m_comment).c_str(), i.m_priority);
         }
         qfclose(outFile);
         return true;
