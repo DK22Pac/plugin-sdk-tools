@@ -516,10 +516,11 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         // update ida functions
         for (size_t i = 0; i < functions.size(); i++) {
             Function const &f = functions[i];
-            if (f.m_address != 0 && !f.m_name.empty()) {
+            if (f.m_address != 0) {
+                bool emptyName = f.m_name.empty();
                 auto func = get_func(f.m_address);
                 if (!func) {
-                    msg("Creating function '%s' at address 0x%X\n", f.m_demangledName.c_str(), f.m_address);
+                    //msg("Creating function '%s' at address 0x%X\n", f.m_demangledName.c_str(), f.m_address);
                     if (!add_func(f.m_address, BADADDR)) {
                         // try to clear area at @m_address
                     #if (IDA_VER >= 70)
@@ -544,8 +545,10 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     }
                 }
                 // function name
-                if (!set_name(f.m_address, f.m_name.c_str())) {
-                    warning("Unable to set function '%s' name at address 0x%X", f.m_demangledName.c_str(), f.m_address);
+                if (!emptyName) {
+                    if (!set_name(f.m_address, f.m_name.c_str())) {
+                        warning("Unable to set function '%s' name at address 0x%X", f.m_demangledName.c_str(), f.m_address);
+                    }
                 }
                 // function type (includes function parameters names)
                 if (!f.m_type.empty()){
