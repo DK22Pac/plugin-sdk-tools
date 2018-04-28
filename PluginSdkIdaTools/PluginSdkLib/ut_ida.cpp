@@ -53,6 +53,34 @@ bool isDataSegment(qstring const &name) {
     return name == ".data" || name == ".rdata" || name == ".bss";
 }
 
+bool isInDataSegment(ea_t ea) {
+    auto seg = get_first_seg();
+    while (seg) {
+    #if (IDA_VER >= 70)
+        if (ea >= seg->start_ea && ea <= seg->end_ea) {
+    #else
+        if (ea >= seg->startEA && ea <= seg->endEA) {
+        #endif
+            qstring segName;
+        #if (IDA_VER >= 70)
+            get_segm_name(&segName, seg);
+        #else
+            static char segNameBuf[32];
+            if (get_true_segm_name(seg, segNameBuf, 32) != static_cast<ssize_t>(-1))
+                segName = segNameBuf;
+        #endif
+            if (isDataSegment(segName))
+                return true;
+        }
+    #if (IDA_VER >= 70)
+        seg = get_next_seg(seg->start_ea);
+    #else
+        seg = get_next_seg(seg->startEA);
+    #endif
+    }
+    return false;
+}
+
 bool parseType(qstring const &typeName, tinfo_t &out, bool silent) {
     qstring fixedTypeName = typeName;
     if (typeName.last() != ';')

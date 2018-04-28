@@ -1,18 +1,27 @@
 #include "ut_options.h"
 
-void getOptionsAndComment(qstring const &line, qstring &realComment, qstring &optionStr) {
+void getOptionsAndComment(qstring const &line, qvector<qstring> const &options, qstring &realComment, qstring &optionStr) {
+    optionStr.clear();
+    realComment.clear();
+    bool hasOptions = false;
+    for (auto const &opt : options) {
+        if (startsWith(line, opt)) {
+            hasOptions = true;
+            break;
+        }
+    }
     auto lineEnd = line.find('\n');
-    if (lineEnd != qstring::npos) {
-        optionStr = line.substr(0, lineEnd);
-        if (line.length() > lineEnd + 1)
-            realComment = line.substr(lineEnd + 1);
+    if (hasOptions) {
+        if (lineEnd != qstring::npos) {
+            optionStr = line.substr(0, lineEnd);
+            if (line.length() > lineEnd + 1)
+                realComment = line.substr(lineEnd + 1);
+        }
         else
-            realComment = "";
+            optionStr = line;
     }
-    else {
-        optionStr = line;
-        realComment = "";
-    }
+    else
+        realComment = line;
 }
 
 void getOptionValue(qstring const &optionStr, qstring const &fieldName, qstring &out) {
@@ -63,43 +72,23 @@ void setOptionDefaultValue(bool &opt) {
 void getOptionValues(qstring const &optionsStr, qvector<qstring> const &options, unsigned int &optionsCounter) {}
 
 void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsStruct, bool &outIsAnonymous) {
-    qvector<qstring> options;
-    options.push_back("module");
-    options.push_back("scope");
-    options.push_back("isstruct");
-    options.push_back("isanonymous");
-    getExtraInfo(line, outComment, options, outModuleName, outScope, outIsStruct, outIsAnonymous);
+    getExtraInfo(line, outComment, getStructOptions(), outModuleName, outScope, outIsStruct, outIsAnonymous);
 }
 
 void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous) {
-    qvector<qstring> options;
-    options.push_back("rawtype");
-    options.push_back("isanonymous");
-    getExtraInfo(line, outComment, options, outRawType, outIsAnonymous);
+    getExtraInfo(line, outComment, getStructMemberOptions(), outRawType, outIsAnonymous);
 }
 
 void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsClass) {
-    qvector<qstring> options;
-    options.push_back("module");
-    options.push_back("scope");
-    options.push_back("isclass");
-    getExtraInfo(line, outComment, options, outModuleName, outScope, outIsClass);
+    getExtraInfo(line, outComment, getEnumOptions(), outModuleName, outScope, outIsClass);
 }
 
 void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBitWidth, bool &outIsCounter) {
-    qvector<qstring> options;
-    options.push_back("bitwidth");
-    options.push_back("iscounter");
-    getExtraInfo(line, outComment, options, outBitWidth, outIsCounter);
+    getExtraInfo(line, outComment, getEnumMemberOptions(), outBitWidth, outIsCounter);
 }
 
 void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, qstring &outPriority, bool &outIsConst) {
-    qvector<qstring> options;
-    options.push_back("module");
-    options.push_back("rettype");
-    options.push_back("priority");
-    options.push_back("isconst");
-    getExtraInfo(line, outComment, options, outModuleName, outRetType, outIsConst);
+    getExtraInfo(line, outComment, getFunctionOptions(), outModuleName, outRetType, outPriority, outIsConst);
 }
 
 void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType) {
@@ -111,8 +100,52 @@ void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, q
 }
 
 void getVariableExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRawType) {
+    getExtraInfo(line, outComment, getVariableOptions(), outModuleName, outRawType);
+}
+
+qvector<qstring> getFunctionOptions() {
+    qvector<qstring> options;
+    options.push_back("module");
+    options.push_back("rettype");
+    options.push_back("priority");
+    options.push_back("isconst");
+    return options;
+}
+
+qvector<qstring> getVariableOptions() {
     qvector<qstring> options;
     options.push_back("module");
     options.push_back("rawtype");
-    getExtraInfo(line, outComment, options, outModuleName, outRawType);
+    return options;
+}
+
+qvector<qstring> getEnumOptions() {
+    qvector<qstring> options;
+    options.push_back("module");
+    options.push_back("scope");
+    options.push_back("isclass");
+    return options;
+}
+
+qvector<qstring> getEnumMemberOptions() {
+    qvector<qstring> options;
+    options.push_back("bitwidth");
+    options.push_back("iscounter");
+    return options;
+}
+
+qvector<qstring> getStructOptions() {
+    qvector<qstring> options;
+    options.push_back("module");
+    options.push_back("scope");
+    options.push_back("isstruct");
+    options.push_back("isanonymous");
+    return options;
+}
+
+qvector<qstring> getStructMemberOptions() {
+    qvector<qstring> options;
+    options.push_back("rawtype");
+    options.push_back("isanonymous");
+    return options;
 }

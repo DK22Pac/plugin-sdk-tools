@@ -1,7 +1,7 @@
 #pragma once
 #include "ut_string.h"
 
-void getOptionsAndComment(qstring const &line, qstring &realComment, qstring &optionStr);
+void getOptionsAndComment(qstring const &line, qvector<qstring> const &options, qstring &realComment, qstring &optionStr);
 void getOptionValue(qstring const &optionStr, qstring const &fieldName, qstring &out);
 void getOptionValue(qstring const &optionStr, qstring const &fieldName, int &out);
 void getOptionValue(qstring const &optionStr, qstring const &fieldName, bool &out);
@@ -26,22 +26,15 @@ void getOptionValues(qstring const &optionsStr, qvector<qstring> const &options,
 
 template<typename ...Types>
 void getExtraInfo(qstring const &inCommentStr, qstring &outComment, qvector<qstring> const &options, Types&... out) {
-    bool hasOptions = false;
-    for (auto const &opt : options) {
-        if (startsWith(inCommentStr, opt)) {
-            hasOptions = true;
-            break;
-        }
-    }
-    if (!hasOptions) {
-        setOptionDefaultValue(out...);
-        outComment = inCommentStr;
-    }
-    else {
-        qstring optionsStr;
-        getOptionsAndComment(inCommentStr, outComment, optionsStr);
+    qstring optionsStr;
+    getOptionsAndComment(inCommentStr, options, outComment, optionsStr);
+    if (optionsStr.size() > 0) {
         unsigned int counter = 0;
         getOptionValues(optionsStr, options, counter, out...);
+    }
+    else {
+        setOptionDefaultValue(out...);
+        outComment = inCommentStr;
     }
     outComment.replace("\n", ";;");
 }
@@ -53,3 +46,10 @@ void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBi
 void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, qstring &outPriority, bool &outIsConst);
 void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType);
 void getVariableExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRawType);
+
+qvector<qstring> getFunctionOptions();
+qvector<qstring> getVariableOptions();
+qvector<qstring> getEnumOptions();
+qvector<qstring> getEnumMemberOptions();
+qvector<qstring> getStructOptions();
+qvector<qstring> getStructMemberOptions();

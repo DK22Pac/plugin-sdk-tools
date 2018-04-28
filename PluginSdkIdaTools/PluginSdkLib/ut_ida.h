@@ -7,6 +7,7 @@ bool isPrefixReserved(qstring const &name);
 bool isFunctionPrefixReserved(qstring const &name);
 bool isDataPrefixReserved(qstring const &name);
 bool isDataSegment(qstring const &name);
+bool isInDataSegment(ea_t ea);
 
 bool getLine(qstring *buf, FILE *fp);
 
