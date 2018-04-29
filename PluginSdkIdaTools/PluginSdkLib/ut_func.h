@@ -23,6 +23,7 @@ public:
     qstring m_refsStr;
     qstring m_comment;
     unsigned int m_priority = 1;
+    int m_vtableIndex = -1;
 
     static Function const *Find(qstring const &name, qvector<Function> const &entries);
 
@@ -32,6 +33,4 @@ public:
     static bool ToCSV(qvector<Function> const &entries, char const *filepath, char const *version);
     static bool ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
         qvector<Function> const &entries, char const *version, char const *filepath);
-    static bool ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
-        qvector<Function const *> const &refEntries, char const *version, char const *filepath);
 };

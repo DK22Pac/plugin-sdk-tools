@@ -3,6 +3,7 @@
 #include "name.hpp"
 #include "xref.hpp"
 #include "ut_string.h"
+#include "ut_ida.h"
 
 qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc) {
     qvector<XRef> xrefs;
@@ -28,11 +29,7 @@ qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc) {
             const int max_vmethods_search = 200;
             for (int i = 0; i < max_vmethods_search; i++) {
                 ea_t searchaddr = xref.m_address - i * 4;
-                #if (IDA_VER >= 70)
-                    qstring searchaddrname = get_name(searchaddr);
-                #else
-                    qstring searchaddrname = get_true_name(searchaddr);
-                #endif
+                qstring searchaddrname = getAddrName(searchaddr);
                 if (!searchaddrname.empty()) {
                     if (startsWith(searchaddrname, "_ZTV"))
                         xref.m_objectid = searchaddr;

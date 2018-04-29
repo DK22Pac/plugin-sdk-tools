@@ -14,6 +14,14 @@ bool startsWith(qstring const &strToCheck, qstring const &strStart) {
     return strToCheck.substr(0, strStart.length()) == strStart;
 }
 
+bool endsWith(qstring const &strToCheck, qstring const &strEnd) {
+    auto strLen = strToCheck.length();
+    auto endLen = strEnd.length();
+    if (endLen > strLen)
+        return false;
+    return strToCheck.substr(strLen - endLen) == strEnd;
+}
+
 void addValueToStringLineList(qstring &line, qstring const &value) {
     if (!line.empty())
         line.append(' ');
@@ -153,4 +161,18 @@ int toNumber(qstring const &str) {
 
 bool contains(qstring const &str, qstring const &substr) {
     return str.find(substr) != qstring::npos;
+}
+
+qstring toUpper(qstring const &str) {
+    qstring result;
+    for (size_t i = 0; i < str.length(); i++)
+        result += toupper(static_cast<unsigned char>(str[i]));
+    return result;
+}
+
+qstring toLower(qstring const &str) {
+    qstring result;
+    for (size_t i = 0; i < str.length(); i++)
+        result += tolower(static_cast<unsigned char>(str[i]));
+    return result;
 }

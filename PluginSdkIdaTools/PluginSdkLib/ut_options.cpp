@@ -4,8 +4,9 @@ void getOptionsAndComment(qstring const &line, qvector<qstring> const &options, 
     optionStr.clear();
     realComment.clear();
     bool hasOptions = false;
+    qstring lineUpper = toUpper(line);
     for (auto const &opt : options) {
-        if (startsWith(line, opt)) {
+        if (startsWith(lineUpper, toUpper(opt))) {
             hasOptions = true;
             break;
         }
@@ -75,8 +76,8 @@ void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outMo
     getExtraInfo(line, outComment, getStructOptions(), outModuleName, outScope, outIsStruct, outIsAnonymous);
 }
 
-void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous) {
-    getExtraInfo(line, outComment, getStructMemberOptions(), outRawType, outIsAnonymous);
+void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsBase) {
+    getExtraInfo(line, outComment, getStructMemberOptions(), outRawType, outIsAnonymous, outIsBase);
 }
 
 void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsClass) {
@@ -147,5 +148,6 @@ qvector<qstring> getStructMemberOptions() {
     qvector<qstring> options;
     options.push_back("rawtype");
     options.push_back("isanonymous");
+    options.push_back("isbase");
     return options;
 }

@@ -14,6 +14,7 @@
 using json = nlohmann::json;
 
 bool startsWith(qstring const &strToCheck, qstring const &strStart);
+bool endsWith(qstring const &strToCheck, qstring const &strEnd);
 bool contains(qstring const &str, qstring const &substr);
 
 qstring csvvalue(qstring const &value);
@@ -107,3 +108,6 @@ qstring toString(T intVal) {
 }
 
 int toNumber(qstring const &str);
+
+qstring toUpper(qstring const &str);
+qstring toLower(qstring const &str);

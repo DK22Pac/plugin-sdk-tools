@@ -20,6 +20,7 @@ public:
         unsigned int m_offset = 0;
         bool m_isAnonymous = false;
         bool m_isString = false;
+        bool m_isBase = false;
 
         Member() = default;
     };
@@ -32,6 +33,9 @@ public:
     unsigned int m_alignment = 0;
     Kind m_kind = STRT_STRUCT;
     bool m_isAnonymous = false;
+    // bool m_isCppObj = false;
+    unsigned int m_vtableAddress = 0;
+    unsigned int m_vtableSize = 0;
 
     qvector<Member> m_members;
 

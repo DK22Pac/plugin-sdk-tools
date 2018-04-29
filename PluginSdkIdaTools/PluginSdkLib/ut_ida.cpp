@@ -81,6 +81,14 @@ bool isInDataSegment(ea_t ea) {
     return false;
 }
 
+bool isPureFunctionName(qstring const &name) {
+    return startsWith(name, "__pure");
+}
+
+bool isNullFunctionName(qstring const &name) {
+    return startsWith(name, "nullsub") || startsWith(name, "j_nullsub");
+}
+
 bool parseType(qstring const &typeName, tinfo_t &out, bool silent) {
     qstring fixedTypeName = typeName;
     if (typeName.last() != ';')
@@ -144,4 +152,35 @@ bool getLine(qstring *buf, FILE *fp) {
     }
     return true;
 #endif
+}
+
+qstring getVTableClassName(qstring const &vtableVarName) {
+    qstring result;
+    if (startsWith(vtableVarName, "`vtable for'"))
+        result = vtableVarName.substr(12);
+    else if (endsWith(vtableVarName, "::`vftable'")) {
+        if (startsWith(vtableVarName, "const "))
+            result = vtableVarName.substr(6, vtableVarName.length() - 11);
+        else
+            result = vtableVarName.substr(0, vtableVarName.length() - 11);
+    }
+    return result;
+}
+
+qstring getAddrName(ea_t ea) {
+#if (IDA_VER >= 70)
+    return get_name(ea);
+#else
+    return get_true_name(ea);
+#endif
+}
+
+qstring getFunctionName(ea_t ea) {
+    qstring name;
+#if (IDA_VER >= 70)
+    get_func_name(&name, ea);
+#else
+    get_func_name2(&name, ea);
+#endif
+    return name;
 }

@@ -18,10 +18,9 @@
 #include "ut_options.h"
 #include "..\..\shared\translator.h"
 #include "..\..\shared\Games.h"
+#include <map>
 
 using namespace std;
-
-const bool gTranslateAddresses = false;
 
 void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short options, path const &output) {
     msg("--------------------\nExport started\n--------------------\n");
@@ -42,6 +41,224 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         if (errCode) {
             warning("Unable to create database folder (%s):\n%s", dbFolderPath.string().c_str(), errCode.message().c_str());
             return;
+        }
+    }
+
+    struct VTClassInfo {
+        unsigned int addr;
+        unsigned int size;
+        qstring className;
+    };
+
+    qvector<VTClassInfo> vtables;
+    std::map<unsigned int, unsigned int> virtualFuncs;
+
+    if ((options & OPTION_VARIABLES) || (isBaseVersion && ((options & OPTION_STRUCTURES) || (options & OPTION_FUNCTIONS)))) {
+        qvector<Variable> variables;
+
+        string fileName = "plugin-sdk." + gameName + ".variables." + versionName + ".csv";
+        path filePath = dbFolderPath / fileName;
+
+        auto seg = get_first_seg();
+        while (seg) {
+            qstring segName;
+        #if (IDA_VER >= 70)
+            get_segm_name(&segName, seg);
+        #else
+            static char segNameBuf[32];
+            if (get_true_segm_name(seg, segNameBuf, 32) != static_cast<ssize_t>(-1))
+                segName = segNameBuf;
+        #endif
+            if (isDataSegment(segName)) {
+            #if (IDA_VER >= 70)
+                msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->start_ea, seg->end_ea);
+                auto ea = seg->start_ea;
+                while (ea < seg->end_ea) {
+                #else
+                msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->startEA, seg->endEA);
+                auto ea = seg->startEA;
+                while (ea < seg->endEA) {
+                #endif
+                    int size = 1;
+                    bool hasType = false;
+                    tinfo_t type;
+                #if (IDA_VER >= 70)
+                    if (get_tinfo(&type, ea)) {
+                    #else
+                    if (get_tinfo2(ea, &type)) {
+                    #endif
+                        // get type size
+                        size = type.get_size();
+                        if (size < 1)
+                            size = 1;
+                        auto itemSize = get_item_size(ea);
+                        if (itemSize > size)
+                            size = itemSize;
+                        hasType = true;
+                    }
+                    qstring addrName = getAddrName(ea);
+                    if (!addrName.empty() && !isDataPrefixReserved(addrName) && get_str_type(ea) == -1) {
+                        qstring vtClassName = getVTableClassName(get_short_name(ea));
+                        if (!vtClassName.empty()) {
+                            VTClassInfo vtClassInfo;
+                            vtClassInfo.addr = ea;
+                            vtClassInfo.className = vtClassName;
+                            unsigned int vtSize = 0;
+                            auto vtFuncAddr = ea;
+                            while (is_off0(get_flags(vtFuncAddr)) && (vtSize == 0 || getAddrName(vtFuncAddr).empty())) {
+                                auto funcAddr = get_dword(vtFuncAddr);
+                                if (funcAddr != 0) {
+                                    if (get_func(funcAddr)) {
+                                        qstring funcName = getFunctionName(funcAddr);
+                                        if (!isPureFunctionName(funcName) && !isNullFunctionName(funcName)) {
+                                            if (virtualFuncs.find(funcAddr) == virtualFuncs.end())
+                                                virtualFuncs[funcAddr] = vtSize;
+                                        }
+                                    }
+                                }
+                                vtFuncAddr += 4;
+                                vtSize++;
+                            }
+                            vtClassInfo.size = vtSize;
+                            vtables.push_back(vtClassInfo);
+                        }
+                        if (options & OPTION_VARIABLES) {
+                            Variable entry;
+                            entry.m_address = ea;
+                            entry.m_size = size;
+                            if (hasType)
+                                type.print(&entry.m_type);
+                            entry.m_name = addrName;
+                            entry.m_demangledName = get_short_name(ea);
+                            qstring cmtLine;
+                        #if (IDA_VER >= 70)
+                            get_cmt(&cmtLine, ea, false);
+                        #else
+                            static char cmtLineBuf[2048];
+                            if (get_cmt(ea, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                                cmtLine = cmtLineBuf;
+                        #endif
+                            getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
+                            // get default value(s) for constant variable
+                            if (hasType && type.is_const()) {
+                                static char fmtbuf[32];
+                                qstring values;
+                                unsigned int numValues = 1;
+                                tinfo_t compType = type;
+                                if (compType.is_array()) {
+                                    numValues = compType.get_array_nelems();
+                                    compType = compType.get_array_element();
+                                }
+                                bool allRead = true;
+                                auto arrEa = ea;
+                                for (unsigned int val = 0; val < numValues; val++) {
+                                    if (compType.is_bool()) {
+                                        bool bVal = get_byte(arrEa);
+                                        addValueCSVLine(values, (bVal ? "true" : "false"));
+                                        arrEa += 1;
+                                    }
+                                    else if (compType.is_float()) {
+                                    #if (IDA_VER >= 70)
+                                        unsigned int u32 = get_dword(arrEa);
+                                    #else
+                                        unsigned int u32 = get_long(arrEa);
+                                    #endif
+                                        float f32 = *reinterpret_cast<float *>(&u32);
+                                        qsnprintf(fmtbuf, 32, "%g", f32);
+                                        qstring strval = fmtbuf;
+                                        if (strval.find('.') == qstring::npos)
+                                            strval += ".0";
+                                        strval += "f";
+                                        addValueCSVLine(values, strval);
+                                        arrEa += 4;
+                                    }
+                                    else if (compType.is_double()) {
+                                        unsigned int u64 = get_qword(arrEa);
+                                        float f64 = *reinterpret_cast<float *>(&u64);
+                                        qsnprintf(fmtbuf, 32, "%lg", f64);
+                                        qstring strval = fmtbuf;
+                                        if (strval.find('.') == qstring::npos)
+                                            strval += ".0";
+                                        addValueCSVLine(values, strval);
+                                        arrEa += 8;
+                                    }
+                                    else if (compType.is_int32() || compType.is_uint32()) {
+                                    #if (IDA_VER >= 70)
+                                        unsigned int u32 = get_dword(arrEa);
+                                    #else
+                                        unsigned int u32 = get_long(arrEa);
+                                    #endif
+                                        if (compType.is_int32()) {
+                                            int i32 = *reinterpret_cast<float *>(&u32);
+                                            qsnprintf(fmtbuf, 32, "%d", i32);
+                                        }
+                                        else
+                                            qsnprintf(fmtbuf, 32, "%u", u32);
+                                        addValueCSVLine(values, fmtbuf);
+                                        arrEa += 4;
+                                    }
+                                    else if (compType.is_int16() || compType.is_uint16()) {
+                                        unsigned int u16 = get_word(arrEa);
+                                        if (compType.is_int16()) {
+                                            int i16 = *reinterpret_cast<float *>(&u16);
+                                            qsnprintf(fmtbuf, 32, "%d", i16);
+                                        }
+                                        else
+                                            qsnprintf(fmtbuf, 32, "%u", u16);
+                                        addValueCSVLine(values, fmtbuf);
+                                        arrEa += 2;
+                                    }
+                                    else if (compType.is_char() || compType.is_uchar()) {
+                                        unsigned int u8 = get_byte(arrEa);
+                                        if (compType.is_char()) {
+                                            int i8 = *reinterpret_cast<float *>(&u8);
+                                            qsnprintf(fmtbuf, 32, "%d", i8);
+                                        }
+                                        else
+                                            qsnprintf(fmtbuf, 32, "%u", u8);
+                                        addValueCSVLine(values, fmtbuf);
+                                        arrEa += 1;
+                                    }
+                                    else {
+                                        allRead = false;
+                                        break;
+                                    }
+                                }
+
+                                if (allRead) {
+                                    if (type.is_array()) {
+                                        values.insert(0, "{");
+                                        values += "}";
+                                    }
+                                    entry.m_defaultValues = values;
+                                }
+                            }
+                            if (segName == ".rdata")
+                                entry.m_isReadOnly = true;
+                            variables.push_back(entry);
+                        }
+                    }
+                    ea += size;
+                }
+            }
+        #if (IDA_VER >= 70)
+            seg = get_next_seg(seg->start_ea);
+        #else
+            seg = get_next_seg(seg->startEA);
+        #endif
+        }
+        if (options & OPTION_VARIABLES) {
+            if (!isBaseVersion) {
+                string baseFileName = "plugin-sdk." + gameName + ".variables." + baseVersionName + ".csv";
+                path baseFilePath = dbFolderPath / baseFileName;
+                auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
+                if (baseEntries.size() > 0) {
+                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
+                        filePath.string().c_str());
+                }
+            }
+            else
+                Variable::ToCSV(variables, filePath.string().c_str(), versionName.c_str());
         }
     }
 
@@ -68,11 +285,10 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 entry.m_address = ea;
             #if (IDA_VER >= 70)
                 get_tinfo(&type, ea);
-                get_func_name(&entry.m_name, ea);
             #else
                 get_tinfo2(ea, &type);
-                get_func_name2(&entry.m_name, ea);
             #endif
+                entry.m_name = getFunctionName(ea);
                 type.print(&entry.m_type);
                 if (isFunctionPrefixReserved(entry.m_name))
                     entry.m_name.clear();
@@ -150,6 +366,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 }
                 entry.m_priority = funcPriority == "after";
                 entry.m_refsStr = getXrefsToAddressAsString(ea);
+                if (isBaseVersion) {
+                    auto it = virtualFuncs.find(entry.m_address);
+                    if (it != virtualFuncs.end())
+                        entry.m_vtableIndex = it->second;
+                }
                 functions.push_back(entry);
             }
         #if (IDA_VER >= 70)
@@ -158,222 +379,18 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             func = get_next_func(func->startEA);
         #endif
         }
+
         if (!isBaseVersion) {
             string baseFileName = "plugin-sdk." + gameName + ".functions." + baseVersionName + ".csv";
             path baseFilePath = dbFolderPath / baseFileName;
             auto baseEntries = Function::FromCSV(baseFilePath.string().c_str());
             if (baseEntries.size() > 0) {
-                if (gTranslateAddresses) { // NOTE: that's a temporary feature
-                    qvector<Function> tmpfuncs;
-                    for (size_t i = 0; i < baseEntries.size(); i++) {
-                        Function &f = tmpfuncs.push_back();
-                        f.m_address = translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address);
-                    }
-                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), tmpfuncs, versionName.c_str(),
-                        filePath.string().c_str());
-                }
-                else {
-                    Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
-                        filePath.string().c_str());
-                }
+                Function::ToReferenceCSV(baseEntries, baseVersionName.c_str(), functions, versionName.c_str(),
+                    filePath.string().c_str());
             }
         }
         else
             Function::ToCSV(functions, filePath.string().c_str(), versionName.c_str());
-    }
-
-    if (options & OPTION_VARIABLES) {
-        qvector<Variable> variables;
-
-        string fileName = "plugin-sdk." + gameName + ".variables." + versionName + ".csv";
-        path filePath = dbFolderPath / fileName;
-
-        auto seg = get_first_seg();
-        while (seg) {
-            qstring segName;
-        #if (IDA_VER >= 70)
-            get_segm_name(&segName, seg);
-        #else
-            static char segNameBuf[32];
-            if (get_true_segm_name(seg, segNameBuf, 32) != static_cast<ssize_t>(-1))
-                segName = segNameBuf;
-        #endif
-            if (isDataSegment(segName)) {
-            #if (IDA_VER >= 70)
-                msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->start_ea, seg->end_ea);
-                auto ea = seg->start_ea;
-                while (ea < seg->end_ea) {
-            #else
-                msg("Scanning segment %s: (0x%X;0x%X)\n", segName.c_str(), seg->startEA, seg->endEA);
-                auto ea = seg->startEA;
-                while (ea < seg->endEA) {
-            #endif
-                    int size = 1;
-                    bool hasType = false;
-                    tinfo_t type;
-                #if (IDA_VER >= 70)
-                    if (get_tinfo(&type, ea)) {
-                #else
-                    if (get_tinfo2(ea, &type)) {
-                #endif
-                        // get type size
-                        size = type.get_size();
-                        if (size < 1)
-                            size = 1;
-                        auto itemSize = get_item_size(ea);
-                        if (itemSize > size)
-                            size = itemSize;
-                        hasType = true;
-                    }
-                #if (IDA_VER >= 70)
-                    qstring addrName = get_name(ea);
-                #else
-                    qstring addrName = get_true_name(ea);
-                #endif
-                    if (!addrName.empty() && !isDataPrefixReserved(addrName) && get_str_type(ea) == -1) {
-                        Variable entry;
-                        entry.m_address = ea;
-                        entry.m_size = size;
-                        if (hasType)
-                            type.print(&entry.m_type);
-                        entry.m_name = addrName;
-                        entry.m_demangledName = get_short_name(ea);
-                        qstring cmtLine;
-                    #if (IDA_VER >= 70)
-                        get_cmt(&cmtLine, ea, false);
-                    #else
-                        static char cmtLineBuf[2048];
-                        if (get_cmt(ea, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
-                            cmtLine = cmtLineBuf;
-                    #endif
-                        getVariableExtraInfo(cmtLine, entry.m_comment, entry.m_module, entry.m_rawType);
-                        // get default value(s) for constant variable
-                        if (hasType && type.is_const()) {
-                            static char fmtbuf[32];
-                            qstring values;
-                            unsigned int numValues = 1;
-                            tinfo_t compType = type;
-                            if (compType.is_array()) {
-                                numValues = compType.get_array_nelems();
-                                compType = compType.get_array_element();
-                            }
-                            bool allRead = true;
-                            auto arrEa = ea;
-                            for (unsigned int val = 0; val < numValues; val++) {
-                                if (compType.is_bool()) {
-                                    bool bVal = get_byte(arrEa);
-                                    addValueCSVLine(values, (bVal ? "true" : "false"));
-                                    arrEa += 1;
-                                }
-                                else if (compType.is_float()) {
-                                #if (IDA_VER >= 70)
-                                    unsigned int u32 = get_dword(arrEa);
-                                #else
-                                    unsigned int u32 = get_long(arrEa);
-                                #endif
-                                    float f32 = *reinterpret_cast<float *>(&u32);
-                                    qsnprintf(fmtbuf, 32, "%g", f32);
-                                    qstring strval = fmtbuf;
-                                    if (strval.find('.') == qstring::npos)
-                                        strval += ".0";
-                                    strval += "f";
-                                    addValueCSVLine(values, strval);
-                                    arrEa += 4;
-                                }
-                                else if (compType.is_double()) {
-                                    unsigned int u64 = get_qword(arrEa);
-                                    float f64 = *reinterpret_cast<float *>(&u64);
-                                    qsnprintf(fmtbuf, 32, "%lg", f64);
-                                    qstring strval = fmtbuf;
-                                    if (strval.find('.') == qstring::npos)
-                                        strval += ".0";
-                                    addValueCSVLine(values, strval);
-                                    arrEa += 8;
-                                }
-                                else if (compType.is_int32() || compType.is_uint32()) {
-                                #if (IDA_VER >= 70)
-                                    unsigned int u32 = get_dword(arrEa);
-                                #else
-                                    unsigned int u32 = get_long(arrEa);
-                                #endif
-                                    if (compType.is_int32()) {
-                                        int i32 = *reinterpret_cast<float *>(&u32);
-                                        qsnprintf(fmtbuf, 32, "%d", i32);
-                                    }
-                                    else
-                                        qsnprintf(fmtbuf, 32, "%u", u32);
-                                    addValueCSVLine(values, fmtbuf);
-                                    arrEa += 4;
-                                }
-                                else if (compType.is_int16() || compType.is_uint16()) {
-                                    unsigned int u16 = get_word(arrEa);
-                                    if (compType.is_int16()) {
-                                        int i16 = *reinterpret_cast<float *>(&u16);
-                                        qsnprintf(fmtbuf, 32, "%d", i16);
-                                    }
-                                    else
-                                        qsnprintf(fmtbuf, 32, "%u", u16);
-                                    addValueCSVLine(values, fmtbuf);
-                                    arrEa += 2;
-                                }
-                                else if (compType.is_char() || compType.is_uchar()) {
-                                    unsigned int u8 = get_byte(arrEa);
-                                    if (compType.is_char()) {
-                                        int i8 = *reinterpret_cast<float *>(&u8);
-                                        qsnprintf(fmtbuf, 32, "%d", i8);
-                                    }
-                                    else
-                                        qsnprintf(fmtbuf, 32, "%u", u8);
-                                    addValueCSVLine(values, fmtbuf);
-                                    arrEa += 1;
-                                }
-                                else {
-                                    allRead = false;
-                                    break;
-                                }
-                            }
-
-                            if (allRead) {
-                                if (type.is_array()) {
-                                    values.insert(0, "{");
-                                    values += "}";
-                                }
-                                entry.m_defaultValues = values;
-                            }
-                        }
-                        if (segName == ".rdata")
-                            entry.m_isReadOnly = true;
-                        variables.push_back(entry);
-                    }
-                    ea += size;
-                }
-            }
-        #if (IDA_VER >= 70)
-            seg = get_next_seg(seg->start_ea);
-        #else
-            seg = get_next_seg(seg->startEA);
-        #endif
-        }
-        if (!isBaseVersion) {
-            string baseFileName = "plugin-sdk." + gameName + ".variables." + baseVersionName + ".csv";
-            path baseFilePath = dbFolderPath / baseFileName;
-            auto baseEntries = Variable::FromCSV(baseFilePath.string().c_str());
-            if (baseEntries.size() > 0) {
-                if (gTranslateAddresses) {
-                    qvector<unsigned int> addresses;
-                    for (size_t i = 0; i < baseEntries.size(); i++)
-                        addresses.push_back(translateAddr(Games::ToID(selectedGame), selectedVersion, baseEntries[i].m_address));
-                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), addresses, versionName.c_str(),
-                        filePath.string().c_str());
-                }
-                else {
-                    Variable::ToReferenceCSV(baseEntries, baseVersionName.c_str(), variables, versionName.c_str(),
-                        filePath.string().c_str());
-                }
-            }
-        }
-        else
-            Variable::ToCSV(variables, filePath.string().c_str(), versionName.c_str());
     }
 
     if (options & OPTION_STRUCTURES) {
@@ -440,7 +457,31 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     j[jsonOrderedName("size")] = size;
                 j[jsonOrderedName("alignment")] = alignment;
                 if (isAnonymous)
-                    j[jsonOrderedName("isAnonymous")] = isAnonymous;
+                    j[jsonOrderedName("isAnonymous")] = true;
+                qvector<unsigned int> baseClassMembers;
+                tinfo_t stinfo;
+                if (guess_tinfo(&stinfo, stid) == GUESS_FUNC_OK) {
+                    udt_type_data_t udttd;
+                    if (stinfo.get_udt_details(&udttd)) {
+                        // if (udttd.is_cppobj())
+                        //     j[jsonOrderedName("isCppObj")] = true;
+                        for (auto &mudt : udttd) {
+                            if (mudt.is_baseclass())
+                                baseClassMembers.push_back(mudt.offset / 8);
+                        }
+                    }
+                }
+                VTClassInfo *vtClassInfo = nullptr;
+                for (auto vtable : vtables) {
+                    if (vtable.className == name) {
+                        vtClassInfo = &vtable;
+                        break;
+                    }
+                }
+                if (vtClassInfo) {
+                    j[jsonOrderedName("vtableAddress")] = toHexString(vtClassInfo->addr).c_str();
+                    j[jsonOrderedName("vtableSize")] = vtClassInfo->size;
+                }
                 j[jsonOrderedName("comment")] = comment.c_str();
                 auto &members = j[jsonOrderedName("members")];
                 members = json::array();
@@ -476,8 +517,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     #endif
 
                         qstring memberComment, memberRawType;
-                        bool isMemberAnonymous;
-                        getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isMemberAnonymous);
+                        bool isMemberAnonymous, isBaseAttr;
+                        getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isMemberAnonymous, isBaseAttr);
 
                         json jmember;
                         jmember[jsonOrderedName("name")] = mname.c_str();
@@ -495,7 +536,18 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         if ((member->flag & 0x50000000) == 0x50000000)
                             jmember[jsonOrderedName("isString")] = true;
                         if (isMemberAnonymous)
-                            jmember[jsonOrderedName("isAnonymous")] = isMemberAnonymous;
+                            jmember[jsonOrderedName("isAnonymous")] = true;
+                        bool isBaseClass = false;
+                        if (baseClassMembers.size() > 0) {
+                            for (auto bcm : baseClassMembers) {
+                                if (moffset == bcm) {
+                                    isBaseClass = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isBaseAttr || isBaseClass)
+                            jmember[jsonOrderedName("isBase")] = true;
                         if (!memberComment.empty())
                             jmember[jsonOrderedName("comment")] = memberComment.c_str();
                         members.push_back(jmember);

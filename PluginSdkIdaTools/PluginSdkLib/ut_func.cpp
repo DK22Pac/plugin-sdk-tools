@@ -18,12 +18,13 @@ qvector<Function> Function::FromCSV(char const *filepath) {
         if (getLine(&line, inFile)) {
             while (getLine(&line, inFile)) {
                 Function entry;
-                qstring addr, isConstStr, paramsStr, priority;
+                qstring addr, isConstStr, paramsStr, priority, vtindex;
                 readcsv(line, addr, entry.m_module, entry.m_name, entry.m_demangledName, entry.m_type,
                     entry.m_cc, entry.m_retType, paramsStr, isConstStr, entry.m_refsStr, entry.m_comment,
-                    priority);
+                    priority, vtindex);
                 entry.m_address = toNumber(addr);
                 entry.m_priority = toNumber(priority);
+                entry.m_vtableIndex = toNumber(vtindex);
                 entry.m_isConst = isConstStr != "0";
                 // raw CPool<CPed> *:pool int:value
                 // [raw] Type : Name
@@ -113,7 +114,7 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
         // header
-        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Refs,Comment,Priority\n", version);
+        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Refs,Comment,Priority,VTIndex\n", version);
         // entries
         for (auto const &i : entries) {
             qstring retType;
@@ -137,8 +138,8 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
                 if (p != (i.m_params.size() - 1))
                     parameters += ' ';
             }
-            qfprintf(outFile, "%s,%d,%s,%s,%d\n", csvvalue(parameters).c_str(), i.m_isConst, csvvalue(i.m_refsStr).c_str(),
-                csvvalue(i.m_comment).c_str(), i.m_priority);
+            qfprintf(outFile, "%s,%d,%s,%s,%d,%d\n", csvvalue(parameters).c_str(), i.m_isConst, csvvalue(i.m_refsStr).c_str(),
+                csvvalue(i.m_comment).c_str(), i.m_priority, i.m_vtableIndex);
         }
         qfclose(outFile);
         return true;
@@ -148,19 +149,13 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
 }
 
 bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
-    qvector<Function const *> const &refEntries, char const *version, char const *filepath)
+    qvector<Function> const &entries, char const *version, char const *filepath)
 {
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
         qfprintf(outFile, "%s,%s,Refs_%s,NameComment\n", baseVersion, version, version);
         for (size_t i = 0; i < baseEntries.size(); i++) {
-            unsigned int addr = 0;
-            qstring refsStr;
-            if (refEntries[i]) {
-                addr = refEntries[i]->m_address;
-                refsStr = refEntries[i]->m_refsStr;
-            }
-            qfprintf(outFile, "0x%X,0x%X,%s,%s\n", baseEntries[i].m_address, addr, csvvalue(refsStr).c_str(),
+            qfprintf(outFile, "0x%X,0x%X,%s,%s\n", baseEntries[i].m_address, entries[i].m_address, csvvalue(entries[i].m_refsStr).c_str(),
                 csvvalue(baseEntries[i].m_demangledName).c_str());
         }
         qfclose(outFile);
@@ -168,17 +163,4 @@ bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *
     }
     warning("Unable to open '%s' for writing", filepath);
     return false;
-}
-
-bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *baseVersion,
-    qvector<Function> const &entries, char const *version, char const *filepath)
-{
-    qvector<Function const *> refFunctions;
-    for (size_t i = 0; i < baseEntries.size(); i++) {
-        Function const *pf = nullptr;
-        if (!baseEntries[i].m_name.empty())
-            pf = Function::Find(baseEntries[i].m_name, entries);
-        refFunctions.push_back(pf);
-    }
-    return ToReferenceCSV(baseEntries, baseVersion, refFunctions, version, filepath);
 }

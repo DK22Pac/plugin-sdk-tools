@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <algorithm>
-#include "String.h"
 
 using namespace std;
 
@@ -102,17 +101,5 @@ public:
                 return VersionDetailedNamesIII[version];
         }
         return "";
-    }
-
-    template<typename T>
-    static string GetSupportedGameVersionsMacro(IDs game, T *exeVersionInfos) {
-        string result = "SUPPORTED";
-        for (unsigned int i = 0; i < GetGameVersionsCount(game); i++) {
-            if (game == IDs::GTASA && i == 1) // skip GTASA 1.0 US HoodLum
-                continue;
-            if (exeVersionInfos[i].mAddress != 0)
-                result += "_" + String::ToUpper(GetGameVersionName(game, i));
-        }
-        return result;
     }
 };

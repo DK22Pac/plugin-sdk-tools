@@ -225,6 +225,9 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     entry.m_size = jsonReadNumber(j, "size");
                     entry.m_alignment = jsonReadNumber(j, "alignment");
                     entry.m_isAnonymous = jsonReadBool(j, "isAnonymous");
+                    // entry.m_isCppObj = jsonReadBool(j, "isCppObj");
+                    entry.m_vtableAddress = jsonReadNumber(j, "vtableAddress");
+                    entry.m_vtableSize = jsonReadNumber(j, "vtableSize");
                     entry.m_comment = jsonReadString(j, "comment");
                     auto &members = j.find("members");
                     if (members != j.end()) {
@@ -237,6 +240,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             m.m_size = jsonReadNumber(jm, "size");
                             m.m_isString = jsonReadBool(jm, "isString");
                             m.m_isAnonymous = jsonReadBool(jm, "isAnonymous");
+                            m.m_isBase = jsonReadBool(jm, "isBase");
                             m.m_comment = jsonReadString(jm, "comment");
                             if (m.m_type.empty()) {
                                 if (m.m_size == 1)
@@ -377,6 +381,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     }
                     if (m.m_isAnonymous)
                         stFullMemberComment += " isanonymous:true";
+                    if (m.m_isBase)
+                        stFullMemberComment += " isbase:true";
                     if (!m.m_comment.empty()) {
                         qstring stMemberComment = m.m_comment;
                         stMemberComment.replace(";;", "\n");

@@ -107,29 +107,16 @@ bool Variable::ToCSV(qvector<Variable> const &entries, char const *filepath, cha
 }
 
 bool Variable::ToReferenceCSV(qvector<Variable> const &baseEntries, char const *baseVersion,
-    qvector<unsigned int> const &addresses, char const *version, char const *filepath)
+    qvector<Variable> const &entries, char const *version, char const *filepath)
 {
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
         qfprintf(outFile, "%s,%s,NameComment\n", baseVersion, version);
         for (size_t i = 0; i < baseEntries.size(); i++)
-            qfprintf(outFile, "0x%X,0x%X,%s\n", baseEntries[i].m_address, addresses[i], csvvalue(baseEntries[i].m_demangledName).c_str());
+            qfprintf(outFile, "0x%X,0x%X,%s\n", baseEntries[i].m_address, entries[i].m_address, csvvalue(baseEntries[i].m_demangledName).c_str());
         qfclose(outFile);
         return true;
     }
     warning("Unable to open '%s' file for writing", filepath);
     return false;
-}
-
-bool Variable::ToReferenceCSV(qvector<Variable> const &baseEntries, char const *baseVersion,
-    qvector<Variable> const &entries, char const *version, char const *filepath)
-{
-    qvector<unsigned int> addresses;
-    for (size_t i = 0; i < baseEntries.size(); i++) {
-        if (!baseEntries[i].m_name.empty())
-            addresses.push_back(Variable::Find(baseEntries[i].m_name, entries));
-        else
-            addresses.push_back(0);
-    }
-    return ToReferenceCSV(baseEntries, baseVersion, addresses, version, filepath);
 }

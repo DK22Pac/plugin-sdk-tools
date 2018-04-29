@@ -23,15 +23,8 @@ CommentEntity GetEntityAt(ea_t address) {
     if (get_func(address))
         return CommentEntity::Function;
     // if variable at this address
-    if (isInDataSegment(address)) {
-    #if (IDA_VER >= 70)
-        qstring addrName = get_name(address);
-    #else
-        qstring addrName = get_true_name(address);
-    #endif
-        if (!addrName.empty())
-            return CommentEntity::Variable;
-    }
+    if (isInDataSegment(address) && !getAddrName(address).empty())
+        return CommentEntity::Variable;
     // not a function, not a variable
     return CommentEntity::Unknown;
 }
@@ -53,11 +46,10 @@ struct CommentHandler : public action_handler_t {
         qstring entityName, comment;
         bool changeComment = false;
         if (IsVariable) {
+            entityName.sprnt("variable '%s'", getAddrName(address).c_str());
         #if (IDA_VER >= 70)
-            entityName.sprnt("variable '%s'", get_name(address).c_str());
             get_cmt(&comment, address, false);
         #else
-            entityName.sprnt("variable '%s'", get_true_name(address).c_str());
             static char cmtLineBuf[2048];
             if (get_cmt(address, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
                 comment = cmtLineBuf;
