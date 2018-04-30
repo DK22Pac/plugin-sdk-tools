@@ -105,8 +105,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             vtClassInfo.className = vtClassName;
                             unsigned int vtSize = 0;
                             auto vtFuncAddr = ea;
-                            while (is_off0(get_flags(vtFuncAddr)) && (vtSize == 0 || getAddrName(vtFuncAddr).empty())) {
-                                auto funcAddr = get_dword(vtFuncAddr);
+                            while (isOffset(vtFuncAddr) && (vtSize == 0 || getAddrName(vtFuncAddr).empty())) {
+                                auto funcAddr = getDword(vtFuncAddr);
                                 if (funcAddr != 0) {
                                     if (get_func(funcAddr)) {
                                         qstring funcName = getFunctionName(funcAddr);
@@ -158,11 +158,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                         arrEa += 1;
                                     }
                                     else if (compType.is_float()) {
-                                    #if (IDA_VER >= 70)
-                                        unsigned int u32 = get_dword(arrEa);
-                                    #else
-                                        unsigned int u32 = get_long(arrEa);
-                                    #endif
+                                        unsigned int u32 = getDword(arrEa);
                                         float f32 = *reinterpret_cast<float *>(&u32);
                                         qsnprintf(fmtbuf, 32, "%g", f32);
                                         qstring strval = fmtbuf;
@@ -183,11 +179,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                         arrEa += 8;
                                     }
                                     else if (compType.is_int32() || compType.is_uint32()) {
-                                    #if (IDA_VER >= 70)
-                                        unsigned int u32 = get_dword(arrEa);
-                                    #else
-                                        unsigned int u32 = get_long(arrEa);
-                                    #endif
+                                        unsigned int u32 = getDword(arrEa);
                                         if (compType.is_int32()) {
                                             int i32 = *reinterpret_cast<float *>(&u32);
                                             qsnprintf(fmtbuf, 32, "%d", i32);
@@ -460,7 +452,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     j[jsonOrderedName("isAnonymous")] = true;
                 qvector<unsigned int> baseClassMembers;
                 tinfo_t stinfo;
-                if (guess_tinfo(&stinfo, stid) == GUESS_FUNC_OK) {
+                if (guessTInfo(&stinfo, stid) == GUESS_FUNC_OK) {
                     udt_type_data_t udttd;
                     if (stinfo.get_udt_details(&udttd)) {
                         // if (udttd.is_cppobj())

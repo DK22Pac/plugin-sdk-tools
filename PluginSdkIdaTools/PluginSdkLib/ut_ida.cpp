@@ -184,3 +184,27 @@ qstring getFunctionName(ea_t ea) {
 #endif
     return name;
 }
+
+unsigned int getDword(ea_t ea) {
+#if (IDA_VER >= 70)
+    return get_dword(ea);
+#else
+    return get_long(ea);
+#endif
+}
+
+bool isOffset(ea_t ea) {
+#if (IDA_VER >= 70)
+    return is_off0(get_flags(ea));
+#else
+    return isOff0(get_flags_novalue(ea));
+#endif
+}
+
+int guessTInfo(tinfo_t *tif, tid_t id) {
+#if (IDA_VER >= 70)
+    return guess_tinfo(tif, id);
+#else
+    return guess_tinfo2(id, tif);
+#endif
+}

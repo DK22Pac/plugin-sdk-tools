@@ -74,6 +74,9 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Q /Y "$(TargetPath)" "$(PLUGIN_SDK_DIR)\tools\ida-tools\ida_70\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 6.8|x64'">
     <ClCompile>
@@ -114,6 +117,9 @@
       <ImportLibrary>$(ProjectDir).obj\$(TargetName).lib</ImportLibrary>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Q /Y "$(TargetPath)" "$(PLUGIN_SDK_DIR)\tools\ida-tools\ida_68\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

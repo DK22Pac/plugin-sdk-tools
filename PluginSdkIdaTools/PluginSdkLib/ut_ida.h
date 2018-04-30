@@ -22,3 +22,7 @@ qstring getVTableClassName(qstring const &vtableVarName);
 
 qstring getAddrName(ea_t ea);
 qstring getFunctionName(ea_t ea);
+
+unsigned int getDword(ea_t ea);
+bool isOffset(ea_t ea);
+int guessTInfo(tinfo_t *tif, tid_t id);
