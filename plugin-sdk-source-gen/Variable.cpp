@@ -1,6 +1,7 @@
 #include "Variable.h"
 #include "Comments.h"
 #include "StringEx.h"
+#include "GameVersions.h"
 
 string Variable::GetFullName() {
     if (mScope.empty())
@@ -47,7 +48,7 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
 void Variable::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool isStatic) {
     WriteComment(stream, mComment, t, 0);
     stream << t();
-    stream << Games::GetSupportedGameVersionsMacro(game, mVersionInfo) << ' ';
+    stream << GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) << ' ';
     if (isStatic)
         stream << "static";
     else

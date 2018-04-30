@@ -37,10 +37,10 @@ void CSV::ReadParam(string const &line, unsigned int &currIndex, string &param) 
     String::Trim(param);
 }
 
-vector<string> CSV::ReadLines(ifstream &file) {
+List<string> CSV::ReadLines(ifstream &file) {
     // comments are not supported
     // empty lines are not ignored
-    vector<string> result;
+    List<string> result;
     bool firstLine = true;
     for (string line; getline(file, line);) {
         if (!firstLine)

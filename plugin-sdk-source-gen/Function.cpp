@@ -1,7 +1,9 @@
 #include "Function.h"
+#include "Struct.h"
 #include "Comments.h"
 #include "StringEx.h"
 #include <sstream>
+#include "GameVersions.h"
 
 string Function::GetFullName() const {
     if (mScope.empty())
@@ -9,94 +11,93 @@ string Function::GetFullName() const {
     return mScope + "::" + mName;
 }
 
-void Function::ForAllParameters(std::function<void(Parameter &p, bool first, bool last)> callback, unsigned int startParam) {
-    size_t length = mParameters.size();
-    for (size_t i = startParam; i < length; i++)
-        callback(mParameters[i], i == startParam, i == (length - 1));
-}
-
-void Function::ForAllParameters(std::function<void(Parameter &p)> callback, unsigned int startParam) {
-    for (size_t i = startParam; i < mParameters.size(); i++)
-        callback(mParameters[i]);
-}
-
-void Function::ForAllParameters(std::function<void(Parameter &p, unsigned int index)> callback, unsigned int startParam) {
-    for (size_t i = startParam; i < mParameters.size(); i++)
-        callback(mParameters[i], i - startParam);
-}
-
 string Function::NameForWrapper(Games::IDs game, bool definition) {
     string result;
-    bool isStatic = mCC != CC_THISCALL;
     if (!definition) {
-        result += Games::GetSupportedGameVersionsMacro(game, mVersionInfo) + " ";
-        if (isStatic) // MAYBE also check for first parameter type
+        if (mUsage != Function::Usage::DeletingDestructor)
+            result += GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) + " ";
+        if (mIsStatic)
             result += "static ";
+        else if (mClass && (mIsVirtual || (IsDestructor() && mClass->mHasVirtualDestructor))
+            && (!mClass->mParent || mVTableIndex >= mClass->mParent->mVTableSize))
+        {
+            result += "virtual ";
+        }
     }
-    if (mRVOParamIndex != -1)
-        result += mParameters[mRVOParamIndex].mType.GetFullTypeRemovePointer();
-    else
-        result += mRetType.GetFullType();
+    if (!IsConstructor() && !IsDestructor()) {
+        if (mRVOParamIndex != -1)
+            result += mParameters[mRVOParamIndex].mType.GetFullTypeRemovePointer();
+        else
+            result += mRetType.GetFullType();
+    }
     if (!definition)
         result += mName;
     else
         result += GetFullName();
     result += "(";
-    ForAllParameters([&](Parameter &p, unsigned int index) {
-        if (index != 0)
-            result += ", ";
-        result += p.mType.BeforeName() + p.mName + p.mType.AfterName();
-    }, mNumParamsToSkipForWrapper);
+    if (!IsDestructor()) {
+        IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+            if (index != 0)
+                result += ", ";
+            result += p.mType.BeforeName() + p.mName + p.mType.AfterName();
+        }, mNumParamsToSkipForWrapper);
+    }
     result += ")";
     return result;
 }
 
 void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
-    stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
-    stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
-    stream << endl;
+    if (mUsage != Function::Usage::DeletingDestructor) {
+        stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
+        stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
+        stream << endl;
+    }
     stream << t() << NameForWrapper(game, true) << " {" << endl;
     ++t;
-    bool noReturn = mRetType.mIsVoid;
-    if (mRVOParamIndex != -1) {
-        Parameter &retParam = mParameters[mRVOParamIndex];
-        stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
-        noReturn = true;
-    }
-    stream << t();
-    if (!noReturn)
-        stream << "return ";
-    stream << "plugin::Call";
-    if (mCC == CC_THISCALL)
-        stream << "Method";
-    if (!noReturn)
-        stream << "AndReturn";
-    stream << "DynGlobal";
-    if (mParameters.size() > 0 || !noReturn) {
-        stream << "<";
+    if (mUsage != Function::Usage::DeletingDestructor) {
+        bool noReturn = mRetType.mIsVoid || IsConstructor() || IsDestructor();
+        if (mRVOParamIndex != -1) {
+            Parameter &retParam = mParameters[mRVOParamIndex];
+            stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
+            noReturn = true;
+        }
+        stream << t();
         if (!noReturn)
-            stream << mRetType.GetFullType(false);
-        ForAllParameters([&](Parameter &p, unsigned int index) {
-            if (index != 0 || !noReturn)
-                stream << ", ";
-            stream << p.mType.GetFullType(false);
+            stream << "return ";
+        stream << "plugin::Call";
+        if (mCC == CC_THISCALL)
+            stream << "Method";
+        if (!noReturn)
+            stream << "AndReturn";
+        stream << "DynGlobal";
+        if (mParameters.size() > 0 || !noReturn) {
+            stream << "<";
+            if (!noReturn)
+                stream << mRetType.GetFullType(false);
+            IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+                if (index != 0 || !noReturn)
+                    stream << ", ";
+                stream << p.mType.GetFullType(false);
+            });
+            stream << ">(";
+        }
+        else
+            stream << "(";
+        stream << AddrOfMacro(true);
+        IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+            stream << ", ";
+            if (index == mRVOParamIndex)
+                stream << "&";
+            stream << p.mName;
         });
-        stream << ">(";
+        stream << ");" << endl;
+        if (mRVOParamIndex != -1) {
+            Parameter &retParam = mParameters[mRVOParamIndex];
+            stream << t() << "return " << retParam.mName << ";" << endl;
+        }
     }
     else
-        stream << "(";
-    stream << AddrOfMacro(true);
-    ForAllParameters([&](Parameter &p, unsigned int index) {
-        stream << ", ";
-        if (index == mRVOParamIndex)
-            stream << "&";
-        stream << p.mName;
-    });
-    stream << ");" << endl;
-    if (mRVOParamIndex != -1) {
-        Parameter &retParam = mParameters[mRVOParamIndex];
-        stream << t() << "return " << retParam.mName << ";" << endl;
-    }
+        stream << t() << "// no base destructor present" << endl;
     --t;
     stream << t() << "}";
 }
@@ -115,9 +116,11 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     stream << t() << "static int address;" << endl;
     stream << t() << "static int global_address;" << endl;
     stream << t() << "static const int id = " << String::ToHexString(mVersionInfo[0].mAddress) << ";" << endl;
+    stream << t() << "static const bool is_virtual = " << (mIsVirtual ? "true" : "false") << ";" << endl;
+    stream << t() << "static const int vtable_index = " << mVTableIndex << ";" << endl;
     stream << t() << "using mv_addresses_t = MvAddresses<" << Addresses(game) << ">;" << endl;
     stream << t() << "using refs_t = RefList<";
-    vector<Reference> refs;
+    List<Reference> refs;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
         std::istringstream ss(mVersionInfo[i].mRefsStr);
         std::string token;
@@ -136,10 +139,8 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     }
     if (refs.size() > 0) {
         t++;
-        unsigned int last = refs.size() - 1;
-        for (unsigned int i = 0; i < refs.size(); i++) {
+        IterateFirstLast(refs, [&](Reference &ref, bool first, bool last) {
             stream << endl << t();
-            Reference &ref = refs[i];
             stream << String::ToHexString(ref.mRefAddr) << ", ";
             stream << "GAME_";
             if (game == Games::IDs::GTASA && ref.mGameVersion == 0)
@@ -158,23 +159,18 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
             stream << ", ";
             stream << String::ToHexString(ref.mRefObjectId) << ", ";
             stream << ref.mRefIndexInObject;
-            if (i != last)
+            if (!last)
                 stream << ",";
-        }
+        });
         t--;
     }
     stream << ">;" << endl;
-    stream << t() << "using def_t = ";
-    if (mRVOParamIndex != -1 || mRetType.mIsVoid)
-        stream << "void";
-    else
-        stream << mRetType.GetFullType(false);
-    stream << "(";
-    ForAllParameters([&](Parameter &p, unsigned int index) {
+    stream << t() << "using def_t = " << mRetType.GetFullType(false) << "(";
+    IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
         if (index != 0)
             stream << ", ";
         stream << p.mType.GetFullType(false);
-    }, mNumParamsToSkipForWrapper);
+    }, 0, IsDestructor() ? 0 : -1);
     stream << ");" << endl;
     stream << t() << "static const int cb_priority = PRIORITY_";
     if (mPriority == 1)
@@ -189,13 +185,13 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
         stream << "Thiscall";
     stream << ";" << endl;
     stream << t() << "using args_t = ArgPick<ArgTypes<";
-    ForAllParameters([&](Parameter &p, unsigned int index) {
+    IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
         if (index != 0)
             stream << ",";
         stream << p.mType.GetFullType(false);
-    }, mNumParamsToSkipForWrapper);
+    }, 0, IsDestructor() ? 0 : -1);
     stream << ">";
-    ForAllParameters([&](Parameter &p, unsigned int index) {
+    IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
         if (index == 0)
             stream << ", ";
         else
@@ -214,11 +210,13 @@ string Function::MetaDesc() {
         if (mCC == CC_THISCALL)
             result += mScope + "::";
         result += "*)(";
-        ForAllParameters([&](Parameter &p, unsigned int index) {
-            if (index != 0)
-                result += ", ";
-            result += p.mType.GetFullType(false);
-        }, mNumParamsToSkipForWrapper);
+        if (!IsDestructor()) {
+            IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+                if (index != 0)
+                    result += ", ";
+                result += p.mType.GetFullType(false);
+            }, mNumParamsToSkipForWrapper);
+        }
         result += ")";
     }
     return result;
@@ -248,4 +246,12 @@ string Function::Addresses(Games::IDs game) {
         result += String::ToHexString(mVersionInfo[i].mAddress);
     }
     return result;
+}
+
+bool Function::IsDestructor() {
+    return mUsage == Function::Usage::BaseDestructor || mUsage == Function::Usage::DeletingDestructor;
+}
+
+bool Function::IsConstructor() {
+    return mUsage == Function::Usage::DefaultConstructor || mUsage == Function::Usage::CustomConstructor;
 }

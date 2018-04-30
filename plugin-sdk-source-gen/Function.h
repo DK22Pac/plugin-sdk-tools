@@ -1,15 +1,31 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <functional>
 #include "Type.h"
 #include "..\shared\Games.h"
 #include "Tabs.h"
+#include "ListEx.h"
+
+// TODO: function parameter default value CVector:arg(CVector())
 
 using namespace std;
 
+class Struct;
+
 class Function {
 public:
+    enum class Usage {
+        Default,
+        DefaultConstructor,
+        CustomConstructor,
+        BaseDestructor,
+        DeletingDestructor,
+        CopyConstructor,
+        Operator,
+        OperatorNew,
+        OperatorDelete
+    };
+
     enum CC {
         CC_CDECL,
         CC_STDCALL,
@@ -26,28 +42,36 @@ public:
         int mRefIndexInObject = -1;
     };
 
-    string mName; // only function name
-    string mMangledName; // full name
-    string mScope; // scope
-    string mModuleName;
-    CC mCC = CC_CDECL;
-    Type mRetType;
+    Struct *mClass = nullptr;      // ptr to class (nullptr if there's no class)
 
-    bool mIsConst = false;
-    bool mIsEllipsis = false;
-    bool mIsOverloaded = false;
-    int mRVOParamIndex = -1;
-    unsigned int mNumParamsToSkipForWrapper = 0;
-    string mComment;
-    string mType;
-    unsigned int mPriority = 1;
+    string mName;                  // function name (without class name and scope)
+    string mMangledName;           // mangled name
+    string mScope;                 // scope (scope::function_name)
+    string mClassName;             // class name
+    string mModuleName;            // module name
+    CC mCC = CC_CDECL;             // calling convention
+    Type mRetType;                 // function return type
+
+    bool mIsConst = false;         // has 'const' attribute
+    bool mIsEllipsis = false;      // variable parameter count ('...')
+    bool mIsOverloaded = false;    // is overloaded (one or more functions with same name in the class)
+    bool mIsStatic = false;        // static function (function with __cdecl calling convention inside class)
+    int mRVOParamIndex = -1;       // where's RVO parameter placed
+    int mNumParamsToSkipForWrapper = 0; // count of 'special' parameters (this pointer, RVO parameter)
+    string mComment;               // function comment
+    string mType;                  // function declaration
+    unsigned int mPriority = 1;    // priority for events (before/after)
+    Usage mUsage = Usage::Default; // constructor/destructor/etc.
+    int mVTableIndex = -1;         // function index in virtual table
+    bool mIsVirtual = false;       // function is virtual (placed in virtual table)
+    bool mIgnore = false;          // don't write this function in source files
 
     struct Parameter {
         string mName;
         Type mType;
     };
 
-    vector<Parameter> mParameters;
+    Vector<Parameter> mParameters;
 
     struct ExeVersionInfo {
         unsigned int mAddress = 0;
@@ -58,10 +82,6 @@ public:
 
     string GetFullName() const; // combine name + scope
 
-    void ForAllParameters(std::function<void(Parameter &p, bool first, bool last)> callback, unsigned int startParam = 0);
-    void ForAllParameters(std::function<void(Parameter &p)> callback, unsigned int startParam = 0);
-    void ForAllParameters(std::function<void(Parameter &p, unsigned int index)> callback, unsigned int startParam = 0);
-
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
     void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
@@ -70,4 +90,6 @@ public:
     string MetaDesc();
     string AddrOfMacro(bool global);
     string Addresses(Games::IDs game);
+    bool IsConstructor();
+    bool IsDestructor();
 };

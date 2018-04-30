@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <vector>
 #include "Type.h"
 #include "..\shared\Games.h"
 #include "Tabs.h"
@@ -9,15 +8,15 @@ using namespace std;
 
 class Variable {
 public:
-    string mName; // only variable name
-    string mMangledName; // full name
-    string mScope; // scope
-    string mModuleName;
-    Type mType;
-    string mDefaultValues;
-    string mComment;
-    unsigned int mSize;
-    bool mIsReadOnly;
+    string mName;        // variable name (without class name and scope)
+    string mMangledName; // mangled name
+    string mScope;       // scope (scope::function_name)
+    string mModuleName;  // module name
+    Type mType;          // variable type
+    string mDefaultValues; // default values (for example: { 0, 1 })
+    string mComment;     // variable comment
+    unsigned int mSize;  // variable size in bytes
+    bool mIsReadOnly;    // is read-only? (may be used for 'const' attribute)
 
     struct ExeVersionInfo {
         unsigned int mAddress = 0;

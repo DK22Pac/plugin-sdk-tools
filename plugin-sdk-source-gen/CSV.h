@@ -1,6 +1,7 @@
 #pragma once
 #include "StringEx.h"
 #include <fstream>
+#include "ListEx.h"
 
 class CSV {
     static void ReadParam(string const &line, unsigned int &currIndex, string &param);
@@ -18,7 +19,7 @@ public:
         ReadParam(line, currentIndex, args...);
     }
 
-    static vector<string> ReadLines(ifstream &file);
+    static List<string> ReadLines(ifstream &file);
 
     static string Value(string const &value);
 };

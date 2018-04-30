@@ -5,22 +5,20 @@
 #include "CSV.h"
 #include "Paths.h"
 #include <fstream>
-#include "GvsMacroGenerator.h"
 #include <iostream>
 
 void Generator::Generate(path const &sdkpath) {
     for (unsigned int i = 0; i < 3; i++) {
-        vector<Module> modules;
+        List<Module> modules;
         cout << "Reading GTA " << Games::GetGameAbbr(Games::ToID(i)) << endl;
         ReadGame(modules, sdkpath, Games::ToID(i));
-        ReadHierarchy(sdkpath, Games::ToID(i), modules);
-        // GvsMacroGenerator::Generate(sdkpath, Games::ToID(i));
+        UpdateStructs(modules);
         cout << "Writing modules for GTA " << Games::GetGameAbbr(Games::ToID(i)) << endl;
         WriteModules(sdkpath, Games::ToID(i), modules);
     }
 }
 
-void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::IDs game) {
+void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs game) {
 
     path gameDbPath = Paths::GetDatabaseDir(sdkpath, game);
 
@@ -97,30 +95,42 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                     s.mSize = JsonIO::readJsonNumber(j, "size");
                     s.mAlignment = JsonIO::readJsonNumber(j, "alignment");
                     s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                    s.mVTableAddress = JsonIO::readJsonNumber(j, "vtableAddress");
+                    s.mHasVTable = s.mVTableAddress != 0;
+                    s.mVTableSize = JsonIO::readJsonNumber(j, "vtableSize");
                     s.mComment = JsonIO::readJsonString(j, "comment");
                     auto &members = j.find("members");
                     if (members != j.end()) {
                         for (auto const &jm : *members) {
                             Struct::Member m;
                             m.mName = JsonIO::readJsonString(jm, "name");
-                            m.mFullType = JsonIO::readJsonString(jm, "rawType"); // read custom type
-                            if (m.mFullType.empty()) // if custom is not defined, read default type
-                                m.mFullType = JsonIO::readJsonString(jm, "type");
+                            string fullType = JsonIO::readJsonString(jm, "rawType"); // read custom type
+                            if (fullType.empty()) // if custom is not defined, read default type
+                                fullType = JsonIO::readJsonString(jm, "type");
                             m.mOffset = JsonIO::readJsonNumber(jm, "offset");
                             m.mSize = JsonIO::readJsonNumber(jm, "size");
-                            m.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                            bool isAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                            bool isBaseClass = JsonIO::readJsonBool(j, "isBase");
                             m.mComment = JsonIO::readJsonString(jm, "comment");
-                            if (m.mFullType.empty()) {
+                            if (fullType.empty()) {
                                 if (m.mSize == 1)
-                                    m.mFullType = "char";
+                                    fullType = "char";
                                 else if (m.mSize == 2)
-                                    m.mFullType = "short";
+                                    fullType = "short";
                                 else if (m.mSize == 4)
-                                    m.mFullType = "int";
+                                    fullType = "int";
                                 else
-                                    m.mFullType = "char[" + to_string(m.mSize) + "]";
+                                    fullType = "char[" + to_string(m.mSize) + "]";
                             }
-                            m.mType.SetFromString(m.mFullType);
+                            m.mType.SetFromString(fullType);
+                            if (s.mKind != Struct::Kind::Union && m.mOffset == 0 &&
+                                (isBaseClass || String::StartsWith(m.mName, "baseclass_")))
+                            {
+                                m.mIsBase = true;
+                                s.mParentName = m.mType.mName;
+                            }
+                            if (isAnonymous)
+                                m.mName.clear();
                             s.mMembers.push_back(m);
                         }
                     }
@@ -250,9 +260,10 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                 if (i == 0) {
                     for (string const &csvLine : csvLines) {
                         // 10us,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Comment
-                        string fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnRefsStr, fnComment, fnPriority;
-                        CSV::Read(csvLine, fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, fnRefsStr, fnComment,
-                            fnPriority);
+                        string fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, 
+                            fnRefsStr, fnComment, fnPriority, fnVTableIndex;
+                        CSV::Read(csvLine, fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters,
+                            fnIsConst, fnRefsStr, fnComment, fnPriority, fnVTableIndex);
                         if (!fnModuleName.empty()) {
                             // get module for this function
                             Module *m = Module::Find(modules, fnModuleName);
@@ -276,10 +287,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                             if (fnDemName.empty()) {
                                 m->mWarnings.push_back(String::Format("function '%s' has no name", fnAddress.c_str()));
                             }
-                            else if (fnType.empty()) {
-                                m->mWarnings.push_back(String::Format("function '%s' (address %s) has no type",
-                                    fnDemName.c_str(), fnAddress.c_str()));
-                            }
+                            // TODO: implement __usercall support?
                             else if (cc == Function::CC_UNKNOWN) {
                                 m->mWarnings.push_back(String::Format("function '%s' (address %s) has non-supported calling convention type",
                                     fnDemName.c_str(), fnAddress.c_str()));
@@ -296,6 +304,10 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                 newFn.mMangledName = fnName;
                                 newFn.mModuleName = fnModuleName;
                                 newFn.mScope = fnScope;
+                                if (!newFn.mScope.empty()) {
+                                    string classScope;
+                                    String::Break(newFn.mScope, "::", classScope, newFn.mClassName, true);
+                                }
                                 newFn.mCC = cc;
                                 newFn.mType = fnType;
                                 newFn.mVersionInfo[0].mRefsStr = fnRefsStr;
@@ -304,6 +316,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                 newFn.mIsConst = String::ToNumber(fnIsConst);
                                 newFn.mComment = fnComment;
                                 newFn.mPriority = String::ToNumber(fnPriority);
+                                newFn.mVTableIndex = String::ToNumber(fnVTableIndex);
                                 string retType = fnRetType;
                                 if (String::StartsWith(retType, "raw "))
                                     retType = retType.substr(4);
@@ -337,7 +350,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                 }
                                 bool isThiscall = newFn.mCC == Function::CC_THISCALL;
                                 unsigned int rvoParamIndex = isThiscall ? 1 : 0;
-                                newFn.ForAllParameters([&](Function::Parameter &p, unsigned int index) {
+                                IterateIndex(newFn.mParameters, [&](Function::Parameter &p, unsigned int index) {
                                     if (index == 0 && isThiscall)
                                         p.mName = "this";
                                     else {
@@ -360,6 +373,43 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
                                     newFn.mNumParamsToSkipForWrapper = newFn.mRVOParamIndex + 1;
                                 else if (isThiscall)
                                     newFn.mNumParamsToSkipForWrapper = 1;
+
+                                bool isInsideClass = !newFn.mClassName.empty();
+                                newFn.mIsStatic = !isThiscall && isInsideClass;
+                                newFn.mIsVirtual = newFn.mVTableIndex != -1;
+
+                                // find function 'usage'
+                                if (isInsideClass && newFn.mName == newFn.mClassName) {
+                                    if (newFn.mParameters.size() == 1)
+                                        newFn.mUsage = Function::Usage::DefaultConstructor;
+                                    else if (newFn.mParameters.size() >= 1 && newFn.mParameters[1].mType.mName == newFn.mClassName
+                                        && newFn.mParameters[1].mType.mPointers.size() == 1
+                                        && newFn.mParameters[1].mType.mPointers[0] == '&')
+                                    {
+                                        newFn.mUsage = Function::Usage::CopyConstructor;
+                                    }
+                                    else
+                                        newFn.mUsage = Function::Usage::CustomConstructor;
+                                }
+                                else if (isInsideClass && newFn.mName == "_" + newFn.mClassName || newFn.mName == "destructor"
+                                    || String::EndsWith(newFn.mMangledName, "D2Ev"))
+                                {
+                                    newFn.mUsage = Function::Usage::BaseDestructor;
+                                }
+                                else if (isInsideClass && newFn.mName == "deleting_destructor" || String::EndsWith(newFn.mMangledName, "D0Ev"))
+                                    newFn.mUsage = Function::Usage::DeletingDestructor;
+                                else if (String::StartsWith(newFn.mName, "operator")) {
+                                    if (newFn.mName.substr(8) == " new")
+                                        newFn.mUsage = Function::Usage::OperatorNew;
+                                    else if (newFn.mName.substr(8) == " delete")
+                                        newFn.mUsage = Function::Usage::OperatorDelete;
+                                    else
+                                        newFn.mUsage = Function::Usage::Operator;
+                                }
+
+                                // fix destructor name
+                                if (newFn.IsDestructor())
+                                    newFn.mName = "~" + newFn.mClassName;
 
                                 if (fnScope.empty())
                                     m->AddFunction(newFn);
@@ -409,7 +459,7 @@ void Generator::ReadGame(vector<Module> &modules, path const &sdkpath, Games::ID
     }
 }
 
-void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
+void Generator::WriteModules(path const &sdkpath, Games::IDs game, List<Module> &modules) {
     path folder = Paths::GetModulesDir(sdkpath, game);
     for (auto &m : modules) {
         cout << "GTA" << Games::GetGameAbbr(game) << ": Writing module '" << m.mName << "'" << endl;
@@ -417,77 +467,25 @@ void Generator::WriteModules(path const &sdkpath, Games::IDs game, vector<Module
     }
 }
 
-void Generator::ReadHierarchy(path const &sdkpath, Games::IDs game, vector<Module> &modules) {
+void Generator::UpdateStructs(List<Module> &modules) {
     if (modules.size() == 0)
         return;
-    path filePath = Paths::GetDatabaseDir(sdkpath, game) / "class-hierarchy.txt";
-    ifstream file(filePath);
-    if (!file.is_open()) {
-        Message("Unable to open class-hierarchy.txt (%s)", filePath.string().c_str());
-        return;
-    }
-
-    vector<pair<string, string>> links;
-
-    vector<string> parents;
-    int currParent = -1;
-    for (string line; getline(file, line); ) {
-        if (line.empty() || String::Compare(line, 0, '#'))
-            continue;
-    
-        size_t numSpaces = line.find_first_not_of(' ');
-        if (numSpaces == string::npos)
-            continue;
-    
-        String::Trim(line);
-    
-        if (numSpaces == 0) {
-            parents.clear();
-            currParent = 0;
-            parents.push_back(line);
-        }
-        else {
-            int mod = numSpaces % 4;
-            if (mod != 0) {
-                Message("Incorrect file format (at \"%s\")", line.c_str());
-                return;
-            }
-            int offset = numSpaces / 4;
-            int diff = offset - currParent;
-            if (diff > 1) {
-                Message("Incorrect file format (at \"%s\")", line.c_str());
-                return;
-            }
-            if (diff == 1) {
-                links.emplace_back(line, parents[currParent]);
-                parents.push_back(line);
-                currParent++;
-            }
-            else if (diff == 0) {
-                links.emplace_back(line, parents[currParent - 1]);
-                parents[currParent] = line;
-            }
-            else {
-                currParent += diff;
-                links.emplace_back(line, parents[currParent - 1]);
-                parents.resize(currParent);
-                parents.push_back(line);
-            }
-        }
-    }
-    
-    ofstream testf("links.txt");
-    if (!testf.is_open())
-        return;
-    for (auto const &i : links)
-        testf << i.first << " : " << i.second << endl;
-
     for (Module &m : modules) {
         for (Struct &s : m.mStructs) {
-            if (!s.mIsAnonymous) {
-                for (auto const &i : links) {
-                    if (i.first == s.mName)
-                        s.mParent = i.second;
+            if (!s.mParentName.empty()) {
+                Struct *parent = nullptr;
+                for (Module &sm : modules) {
+                    parent = sm.FindStruct(s.mParentName, true);
+                    if (parent)
+                        break;
+                }
+                if (parent)
+                    s.SetParent(parent);
+            }
+            for (auto &m : s.mMembers) {
+                if (m.mName == "vtable") {
+                    m.mIgnore = true;
+                    break;
                 }
             }
         }

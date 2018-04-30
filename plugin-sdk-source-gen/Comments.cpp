@@ -5,21 +5,21 @@ void WriteComment(ofstream &stream, string const &comment, tabs t, unsigned int 
     if (comment.empty())
         return;
     auto lines = String::Split(comment, ";;");
-    for (unsigned int i = 0; i < lines.size(); i++) {
+    IterateFirstLast(lines, [&](string &line, bool first, bool last) {
         if (pos == 0)
             stream << t();
         else {
-            if (i != 0)
+            if (!first)
                 stream << t() << string(pos, ' ');
             stream << ' ';
         }
         stream << "//!";
         if (pos != 0)
             stream << '<';
-        stream << ' ' << lines[i];
-        if ((i + 1) != lines.size() || pos == 0)
+        stream << ' ' << line;
+        if (!last || pos == 0)
             stream << endl;
-    }
+    });
 }
 
 std::string GetPluginSdkComment(Games::IDs game, bool isHeader) {

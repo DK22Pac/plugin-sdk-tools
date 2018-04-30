@@ -38,16 +38,16 @@ void Enum::Write(ofstream &stream, tabs t) {
     }
     stream << '{' << endl;
     ++t;
-    for (unsigned int i = 0; i < mMembers.size(); i++) {
+    IterateFirstLast(mMembers, [&](Member &member, bool first, bool last) {
         stream << t();
         auto pos = stream.tellp();
-        stream << mMembers[i].mName << ' ' << '=' << ' ';
-        stream << (mIsHexademical? String::ToHexString(mMembers[i].mValue) : to_string(mMembers[i].mValue));
-        if (i != (mMembers.size() - 1))
+        stream << member.mName << ' ' << '=' << ' ';
+        stream << (mIsHexademical? String::ToHexString(member.mValue) : to_string(member.mValue));
+        if (!last)
             stream << ',';
-        WriteComment(stream, mMembers[i].mComment, t, stream.tellp() - pos);
+        WriteComment(stream, member.mComment, t, stream.tellp() - pos);
         stream << endl;
-    }
+    });
     --t;
     stream << t() << '}' << ';';
 }

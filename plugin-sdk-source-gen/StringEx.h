@@ -1,15 +1,16 @@
 #pragma once
 #include <string>
-#include <vector>
+#include "ListEx.h"
 
 using namespace std;
 
 class String {
 public:
-    static vector<string> Split(string const &str, string const &delim);
+    static List<string> Split(string const &str, string const &delim);
     static void Break(string const &str, string const &breakWord, string &outLeft, string &outRight, bool reverseSearch);
     static void Replace(string &str, const string &what, const string &to);
     static bool StartsWith(string const &str, string const &with);
+    static bool EndsWith(string const &str, string const &with);
     static bool Compare(string const &str, size_t index, char c);
     static bool IsNumber(string const &str);
     static int ToNumber(string const &str);

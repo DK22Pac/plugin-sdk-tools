@@ -12,9 +12,10 @@
     <ClInclude Include="Function.h" />
     <ClInclude Include="Variable.h" />
     <ClInclude Include="CSV.h" />
-    <ClInclude Include="GvsMacroGenerator.h" />
     <ClInclude Include="Paths.h" />
     <ClInclude Include="StringEx.h" />
+    <ClInclude Include="ListEx.h" />
+    <ClInclude Include="GameVersions.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -29,8 +30,8 @@
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="Variable.cpp" />
     <ClCompile Include="CSV.cpp" />
-    <ClCompile Include="GvsMacroGenerator.cpp" />
     <ClCompile Include="Paths.cpp" />
     <ClCompile Include="StringEx.cpp" />
+    <ClCompile Include="GameVersions.cpp" />
   </ItemGroup>
 </Project>

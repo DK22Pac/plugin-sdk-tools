@@ -1,11 +1,11 @@
 #include "..\shared\Utility.h"
-#include "GvsMacroGenerator.h"
+#include "GameVersions.h"
 #include "Paths.h"
 #include "Comments.h"
 #include "StringEx.h"
 #include <fstream>
 
-bool GvsMacroGenerator::Generate(path const &sdkpath, Games::IDs game) {
+bool GameVersions::GenerateMacroFile(path const &sdkpath, Games::IDs game) {
     path filePath = Paths::GetOtherDir(sdkpath, game) / "VersionsMacro.h";
     ofstream stream(filePath);
     if (!stream.is_open()) {

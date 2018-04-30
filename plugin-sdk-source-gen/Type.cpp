@@ -172,7 +172,7 @@ bool ObtainRegularToken(string const &tokenWord, Token &outToken) {
     return false;
 }
 
-void HandleSpecialCharacter(char c, vector<Token> &tokens, bool &prevWordSU, bool &prevWordLong) {
+void HandleSpecialCharacter(char c, Vector<Token> &tokens, bool &prevWordSU, bool &prevWordLong) {
     string w;
     w += c;
     tokens.emplace_back(w, Token::SPECIAL_CHAR);
@@ -180,7 +180,7 @@ void HandleSpecialCharacter(char c, vector<Token> &tokens, bool &prevWordSU, boo
     prevWordLong = false;
 }
 
-void HandleWord(string word, vector<Token> &tokens, bool &prevWordSU, bool &prevWordLong) {
+void HandleWord(string word, Vector<Token> &tokens, bool &prevWordSU, bool &prevWordLong) {
     Token token;
     if (String::IsNumber(word)) {
         tokens.emplace_back(word, Token::NUMBER);
@@ -248,8 +248,8 @@ void HandleWord(string word, vector<Token> &tokens, bool &prevWordSU, bool &prev
     }
 }
 
-vector<Token> GetTokens(string const &line) {
-    vector<Token> result;
+Vector<Token> GetTokens(string const &line) {
+    Vector<Token> result;
     string currentWord;
     bool readingWord = false;
     bool signedUnsignedFlag = false; // signed/unsigned
@@ -286,7 +286,7 @@ vector<Token> GetTokens(string const &line) {
     return result;
 }
 
-string Type::GetFullType(bool leaveSpaceAtTheEnd) const {
+string Type::GetFullType(bool leaveSpaceAtTheEnd) {
     return BeforeName(leaveSpaceAtTheEnd) + AfterName();
 }
 
@@ -299,15 +299,15 @@ string Type::GetFullTypeRemovePointer() {
     return result;
 }
 
-bool Type::IsPointer() const {
+bool Type::IsPointer() {
     return mPointers.size() > 0 || mIsPointerToFixedSizeArray;
 }
 
-bool Type::IsTemplate() const {
+bool Type::IsTemplate() {
     return mTemplateTypes.size() > 0;
 }
 
-string Type::BeforeName(bool leaveSpaceAtTheEnd) const {
+string Type::BeforeName(bool leaveSpaceAtTheEnd) {
     string result;
     if (mIsFunction) {
         if (mFunctionRetType)
@@ -319,11 +319,11 @@ string Type::BeforeName(bool leaveSpaceAtTheEnd) const {
         result = mName;
     if (IsTemplate()) {
         result += '<';
-        for (size_t i = 0; i < mTemplateTypes.size(); i++) {
-            if (i != 0)
-                result += ' ' + ',';
-            result += mTemplateTypes[i].GetFullType();
-        }
+        IterateFirstLast(mTemplateTypes, [&](Type &type, bool first, bool last) {
+            if (!first)
+                result += " ,";
+            result += type.GetFullType();
+        });
         result += '>';
     }
     if (mIsConst)
@@ -349,7 +349,7 @@ string Type::BeforeName(bool leaveSpaceAtTheEnd) const {
     return result;
 }
 
-string Type::AfterName(bool includeArrays) const {
+string Type::AfterName(bool includeArrays) {
     string result;
     if (mIsPointerToFixedSizeArray)
         result += ')';
@@ -361,18 +361,18 @@ string Type::AfterName(bool includeArrays) const {
     if (mIsFunction) {
         result += ')';
         result += '(';
-        for (size_t i = 0; i < mFunctionParams.size(); i++) {
-            if (i != 0)
+        IterateFirstLast(mFunctionParams, [&](Type &type, bool first, bool last) {
+            if (!first)
                 result += ' ' + ',';
-            result += mFunctionParams[i].GetFullType();
-        }
+            result += type.GetFullType();
+        });
         result += ')';
     }
     return result;
 }
 
-vector<vector<Token>> SplitTypes(vector<Token> const &tokens, size_t &counter) {
-    vector<vector<Token>> result;
+Vector<Vector<Token>> SplitTypes(Vector<Token> const &tokens, size_t &counter) {
+    Vector<Vector<Token>> result;
     counter += 1;
     if (tokens[counter].type == Token::SPECIAL_CHAR && (tokens[counter].value[0] == ')' || tokens[counter].value[0] == '>'))
         return result;
@@ -441,7 +441,7 @@ void Type::SetFromString(string const &str) {
     SetFromTokens(tokens);
 }
 
-void Type::SetFromTokens(vector<Token> const &tokens) {
+void Type::SetFromTokens(Vector<Token> const &tokens) {
     if (tokens.size() == 1 && tokens[0].type == Token::NUMBER) {
         mIsNumber = true;
         mName = tokens[0].value;
@@ -486,7 +486,7 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                         }
                     }
                     else if (t.value[0] == '<') {
-                        vector<vector<Token>> vttypes = SplitTypes(tokens, i);
+                        auto vttypes = SplitTypes(tokens, i);
                         mIsTemplate = true;
                         mTemplateTypes.resize(vttypes.size());
                         for (size_t vt = 0; vt < mTemplateTypes.size(); vt++)
@@ -517,7 +517,7 @@ void Type::SetFromTokens(vector<Token> const &tokens) {
                                     scanParameters = false;
                             }
                             if (scanParameters) {
-                                vector<vector<Token>> vfptypes = SplitTypes(tokens, i);
+                                auto vfptypes = SplitTypes(tokens, i);
                                 mFunctionParams.resize(vfptypes.size());
                                 for (size_t vt = 0; vt < mFunctionParams.size(); vt++)
                                     mFunctionParams[vt].SetFromTokens(vfptypes[vt]);
@@ -591,7 +591,7 @@ string StrOffset(size_t offset) {
     return string(offset * 4, ' ');
 }
 
-void Type::DbgPrint(size_t offset) const {
+void Type::DbgPrint(size_t offset) {
     if (mIsNumber) {
         cout << StrOffset(offset) << "Number '" << mName << "'" << endl;
     }
@@ -623,7 +623,7 @@ void Type::DbgPrint(size_t offset) const {
         cout << StrOffset(offset + 1) << "}" << endl;
 
         cout << StrOffset(offset + 1) << "functionparams {" << endl;
-        for (Type const &fp : mFunctionParams)
+        for (Type &fp : mFunctionParams)
             fp.DbgPrint(offset + 2);
         cout << StrOffset(offset + 1) << "}" << endl;
         cout << StrOffset(offset) << "}" << endl;
@@ -650,7 +650,7 @@ void Type::DbgPrint(size_t offset) const {
         cout << endl;
         if (mIsTemplate) {
             cout << StrOffset(offset + 1) << "templateparams {" << endl;
-            for (Type const &tt : mTemplateTypes)
+            for (Type &tt : mTemplateTypes)
                 tt.DbgPrint(offset + 2);
             cout << StrOffset(offset + 1) << "}" << endl;
         }

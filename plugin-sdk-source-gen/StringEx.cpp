@@ -1,8 +1,8 @@
 #include "StringEx.h"
 #include <algorithm>
 
-vector<string> String::Split(string const &str, string const &delim) {
-    vector<string> result;
+List<string> String::Split(string const &str, string const &delim) {
+    List<string> result;
     if (str.length() > 0) {
         size_t b = 0;
         size_t e = str.find(delim);
@@ -45,6 +45,14 @@ void String::Replace(string &str, const string &what, const string &to) {
 
 bool String::StartsWith(string const &str, string const &what) {
     return !str.compare(0, what.size(), what);
+}
+
+bool String::EndsWith(string const &str, string const &what) {
+    auto strLen = str.length();
+    auto whatLen = what.length();
+    if (whatLen > strLen)
+        return false;
+    return str.substr(strLen - whatLen) == what;
 }
 
 bool String::Compare(string const &str, size_t index, char c) {

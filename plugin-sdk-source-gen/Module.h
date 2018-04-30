@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <fstream>
 #include <filesystem>
 #include "Enum.h"
@@ -8,6 +7,7 @@
 #include "Variable.h"
 #include "Function.h"
 #include "..\shared\Games.h"
+#include "ListEx.h"
 
 using namespace std;
 using namespace std::experimental::filesystem;
@@ -16,23 +16,23 @@ class Module {
 public:
     Games::IDs mGame;
     string mName;
-    vector<Enum> mEnums;
-    vector<Struct> mStructs;
-    vector<Variable> mVariables;
-    vector<Function> mFunctions;
+    List<Enum> mEnums;
+    List<Struct> mStructs;
+    List<Variable> mVariables;
+    List<Function> mFunctions;
 
-    vector<string> mErrors;
-    vector<string> mWarnings;
+    List<string> mErrors;
+    List<string> mWarnings;
 
-    static Module *Find(vector<Module> &modules, string const &name);
+    static Module *Find(List<Module> &modules, string const &name);
     Struct *FindStruct(string const &name, bool bFullName = false);
     Struct *AddEmptyStruct(string const &name, string const &scope);
     void AddFunction(Function const &fn);
 
-    void Write(path const &folder, vector<Module> const &allModules, Games::IDs game);
-    bool WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game);
-    bool WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game);
-    bool WriteMeta(path const &folder, vector<Module> const &allModules, Games::IDs game);
+    void Write(path const &folder, List<Module> const &allModules, Games::IDs game);
+    bool WriteHeader(path const &folder, List<Module> const &allModules, Games::IDs game);
+    bool WriteSource(path const &folder, List<Module> const &allModules, Games::IDs game);
+    bool WriteMeta(path const &folder, List<Module> const &allModules, Games::IDs game);
     Variable *GetVariable(unsigned int baseAddress);
     Function *GetFunction(unsigned int baseAddress);
 };

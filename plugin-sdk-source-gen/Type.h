@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <vector>
+#include "ListEx.h"
 
 using namespace std;
 
@@ -67,35 +67,35 @@ public:
     // function
     bool mIsFunction = false;
     FunctionCC mFunctionCC = CC_CDECL;
-    vector<Type> mFunctionParams;
+    Vector<Type> mFunctionParams;
     Type *mFunctionRetType = nullptr;
 
     // template
     bool mIsTemplate = false;
-    vector<Type> mTemplateTypes;
+    Vector<Type> mTemplateTypes;
 
     // debug
-    vector<Token> mDbgTokens;
+    Vector<Token> mDbgTokens;
 
     Type() = default;
     Type(Type const &rhs);
     ~Type();
     
     void SetFromString(string const &str);
-    void SetFromTokens(vector<Token> const &tokens);
-    string GetFullType(bool leaveSpaceAtTheEnd = true) const;
+    void SetFromTokens(Vector<Token> const &tokens);
+    string GetFullType(bool leaveSpaceAtTheEnd = true);
     string GetFullTypeRemovePointer();
-    string BeforeName(bool leaveSpaceAtTheEnd = true) const;
-    string AfterName(bool includeArrays = true) const;
+    string BeforeName(bool leaveSpaceAtTheEnd = true);
+    string AfterName(bool includeArrays = true);
 
-    bool IsPointer() const;
-    bool IsTemplate() const;
+    bool IsPointer();
+    bool IsTemplate();
 
     void SetFunctionTypeFromToken(Token const &t);
 
     void AddRetTypeForFunction();
 
-    void DbgPrint(size_t offset = 0) const;
+    void DbgPrint(size_t offset = 0);
 
     Type GetReference();
 };

@@ -1,31 +1,31 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <fstream>
 #include "Tabs.h"
+#include "ListEx.h"
 
 using namespace std;
 
 class Enum {
 public:
-    string mName;
-    string mModuleName;
-    string mScope;
-    unsigned int mWidth;
-    bool mIsClass;
-    bool mIsHexademical;
-    bool mIsSigned;
-    bool mIsBitfield;
-    string mComment;
+    string mName;        // enum name
+    string mModuleName;  // module name
+    string mScope;       // enum scope
+    unsigned int mWidth; // enum width in bytes
+    bool mIsClass;       // enum class
+    bool mIsHexademical; // hexademical values
+    bool mIsSigned;      // signed values
+    bool mIsBitfield;    // bitfield
+    string mComment;     // enum comment
 
     class Member {
     public:
-        string mName;
-        int mValue;
-        string mComment;
+        string mName;    // member name
+        int mValue;      // member value
+        string mComment; // member comment
     };
 
-    vector<Member> mMembers;
+    List<Member> mMembers;
 
     string GetFullName() const; // combine name + scope
 

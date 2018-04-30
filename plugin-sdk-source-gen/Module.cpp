@@ -4,24 +4,24 @@
 #include "Comments.h"
 #include <unordered_set>
 
-Module *Module::Find(vector<Module> &modules, string const &name) {
-    for (unsigned int i = 0; i < modules.size(); i++) {
-        if (modules[i].mName == name)
-            return &modules[i];
+Module *Module::Find(List<Module> &modules, string const &name) {
+    for (auto &m : modules) {
+        if (m.mName == name)
+            return &m;
         ;
     }
     return nullptr;
 }
 
 Struct *Module::FindStruct(string const &name, bool bFullName) {
-    for (unsigned int i = 0; i < mStructs.size(); i++) {
+    for (auto &s : mStructs) {
         string structName;
         if (bFullName)
-            structName = mStructs[i].GetFullName();
+            structName = s.GetFullName();
         else
-            structName = mStructs[i].mName;
+            structName = s.mName;
         if (structName == name)
-            return &mStructs[i];
+            return &s;
     }
     return nullptr;
 }
@@ -35,13 +35,13 @@ Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
     return &mStructs.back();
 }
 
-void Module::Write(path const &folder, vector<Module> const &allModules, Games::IDs game) {
+void Module::Write(path const &folder, List<Module> const &allModules, Games::IDs game) {
     WriteHeader(folder, allModules, game);
     WriteSource(folder, allModules, game);
     WriteMeta(folder / "meta", allModules, game);
 }
 
-bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, Games::IDs game) {
+bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Games::IDs game) {
     path headerFilePath = folder / (mName + ".h");
     ofstream stream(headerFilePath);
     if (!stream.is_open()) {
@@ -71,7 +71,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
             usedTypes.emplace_back(typeName, needsHeader);
     };
 
-    auto addUsedType = [&](Type const &type, bool needsHeader = true) {
+    auto addUsedType = [&](Type &type, bool needsHeader = true) {
         if (type.mIsRenderWare)
             addUsedTypeName("RenderWare", needsHeader);
         else if (type.mIsCustom) {
@@ -98,15 +98,25 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
         addUsedTypeName(s.GetFullName(), false);
     for (auto &e : mEnums)
         addUsedTypeName(e.GetFullName(), false);
-    for (auto &s : mStructs) { // struct members
-        for (auto &m : s.mMembers)
-            addUsedType(m.mType);
+    for (auto &s : mStructs) {
+        for (auto &m : s.mMembers) { // struct members
+            if (!m.mIgnore)
+                addUsedType(m.mType);
+        }
+        for (auto &f : s.mFunctions) { // function parameters
+            if (!f.mIgnore) {
+                for (auto &p : f.mParameters)
+                    addUsedType(p.mType, false);
+            }
+        }
     }
     for (auto &v : mVariables) // variables
         addUsedType(v.mType);
     for (auto &f : mFunctions) { // function parameters
-        for (auto &p : f.mParameters)
-            addUsedType(p.mType, false);
+        if (!f.mIgnore) {
+            for (auto &p : f.mParameters)
+                addUsedType(p.mType, false);
+        }
     }
 
     // print include headers
@@ -133,43 +143,45 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
         stream << endl;
 
     if (mStructs.size() > 0) {
-        sort(mStructs.begin(), mStructs.end(), [](Struct const &s1, Struct const &s2) {
+        mStructs.sort([](Struct &s1, Struct &s2) {
             return !s1.ContainsType(s2.mName, false);
         });
     }
 
     // enums
     if (mEnums.size() > 0) {
-        for (unsigned int i = 0; i < mEnums.size(); i++) {
+        for (auto &e : mEnums) {
             stream << endl;
-            mEnums[i].Write(stream, t);
+            e.Write(stream, t);
             stream << endl;
         }
     }
     // structs
     if (mStructs.size() > 0) { 
-        for (unsigned int i = 0; i < mStructs.size(); i++) {
-            if (!mStructs[i].mIsAnonymous) {
+        for (auto &s : mStructs) {
+            if (!s.mIsAnonymous) {
                 stream << endl;
-                mStructs[i].Write(stream, t, *this, allModules, game);
+                s.Write(stream, t, *this, allModules, game);
                 stream << endl;
             }
         }
     }
     // variables
     if (mVariables.size() > 0) {
-        for (unsigned int i = 0; i < mVariables.size(); i++) {
+        for (auto &v : mVariables) {
             stream << endl;
-            mVariables[i].WriteDeclaration(stream, t, game, false);
+            v.WriteDeclaration(stream, t, game, false);
             stream << endl;
         }
     }
     //functions
     if (mFunctions.size() > 0) {
-        for (unsigned int i = 0; i < mFunctions.size(); i++) {
-            stream << endl;
-            mFunctions[i].WriteDeclaration(stream, t, game);
-            stream << endl;
+        for (auto &f : mFunctions) {
+            if (!f.mIgnore) {
+                stream << endl;
+                f.WriteDeclaration(stream, t, game);
+                stream << endl;
+            }
         }
     }
 
@@ -178,7 +190,7 @@ bool Module::WriteHeader(path const &folder, vector<Module> const &allModules, G
     return true;
 }
 
-bool Module::WriteSource(path const &folder, vector<Module> const &allModules, Games::IDs game) {
+bool Module::WriteSource(path const &folder, List<Module> const &allModules, Games::IDs game) {
     path sourceFilePath = folder / (mName + ".cpp");
     ofstream stream(sourceFilePath);
     if (!stream.is_open()) {
@@ -192,49 +204,51 @@ bool Module::WriteSource(path const &folder, vector<Module> const &allModules, G
     stream << "#include " << '"' << mName + ".h" << '"' << endl << endl;
     // source macro
     stream << "PLUGIN_SOURCE_FILE" << endl << endl;
+
+    unsigned int numWrittenVars = 0;
     // class variables
-    if (mStructs.size() > 0) {
-        for (unsigned int i = 0; i < mStructs.size(); i++) {
-            if (mStructs[i].mVariables.size() > 0) {
-                for (unsigned int j = 0; j < mStructs[i].mVariables.size(); j++) {
-                    mStructs[i].mVariables[j].WriteDefinition(stream, t, game);
-                    stream << endl;
-                }
-            }
-        }
+    for (auto &s : mStructs) {
+        for (auto &v : s.mVariables) {
+            v.WriteDefinition(stream, t, game);
+            stream << endl;
+            numWrittenVars++;
+        };
     }
     // global variables
-    if (mVariables.size() > 0) {
-        for (unsigned int i = 0; i < mVariables.size(); i++) {
-            stream << endl;
-            mVariables[i].WriteDefinition(stream, t, game);
-            stream << endl;
-        }
-    }
+    for (auto &v : mVariables) {
+        v.WriteDefinition(stream, t, game);
+        stream << endl;
+        numWrittenVars++;
+    };
+    int numWrittenFuncs = 0;
     // class functions
-    if (mStructs.size() > 0) {
-        for (unsigned int i = 0; i < mStructs.size(); i++) {
-            if (mStructs[i].mFunctions.size() > 0) {
-                for (unsigned int j = 0; j < mStructs[i].mFunctions.size(); j++) {
+    for (auto &s : mStructs) {
+        for (auto &f : s.mFunctions) {
+            if (!f.mIgnore) {
+                if (numWrittenFuncs >= 1 || numWrittenVars >= 1)
                     stream << endl;
-                    mStructs[i].mFunctions[j].WriteDefinition(stream, t, game);
-                    stream << endl;
-                }
+                f.WriteDefinition(stream, t, game);
+                stream << endl;
+                numWrittenFuncs++;
             }
-        }
+        };
     }
     //functions
     if (mFunctions.size() > 0) {
-        for (unsigned int i = 0; i < mFunctions.size(); i++) {
-            stream << endl;
-            mFunctions[i].WriteDefinition(stream, t, game);
-            stream << endl;
-        }
+        for (auto &f : mFunctions) {
+            if (!f.mIgnore) {
+                if (numWrittenFuncs >= 1 || numWrittenVars >= 1)
+                    stream << endl;
+                f.WriteDefinition(stream, t, game);
+                stream << endl;
+                numWrittenFuncs++;
+            }
+        };
     }
     return true;
 }
 
-bool Module::WriteMeta(path const &folder, vector<Module> const &allModules, Games::IDs game) {
+bool Module::WriteMeta(path const &folder, List<Module> const &allModules, Games::IDs game) {
     path metaFilePath = folder / ("meta." + mName + ".h");
     ofstream stream(metaFilePath);
     if (!stream.is_open()) {
@@ -250,22 +264,26 @@ bool Module::WriteMeta(path const &folder, vector<Module> const &allModules, Gam
     stream << "namespace plugin {" << endl;
     // class functions
     if (mStructs.size() > 0) {
-        for (unsigned int i = 0; i < mStructs.size(); i++) {
-            if (mStructs[i].mFunctions.size() > 0) {
-                for (unsigned int j = 0; j < mStructs[i].mFunctions.size(); j++) {
-                    stream << endl;
-                    mStructs[i].mFunctions[j].WriteMeta(stream, t, game);
-                    stream << endl;
+        for (auto &s : mStructs) {
+            if (s.mFunctions.size() > 0) {
+                for (auto &f : s.mFunctions) {
+                    if (!f.mIgnore && f.mUsage != Function::Usage::DeletingDestructor) {
+                        stream << endl;
+                        f.WriteMeta(stream, t, game);
+                        stream << endl;
+                    }
                 }
             }
         }
     }
     //functions
     if (mFunctions.size() > 0) {
-        for (unsigned int i = 0; i < mFunctions.size(); i++) {
-            stream << endl;
-            mFunctions[i].WriteMeta(stream, t, game);
-            stream << endl;
+        for (auto &f : mFunctions) {
+            if (!f.mIgnore) {
+                stream << endl;
+                f.WriteMeta(stream, t, game);
+                stream << endl;
+            }
         }
     }
     stream << endl << "}" << endl;

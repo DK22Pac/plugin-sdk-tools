@@ -10,7 +10,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{926A97FE-48F4-4C06-8109-35F60EC5797B}</ProjectGuid>
     <RootNamespace>pluginsdksourcegen</RootNamespace>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -58,7 +58,8 @@
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="Generator.h" />
-    <ClInclude Include="GvsMacroGenerator.h" />
+    <ClInclude Include="ListEx.h" />
+    <ClInclude Include="GameVersions.h" />
     <ClInclude Include="JsonIO.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="Paths.h" />
@@ -74,7 +75,7 @@
     <ClCompile Include="Enum.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="Generator.cpp" />
-    <ClCompile Include="GvsMacroGenerator.cpp" />
+    <ClCompile Include="GameVersions.cpp" />
     <ClCompile Include="JsonIO.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Module.cpp" />
