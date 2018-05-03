@@ -72,8 +72,10 @@ void setOptionDefaultValue(bool &opt) {
 
 void getOptionValues(qstring const &optionsStr, qvector<qstring> const &options, unsigned int &optionsCounter) {}
 
-void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsStruct, bool &outIsAnonymous) {
-    getExtraInfo(line, outComment, getStructOptions(), outModuleName, outScope, outIsStruct, outIsAnonymous);
+void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsStruct, bool &outIsAnonymous,
+    bool &outIsCoreClass)
+{
+    getExtraInfo(line, outComment, getStructOptions(), outModuleName, outScope, outIsStruct, outIsAnonymous, outIsCoreClass);
 }
 
 void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsBase) {
@@ -141,6 +143,7 @@ qvector<qstring> getStructOptions() {
     options.push_back("scope");
     options.push_back("isstruct");
     options.push_back("isanonymous");
+    options.push_back("iscore");
     return options;
 }
 

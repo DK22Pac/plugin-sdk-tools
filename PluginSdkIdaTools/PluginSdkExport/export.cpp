@@ -428,8 +428,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     cmtLine = cmtLineBuf;
             #endif
                 qstring comment, moduleName, scope;
-                bool isStruct, isAnonymous;
-                getStructExtraInfo(cmtLine, comment, moduleName, scope, isStruct, isAnonymous);
+                bool isStruct, isAnonymous, isCoreClass;
+                getStructExtraInfo(cmtLine, comment, moduleName, scope, isStruct, isAnonymous, isCoreClass);
                 if (!isStruct && startsWith(name, "t"))
                     isStruct = true;
                 startWritingToJson();
@@ -450,6 +450,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 j[jsonOrderedName("alignment")] = alignment;
                 if (isAnonymous)
                     j[jsonOrderedName("isAnonymous")] = true;
+                if (isCoreClass)
+                    j[jsonOrderedName("isCoreClass")] = true;
                 qvector<unsigned int> baseClassMembers;
                 tinfo_t stinfo;
                 if (guessTInfo(&stinfo, stid) == GUESS_FUNC_OK) {

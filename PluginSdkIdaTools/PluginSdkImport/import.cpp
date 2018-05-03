@@ -225,6 +225,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     entry.m_size = jsonReadNumber(j, "size");
                     entry.m_alignment = jsonReadNumber(j, "alignment");
                     entry.m_isAnonymous = jsonReadBool(j, "isAnonymous");
+                    entry.m_isCoreClass = jsonReadBool(j, "isCoreClass");
                     // entry.m_isCppObj = jsonReadBool(j, "isCppObj");
                     entry.m_vtableAddress = jsonReadNumber(j, "vtableAddress");
                     entry.m_vtableSize = jsonReadNumber(j, "vtableSize");
@@ -301,6 +302,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         stFullCommentLine += " isstruct:true";
                     if (entry.m_isAnonymous)
                         stFullCommentLine += " isanonymous:true";
+                    if (entry.m_isCoreClass)
+                        stFullCommentLine += " iscore:true";
                     if (!entry.m_comment.empty()) {
                         qstring stCommentLine = entry.m_comment;
                         stCommentLine.replace(";;", "\n");
