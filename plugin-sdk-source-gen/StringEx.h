@@ -20,10 +20,12 @@ public:
     static void Trim(string &str);
 
     template <typename T, typename t = enable_if_t<is_integral_v<T>>>
-    static string ToHexString(T intVal) {
+    static string ToHexString(T intVal, bool prefix = true) {
         if (intVal == 0)
             return "0";
-        return Format("0x%X", intVal);
+        if (prefix)
+            return Format("0x%X", intVal);
+        return Format("%X", intVal);
     }
 
     template<typename ...ArgTypes>

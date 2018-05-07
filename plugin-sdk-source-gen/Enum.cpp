@@ -38,7 +38,7 @@ void Enum::Write(ofstream &stream, tabs t) {
     }
     stream << '{' << endl;
     ++t;
-    IterateFirstLast(mMembers, [&](Member &member, bool first, bool last) {
+    IterateFirstLast(mMembers, [&](EnumMember &member, bool first, bool last) {
         stream << t();
         auto pos = stream.tellp();
         stream << member.mName << ' ' << '=' << ' ';

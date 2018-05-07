@@ -100,23 +100,19 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
         addUsedTypeName(e.GetFullName(), false);
     for (auto &s : mStructs) {
         for (auto &m : s.mMembers) { // struct members
-            if (!m.mIgnore)
+            if (!m.mIsVTable)
                 addUsedType(m.mType);
         }
         for (auto &f : s.mFunctions) { // function parameters
-            if (!f.mIgnore) {
-                for (auto &p : f.mParameters)
-                    addUsedType(p.mType, false);
-            }
+            for (auto &p : f.mParameters)
+                addUsedType(p.mType, false);
         }
     }
     for (auto &v : mVariables) // variables
         addUsedType(v.mType);
     for (auto &f : mFunctions) { // function parameters
-        if (!f.mIgnore) {
-            for (auto &p : f.mParameters)
-                addUsedType(p.mType, false);
-        }
+        for (auto &p : f.mParameters)
+            addUsedType(p.mType, false);
     }
 
     // print include headers
@@ -149,40 +145,30 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     }
 
     // enums
-    if (mEnums.size() > 0) {
-        for (auto &e : mEnums) {
-            stream << endl;
-            e.Write(stream, t);
-            stream << endl;
-        }
+    for (auto &e : mEnums) {
+        stream << endl;
+        e.Write(stream, t);
+        stream << endl;
     }
     // structs
-    if (mStructs.size() > 0) { 
-        for (auto &s : mStructs) {
-            if (!s.mIsAnonymous) {
-                stream << endl;
-                s.Write(stream, t, *this, allModules, game);
-                stream << endl;
-            }
+    for (auto &s : mStructs) {
+        if (!s.mIsAnonymous) {
+            stream << endl;
+            s.Write(stream, t, *this, allModules, game);
+            stream << endl;
         }
     }
     // variables
-    if (mVariables.size() > 0) {
-        for (auto &v : mVariables) {
-            stream << endl;
-            v.WriteDeclaration(stream, t, game, false);
-            stream << endl;
-        }
+    for (auto &v : mVariables) {
+        stream << endl;
+        v.WriteDeclaration(stream, t, game, false);
+        stream << endl;
     }
     //functions
-    if (mFunctions.size() > 0) {
-        for (auto &f : mFunctions) {
-            if (!f.mIgnore) {
-                stream << endl;
-                f.WriteDeclaration(stream, t, game);
-                stream << endl;
-            }
-        }
+    for (auto &f : mFunctions) {
+        stream << endl;
+        f.WriteDeclaration(stream, t, game);
+        stream << endl;
     }
 
     stream << endl << "#include " << '"' << "meta/meta." << mName + ".h" << '"' << endl;
@@ -212,38 +198,25 @@ bool Module::WriteSource(path const &folder, List<Module> const &allModules, Gam
             v.WriteDefinition(stream, t, game);
             stream << endl;
             numWrittenVars++;
-        };
+        }
     }
     // global variables
     for (auto &v : mVariables) {
         v.WriteDefinition(stream, t, game);
         stream << endl;
         numWrittenVars++;
-    };
+    }
     int numWrittenFuncs = 0;
     // class functions
-    for (auto &s : mStructs) {
-        for (auto &f : s.mFunctions) {
-            if (!f.mIgnore) {
-                if (numWrittenFuncs >= 1 || numWrittenVars >= 1)
-                    stream << endl;
-                f.WriteDefinition(stream, t, game);
-                stream << endl;
-                numWrittenFuncs++;
-            }
-        };
-    }
+    for (auto &s : mStructs)
+        numWrittenFuncs += s.WriteFunctions(stream, t, game, true, false, numWrittenFuncs > 0 || numWrittenVars > 0);
     //functions
-    if (mFunctions.size() > 0) {
-        for (auto &f : mFunctions) {
-            if (!f.mIgnore) {
-                if (numWrittenFuncs >= 1 || numWrittenVars >= 1)
-                    stream << endl;
-                f.WriteDefinition(stream, t, game);
-                stream << endl;
-                numWrittenFuncs++;
-            }
-        };
+    for (auto &f : mFunctions) {
+        if (numWrittenFuncs > 0 || numWrittenVars > 0)
+            stream << endl;
+        f.WriteDefinition(stream, t, game);
+        stream << endl;
+        numWrittenFuncs++;
     }
     return true;
 }
@@ -263,29 +236,16 @@ bool Module::WriteMeta(path const &folder, List<Module> const &allModules, Games
     stream << endl;
     stream << "namespace plugin {" << endl;
     // class functions
-    if (mStructs.size() > 0) {
-        for (auto &s : mStructs) {
-            if (s.mFunctions.size() > 0) {
-                for (auto &f : s.mFunctions) {
-                    if (!f.mIgnore && f.mUsage != Function::Usage::DeletingDestructor) {
-                        stream << endl;
-                        f.WriteMeta(stream, t, game);
-                        stream << endl;
-                    }
-                }
-            }
-        }
-    }
+    for (auto &s : mStructs)
+        s.WriteFunctions(stream, t, game, false, true, true);
     //functions
-    if (mFunctions.size() > 0) {
-        for (auto &f : mFunctions) {
-            if (!f.mIgnore) {
-                stream << endl;
-                f.WriteMeta(stream, t, game);
-                stream << endl;
-            }
-        }
+    for (auto &f : mFunctions) {
+        stream << endl;
+        f.WriteMeta(stream, t, game);
+        stream << endl;
     }
+    for (auto &s : mStructs)
+        s.WriteGeneratedConstruction(stream, t, game);
     stream << endl << "}" << endl;
     return true;
 }

@@ -12,6 +12,19 @@ using namespace std;
 
 class Struct;
 
+struct FunctionParameter {
+    string mName;
+    Type mType;
+};
+
+struct FunctionReference {
+    int mRefAddr = 0;
+    int mGameVersion = -1;
+    int mRefType = -1;
+    int mRefObjectId = -1;
+    int mRefIndexInObject = -1;
+};
+
 class Function {
 public:
     enum class Usage {
@@ -22,8 +35,14 @@ public:
         DeletingDestructor,
         CopyConstructor,
         Operator,
-        OperatorNew,
-        OperatorDelete
+        DefaultOperatorNew,
+        CustomOperatorNew,
+        DefaultOperatorNewArray,
+        CustomOperatorNewArray,
+        DefaultOperatorDelete,
+        CustomOperatorDelete,
+        DefaultOperatorDeleteArray,
+        CustomOperatorDeleteArray
     };
 
     enum CC {
@@ -34,12 +53,10 @@ public:
         CC_UNKNOWN = 255
     };
 
-    struct Reference {
-        int mRefAddr = 0;
-        int mGameVersion = -1;
-        int mRefType = -1;
-        int mRefObjectId = -1;
-        int mRefIndexInObject = -1;
+    enum class VTState {
+        Default,
+        Overloaded,
+        Pure
     };
 
     Struct *mClass = nullptr;      // ptr to class (nullptr if there's no class)
@@ -64,14 +81,9 @@ public:
     Usage mUsage = Usage::Default; // constructor/destructor/etc.
     int mVTableIndex = -1;         // function index in virtual table
     bool mIsVirtual = false;       // function is virtual (placed in virtual table)
-    bool mIgnore = false;          // don't write this function in source files
+    bool mWrittenToSource = false; // a temporary flag to detect if we already written this function to source file
 
-    struct Parameter {
-        string mName;
-        Type mType;
-    };
-
-    Vector<Parameter> mParameters;
+    Vector<FunctionParameter> mParameters;
 
     struct ExeVersionInfo {
         unsigned int mAddress = 0;
@@ -81,15 +93,21 @@ public:
     ExeVersionInfo mVersionInfo[Games::GetMaxGameVersions()];
 
     string GetFullName() const; // combine name + scope
-
+    void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game);
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
     void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
-
     string NameForWrapper(Games::IDs game, bool definition);
     string MetaDesc();
     string AddrOfMacro(bool global);
     string Addresses(Games::IDs game);
+
+    bool HasDefaultOpNewDeleteParams();
+    bool UsesOverloadedMetaMacro();
+
     bool IsConstructor();
     bool IsDestructor();
+    bool IsOperatorNew();
+    bool IsOperatorDelete();
+    bool IsOperatorNewDelete();
 };

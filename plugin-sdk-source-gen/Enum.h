@@ -6,6 +6,13 @@
 
 using namespace std;
 
+class EnumMember {
+public:
+    string mName;    // member name
+    int mValue;      // member value
+    string mComment; // member comment
+};
+
 class Enum {
 public:
     string mName;        // enum name
@@ -18,16 +25,8 @@ public:
     bool mIsBitfield;    // bitfield
     string mComment;     // enum comment
 
-    class Member {
-    public:
-        string mName;    // member name
-        int mValue;      // member value
-        string mComment; // member comment
-    };
-
-    List<Member> mMembers;
+    List<EnumMember> mMembers;
 
     string GetFullName() const; // combine name + scope
-
     void Write(ofstream &stream, tabs t);
 };

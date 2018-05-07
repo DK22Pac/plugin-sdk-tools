@@ -52,7 +52,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     auto &members = j.find("members");
                     if (members != j.end()) {
                         for (auto const &jm : *members) {
-                            Enum::Member m;
+                            EnumMember m;
                             m.mName = JsonIO::readJsonString(jm, "name");
                             m.mValue = JsonIO::readJsonNumber(jm, "value");
                             m.mComment = JsonIO::readJsonString(jm, "comment");
@@ -95,6 +95,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     s.mSize = JsonIO::readJsonNumber(j, "size");
                     s.mAlignment = JsonIO::readJsonNumber(j, "alignment");
                     s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                    s.mIsCoreClass = JsonIO::readJsonBool(j, "isCoreClass");
                     s.mVTableAddress = JsonIO::readJsonNumber(j, "vtableAddress");
                     s.mHasVTable = s.mVTableAddress != 0;
                     s.mVTableSize = JsonIO::readJsonNumber(j, "vtableSize");
@@ -102,7 +103,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     auto &members = j.find("members");
                     if (members != j.end()) {
                         for (auto const &jm : *members) {
-                            Struct::Member m;
+                            StructMember m;
                             m.mName = JsonIO::readJsonString(jm, "name");
                             string fullType = JsonIO::readJsonString(jm, "rawType"); // read custom type
                             if (fullType.empty()) // if custom is not defined, read default type
@@ -131,6 +132,12 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             }
                             if (isAnonymous)
                                 m.mName.clear();
+                            if (String::StartsWith(m.mName, "_pad") || String::StartsWith(m.mName, "__pad")) {
+                                m.mName = "_pad" + String::ToHexString(m.mOffset, false);
+                                m.mIsPadding = true;
+                            }
+                            if (m.mOffset == 0 && (m.mName == "vtable" || m.mName == "vftable" || m.mName == "vmt"))
+                                m.mIsVTable = true;
                             s.mMembers.push_back(m);
                         }
                     }
@@ -330,7 +337,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                         break;
                                     string paramType = fnParameters.substr(currPos, colonPos - currPos);
                                     String::Trim(paramType);
-                                    Function::Parameter param;
+                                    FunctionParameter param;
                                     bool isRawParam = false;
                                     if (String::StartsWith(paramType, "raw ")) {
                                         param.mType.SetFromString(paramType.substr(4));
@@ -350,7 +357,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 }
                                 bool isThiscall = newFn.mCC == Function::CC_THISCALL;
                                 unsigned int rvoParamIndex = isThiscall ? 1 : 0;
-                                IterateIndex(newFn.mParameters, [&](Function::Parameter &p, unsigned int index) {
+                                IterateIndex(newFn.mParameters, [&](FunctionParameter &p, unsigned int index) {
                                     if (index == 0 && isThiscall)
                                         p.mName = "this";
                                     else {
@@ -399,12 +406,31 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 else if (isInsideClass && newFn.mName == "deleting_destructor" || String::EndsWith(newFn.mMangledName, "D0Ev"))
                                     newFn.mUsage = Function::Usage::DeletingDestructor;
                                 else if (String::StartsWith(newFn.mName, "operator")) {
-                                    if (newFn.mName.substr(8) == " new")
-                                        newFn.mUsage = Function::Usage::OperatorNew;
-                                    else if (newFn.mName.substr(8) == " delete")
-                                        newFn.mUsage = Function::Usage::OperatorDelete;
+                                    if (String::StartsWith(newFn.mName.substr(9), "new")) {
+                                        bool isDefault = newFn.HasDefaultOpNewDeleteParams();
+                                        if (String::StartsWith(newFn.mName.substr(12), "[]"))
+                                            newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorNewArray : Function::Usage::CustomOperatorNewArray;
+                                        else
+                                            newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorNew : Function::Usage::CustomOperatorNew;
+                                    }
+                                    else if (String::StartsWith(newFn.mName.substr(9), "delete")) {
+                                        bool isDefault = newFn.HasDefaultOpNewDeleteParams();
+                                        if (String::StartsWith(newFn.mName.substr(12), "[]"))
+                                            newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorDeleteArray : Function::Usage::CustomOperatorDeleteArray;
+                                        else
+                                            newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorDelete : Function::Usage::CustomOperatorDelete;
+                                    }
                                     else
                                         newFn.mUsage = Function::Usage::Operator;
+                                }
+
+                                // change ret type from pointer to ref (for copy constructors and operators)
+                                if (isInsideClass && (newFn.mUsage == Function::Usage::CopyConstructor || newFn.mUsage == Function::Usage::Operator)) {
+                                    if (newFn.mRetType.mName == newFn.mClassName && newFn.mRetType.mPointers.size() == 1 &&
+                                        newFn.mRetType.mPointers[0] == '*')
+                                    {
+                                        newFn.mRetType.mPointers[0] = '&';
+                                    }
                                 }
 
                                 // fix destructor name
@@ -482,12 +508,10 @@ void Generator::UpdateStructs(List<Module> &modules) {
                 if (parent)
                     s.SetParent(parent);
             }
-            for (auto &m : s.mMembers) {
-                if (m.mName == "vtable") {
-                    m.mIgnore = true;
-                    break;
-                }
-            }
         }
+    }
+    for (Module &m : modules) {
+        for (Struct &s : m.mStructs)
+            s.OnUpdateStructs(modules);
     }
 }

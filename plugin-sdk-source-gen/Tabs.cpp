@@ -46,3 +46,7 @@ tabs tabs::operator--(int) {
     operator-=(1);
     return copy;
 }
+
+unsigned int tabs::count() {
+    return mCount;
+}

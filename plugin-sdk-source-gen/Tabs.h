@@ -15,4 +15,5 @@ public:
     tabs &operator--();
     tabs operator++(int);
     tabs operator--(int);
+    unsigned int count();
 };

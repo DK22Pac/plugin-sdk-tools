@@ -14,17 +14,11 @@ string Function::GetFullName() const {
 string Function::NameForWrapper(Games::IDs game, bool definition) {
     string result;
     if (!definition) {
-        if (mUsage != Function::Usage::DeletingDestructor)
-            result += GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) + " ";
+        result += GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) + " ";
         if (mIsStatic)
             result += "static ";
-        else if (mClass && (mIsVirtual || (IsDestructor() && mClass->mHasVirtualDestructor))
-            && (!mClass->mParent || mVTableIndex >= mClass->mParent->mVTableSize))
-        {
-            result += "virtual ";
-        }
     }
-    if (!IsConstructor() && !IsDestructor()) {
+    if (mUsage != Function::Usage::DefaultConstructor && !IsDestructor()) {
         if (mRVOParamIndex != -1)
             result += mParameters[mRVOParamIndex].mType.GetFullTypeRemovePointer();
         else
@@ -36,7 +30,7 @@ string Function::NameForWrapper(Games::IDs game, bool definition) {
         result += GetFullName();
     result += "(";
     if (!IsDestructor()) {
-        IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+        IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
             if (index != 0)
                 result += ", ";
             result += p.mType.BeforeName() + p.mName + p.mType.AfterName();
@@ -46,58 +40,71 @@ string Function::NameForWrapper(Games::IDs game, bool definition) {
     return result;
 }
 
-void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
-    if (mUsage != Function::Usage::DeletingDestructor) {
-        stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
-        stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
-        stream << endl;
+void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game) {
+    bool noReturn = mRetType.mIsVoid || IsConstructor() || IsDestructor();
+    if (mRVOParamIndex != -1) {
+        FunctionParameter &retParam = mParameters[mRVOParamIndex];
+        stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
+        noReturn = true;
     }
-    stream << t() << NameForWrapper(game, true) << " {" << endl;
-    ++t;
-    if (mUsage != Function::Usage::DeletingDestructor) {
-        bool noReturn = mRetType.mIsVoid || IsConstructor() || IsDestructor();
-        if (mRVOParamIndex != -1) {
-            Parameter &retParam = mParameters[mRVOParamIndex];
-            stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
-            noReturn = true;
-        }
-        stream << t();
-        if (!noReturn)
-            stream << "return ";
-        stream << "plugin::Call";
-        if (mCC == CC_THISCALL)
-            stream << "Method";
-        if (!noReturn)
-            stream << "AndReturn";
+    stream << t();
+    if (!noReturn)
+        stream << "return ";
+    stream << "plugin::Call";
+    if (mIsVirtual)
+        stream << "Virtual";
+    if (mCC == CC_THISCALL)
+        stream << "Method";
+    if (!noReturn)
+        stream << "AndReturn";
+    if (!mIsVirtual)
         stream << "DynGlobal";
-        if (mParameters.size() > 0 || !noReturn) {
-            stream << "<";
-            if (!noReturn)
-                stream << mRetType.GetFullType(false);
-            IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
-                if (index != 0 || !noReturn)
-                    stream << ", ";
-                stream << p.mType.GetFullType(false);
-            });
-            stream << ">(";
+    if (mParameters.size() > 0 || !noReturn || mIsVirtual) {
+        stream << "<";
+        if (!noReturn) {
+            stream << mRetType.GetFullType(false);
+            if (mIsVirtual)
+                stream << ", " << mVTableIndex;
         }
-        else
-            stream << "(";
-        stream << AddrOfMacro(true);
-        IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
-            stream << ", ";
-            if (index == mRVOParamIndex)
-                stream << "&";
-            stream << p.mName;
+        else if (mIsVirtual)
+            stream << mVTableIndex;
+        IterateFirstLast(mParameters, [&](FunctionParameter &p, bool first, bool last) {
+            if (!first || !noReturn || mIsVirtual)
+                stream << ", ";
+            stream << p.mType.GetFullType(false);
         });
-        stream << ");" << endl;
-        if (mRVOParamIndex != -1) {
-            Parameter &retParam = mParameters[mRVOParamIndex];
-            stream << t() << "return " << retParam.mName << ";" << endl;
-        }
+        stream << ">(";
     }
     else
-        stream << t() << "// no base destructor present" << endl;
+        stream << "(";
+    if (!mIsVirtual)
+        stream << AddrOfMacro(true);
+    IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
+        if (!mIsVirtual || index != 0)
+            stream << ", ";
+        if (index == mRVOParamIndex)
+            stream << "&";
+        stream << p.mName;
+    });
+    stream << ");" << endl;
+    if (mRVOParamIndex != -1) {
+        FunctionParameter &retParam = mParameters[mRVOParamIndex];
+        stream << t() << "return " << retParam.mName << ";" << endl;
+    }
+}
+
+void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
+    stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
+    stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");";
+    if (mClass && mClass->UsesCustomConstruction() &&
+        (IsConstructor() || IsDestructor() || mUsage == Usage::CopyConstructor || IsOperatorNewDelete()))
+    {
+        return;
+    }
+    stream << endl << endl;
+    stream << t() << NameForWrapper(game, true) << " {" << endl;
+    ++t;
+    WriteFunctionCall(stream, t, game);
     --t;
     stream << t() << "}";
 }
@@ -108,8 +115,23 @@ void Function::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game) {
 }
 
 void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
-    stream << t() << "META_BEGIN";
-    if (mIsOverloaded)
+    stream << t();
+    if (mUsage == Usage::DefaultConstructor || mUsage == Usage::CustomConstructor || mUsage == Usage::CopyConstructor)
+        stream << "CTOR_";
+    else if (mUsage == Usage::BaseDestructor)
+        stream << "DTOR_";
+    else if (mUsage == Usage::DeletingDestructor)
+        stream << "DEL_DTOR_";
+    else if (mUsage == Usage::DefaultOperatorNew || mUsage == Usage::CustomOperatorNew)
+        stream << "OP_NEW_";
+    else if (mUsage == Usage::DefaultOperatorNewArray || mUsage == Usage::CustomOperatorNewArray)
+        stream << "OP_NEW_ARRAY_";
+    else if (mUsage == Usage::DefaultOperatorDelete || mUsage == Usage::CustomOperatorDelete)
+        stream << "OP_DELETE_";
+    else if (mUsage == Usage::DefaultOperatorDeleteArray || mUsage == Usage::CustomOperatorDeleteArray)
+        stream << "OP_DELETE_ARRAY_";
+    stream << "META_BEGIN";
+    if (UsesOverloadedMetaMacro())
         stream << "_OVERLOADED";
     stream << "(" << MetaDesc() << ")" << endl;
     t++;
@@ -120,12 +142,12 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     stream << t() << "static const int vtable_index = " << mVTableIndex << ";" << endl;
     stream << t() << "using mv_addresses_t = MvAddresses<" << Addresses(game) << ">;" << endl;
     stream << t() << "using refs_t = RefList<";
-    List<Reference> refs;
+    List<FunctionReference> refs;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
         std::istringstream ss(mVersionInfo[i].mRefsStr);
         std::string token;
         while (ss >> token) {
-            Reference ref;
+            FunctionReference ref;
             ref.mGameVersion = i;
             ref.mRefAddr = String::ToNumber(token);
             ss >> token;
@@ -139,7 +161,7 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     }
     if (refs.size() > 0) {
         t++;
-        IterateFirstLast(refs, [&](Reference &ref, bool first, bool last) {
+        IterateFirstLast(refs, [&](FunctionReference &ref, bool first, bool last) {
             stream << endl << t();
             stream << String::ToHexString(ref.mRefAddr) << ", ";
             stream << "GAME_";
@@ -166,7 +188,7 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     }
     stream << ">;" << endl;
     stream << t() << "using def_t = " << mRetType.GetFullType(false) << "(";
-    IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+    IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
         if (index != 0)
             stream << ", ";
         stream << p.mType.GetFullType(false);
@@ -185,13 +207,13 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
         stream << "Thiscall";
     stream << ";" << endl;
     stream << t() << "using args_t = ArgPick<ArgTypes<";
-    IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+    IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
         if (index != 0)
             stream << ",";
         stream << p.mType.GetFullType(false);
     }, 0, IsDestructor() ? 0 : -1);
     stream << ">";
-    IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+    IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
         if (index == 0)
             stream << ", ";
         else
@@ -204,14 +226,25 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
 }
 
 string Function::MetaDesc() {
-    string result = GetFullName();
-    if (mIsOverloaded) {
-        result += ", " + mRetType.GetFullType() + "(";
-        if (mCC == CC_THISCALL)
-            result += mScope + "::";
-        result += "*)(";
+    string result;
+    if (mUsage == Usage::Default || mUsage == Usage::Operator)
+        result = GetFullName();
+    else
+        result = mClassName;
+    if (UsesOverloadedMetaMacro()) {
+        result += ", ";
+        if (mUsage == Usage::DefaultConstructor || mUsage == Usage::CustomConstructor || mUsage == Usage::CopyConstructor)
+            result += "void";
+        else
+            result += mRetType.GetFullType();
+        result += "(";
+        if (mUsage == Usage::Default || mUsage == Usage::Operator) {
+            if (mCC == CC_THISCALL)
+                result += mScope + "::";
+            result += "*)(";
+        }
         if (!IsDestructor()) {
-            IterateIndex(mParameters, [&](Parameter &p, unsigned int index) {
+            IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
                 if (index != 0)
                     result += ", ";
                 result += p.mType.GetFullType(false);
@@ -222,12 +255,34 @@ string Function::MetaDesc() {
     return result;
 }
 
+bool Function::UsesOverloadedMetaMacro() {
+    if (mUsage == Usage::DefaultConstructor ||
+        mUsage == Usage::DefaultOperatorNew ||
+        mUsage == Usage::DefaultOperatorNewArray ||
+        mUsage == Usage::DefaultOperatorDelete ||
+        mUsage == Usage::DefaultOperatorDeleteArray
+        || IsDestructor())
+    {
+        return false;
+    }
+    if (mUsage == Usage::CustomConstructor ||
+        mUsage == Usage::CopyConstructor ||
+        mUsage == Usage::CustomOperatorNew ||
+        mUsage == Usage::CustomOperatorNewArray ||
+        mUsage == Usage::CustomOperatorDelete ||
+        mUsage == Usage::CustomOperatorDeleteArray)
+    {
+        return true;
+    }
+    return mIsOverloaded;
+}
+
 string Function::AddrOfMacro(bool global) {
     string result;
     if (global)
         result = "g";
     result += "addrof";
-    if (mIsOverloaded)
+    if (UsesOverloadedMetaMacro())
         result += "_o";
     result += "(" + MetaDesc() + ")";
     return result;
@@ -248,10 +303,33 @@ string Function::Addresses(Games::IDs game) {
     return result;
 }
 
+bool Function::HasDefaultOpNewDeleteParams() {
+    return mParameters.size() == 1 &&
+        (mParameters[0].mType.mName == "int"
+            || mParameters[0].mType.mName == "unsigned int"
+            || mParameters[0].mType.mName == "size_t"
+            || mParameters[0].mType.mName == "long"
+            || mParameters[0].mType.mName == "unsigned long");
+}
+
 bool Function::IsDestructor() {
     return mUsage == Function::Usage::BaseDestructor || mUsage == Function::Usage::DeletingDestructor;
 }
 
 bool Function::IsConstructor() {
     return mUsage == Function::Usage::DefaultConstructor || mUsage == Function::Usage::CustomConstructor;
+}
+
+bool Function::IsOperatorNew() {
+    return mUsage == Function::Usage::DefaultOperatorNew || mUsage == Function::Usage::CustomOperatorNew
+        || mUsage == Function::Usage::DefaultOperatorNewArray || mUsage == Function::Usage::CustomOperatorNewArray;
+}
+
+bool Function::IsOperatorDelete() {
+    return mUsage == Function::Usage::DefaultOperatorDelete || mUsage == Function::Usage::CustomOperatorDelete
+        || mUsage == Function::Usage::DefaultOperatorDeleteArray || mUsage == Function::Usage::CustomOperatorDeleteArray;
+}
+
+bool Function::IsOperatorNewDelete() {
+    return IsOperatorNew() || IsOperatorDelete();
 }

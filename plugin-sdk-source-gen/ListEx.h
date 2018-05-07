@@ -2,12 +2,16 @@
 #include <list>
 #include <vector>
 #include <functional>
+#include <unordered_set>
 
 template<typename Item>
 using List = std::list<Item>;
 
 template<typename Item>
 using Vector = std::vector<Item>;
+
+template<typename Item>
+using Set = std::unordered_set<Item>;
 
 // Iterate list : for each element in range [_startIndex;_endIndex] call _callback()
 
