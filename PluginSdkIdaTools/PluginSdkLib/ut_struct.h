@@ -34,6 +34,7 @@ public:
     Kind m_kind = STRT_STRUCT;
     bool m_isAnonymous = false;
     bool m_isCoreClass = false;
+    bool m_hasVectorDeletingDtor = false;
     // bool m_isCppObj = false;
     unsigned int m_vtableAddress = 0;
     unsigned int m_vtableSize = 0;

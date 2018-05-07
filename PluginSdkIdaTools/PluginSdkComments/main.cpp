@@ -56,9 +56,8 @@ struct CommentHandler : public action_handler_t {
         #endif
         }
         else {
-            qstring shortName;
-            get_short_name(&shortName, address);
-            entityName.sprnt("function '%s'", shortName.c_str());
+            qstring funcName = getFunctionName(address);
+            entityName.sprnt("function '%s'", funcName.c_str());
             auto func = get_func(address);
             if (func) {
             #if (IDA_VER >= 70)
@@ -76,8 +75,10 @@ struct CommentHandler : public action_handler_t {
         #else
             static char commentbuf[2048];
             char *askresult = asktext(2047, commentbuf, comment.c_str(), "Enter comment for %s:", entityName.c_str());
-            if (askresult)
+            if (askresult) {
                 comment = commentbuf;
+                changeComment = true;
+            }
         #endif
         }
         else {
@@ -91,7 +92,7 @@ struct CommentHandler : public action_handler_t {
             #if (IDA_VER >= 70)
                 if (ask_str(&str, HIST_IDENT, "Enter module name for %s:", entityName.c_str())) {
             #else
-                char *askresult = askstr(HIST_IDENT, "Enter module name for %s:", entityName.c_str());
+                char *askresult = askstr(HIST_IDENT, outModuleName.c_str(), "Enter module name for %s:", entityName.c_str());
                 if (askresult) {
                     str = askresult;
             #endif
