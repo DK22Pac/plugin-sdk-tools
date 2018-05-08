@@ -96,6 +96,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     s.mAlignment = JsonIO::readJsonNumber(j, "alignment");
                     s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
                     s.mIsCoreClass = JsonIO::readJsonBool(j, "isCoreClass");
+                    s.mHasVectorDeletingDestructor = JsonIO::readJsonBool(j, "hasVectorDeletingDtor");
                     s.mVTableAddress = JsonIO::readJsonNumber(j, "vtableAddress");
                     s.mHasVTable = s.mVTableAddress != 0;
                     s.mVTableSize = JsonIO::readJsonNumber(j, "vtableSize");
@@ -407,14 +408,14 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     newFn.mUsage = Function::Usage::DeletingDestructor;
                                 else if (String::StartsWith(newFn.mName, "operator")) {
                                     if (String::StartsWith(newFn.mName.substr(9), "new")) {
-                                        bool isDefault = newFn.HasDefaultOpNewDeleteParams();
+                                        bool isDefault = newFn.HasDefaultOpNewParams();
                                         if (String::StartsWith(newFn.mName.substr(12), "[]"))
                                             newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorNewArray : Function::Usage::CustomOperatorNewArray;
                                         else
                                             newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorNew : Function::Usage::CustomOperatorNew;
                                     }
                                     else if (String::StartsWith(newFn.mName.substr(9), "delete")) {
-                                        bool isDefault = newFn.HasDefaultOpNewDeleteParams();
+                                        bool isDefault = newFn.HasDefaultOpDeleteParams();
                                         if (String::StartsWith(newFn.mName.substr(12), "[]"))
                                             newFn.mUsage = isDefault ? Function::Usage::DefaultOperatorDeleteArray : Function::Usage::CustomOperatorDeleteArray;
                                         else

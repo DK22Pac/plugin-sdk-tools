@@ -59,6 +59,18 @@ public:
         Pure
     };
 
+    enum class SpecialCall {
+        None,
+        StackObject,
+        Custom_DeletingDestructor,
+        Custom_BaseDestructor,
+        Custom_OperatorDelete,
+        Custom_Array_DeletingDestructor,
+        Custom_Array_DeletingArrayDestructor,
+        Custom_Array_BaseDestructor,
+        Custom_Array_OperatorDelete
+    };
+
     Struct *mClass = nullptr;      // ptr to class (nullptr if there's no class)
 
     string mName;                  // function name (without class name and scope)
@@ -93,16 +105,18 @@ public:
     ExeVersionInfo mVersionInfo[Games::GetMaxGameVersions()];
 
     string GetFullName() const; // combine name + scope
-    void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game);
+    void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, SpecialCall specialType = SpecialCall::None);
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
     void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
-    string NameForWrapper(Games::IDs game, bool definition);
+    string NameForWrapper(Games::IDs game, bool definition, string const &customName = string());
     string MetaDesc();
     string AddrOfMacro(bool global);
     string Addresses(Games::IDs game);
+    string GetSpecialMetaWord();
 
-    bool HasDefaultOpNewDeleteParams();
+    bool HasDefaultOpNewParams();
+    bool HasDefaultOpDeleteParams();
     bool UsesOverloadedMetaMacro();
 
     bool IsConstructor();

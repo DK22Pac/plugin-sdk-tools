@@ -38,10 +38,11 @@ public:
     unsigned int mAlignment = 0;  // alignment in bytes
     bool mIsAnonymous = false;    // is anonymous class (class has no name)
     bool mIsCoreClass = false;    // is core class
-    bool mIsAbstractClass = false; // this class has pure virtual functions
+    bool mIsAbstractClass = false; // this class has pure virtual functions; NOTE: not used yet
     bool mHasVTable = false;      // has vtable in exe
     bool mHasVirtualFunctions = false; // has virtual functions in mFunctions
     bool mHasVirtualDestructor = false; // has virtual destructor in mFunctions
+    bool mHasVectorDeletingDestructor = false; // can we use deleting destructor to delete an array?
     unsigned int mVTableAddress = 0; // virtual table address
     int mVTableSize = 0;          // count of methods in virtual table
     Construction mConstruction = Construction::Unknown; // hide class constructors and destructor
@@ -67,22 +68,28 @@ public:
     List<Function *> mCopyConstructors;
     Function *mBaseDestructor = nullptr;
     Function *mDeletingDestructor = nullptr;
-    List<Function *> mOperatorsNew;
-    List<Function *> mOperatorsNewArray;
-    List<Function *> mOperatorsDelete;
-    List<Function *> mOperatorsDeleteArray;
+    List<Function *> mOperatorsNew; // note: may include mDefaultOperatorNew
+    List<Function *> mOperatorsNewArray; // note: may include mDefaultOperatorNewArray
+    List<Function *> mOperatorsDelete; // note: may include mDefaultOperatorDelete
+    List<Function *> mOperatorsDeleteArray; // note: may include mDefaultOperatorDeleteArray
     List<Function *> mOperators;
     List<Function *> mVirtualFunctions;
     List<Function *> mNonStaticFunctions;
     List<Function *> mStaticFunctions;
 
-    Vector<pair<Function::VTState, Function *>> mVTable; // virtual table (size = mVTableSize)
+    Function *mDefaultOperatorNew = nullptr;
+    Function *mDefaultOperatorDelete = nullptr;
+    Function *mDefaultOperatorNewArray = nullptr;
+    Function *mDefaultOperatorDeleteArray = nullptr;
 
     void OnUpdateStructs(List<Module> &modules); // update things before we write to source files
     string GetFullName();         // combine name + scope
     void Write(ofstream &stream, tabs t, Module const &myModule, List<Module> const &allModules, Games::IDs game);
     unsigned int WriteFunctions(ofstream &stream, tabs t, Games::IDs game, bool definitions, bool metadata, bool makeNewLine);
     void WriteGeneratedConstruction(ofstream &stream, tabs t, Games::IDs game);
+    void WriteStackObjectFunction(ofstream & stream, tabs t, Games::IDs game, Function *fn);
+    void WriteCustomOperatorDeleteFunction(ofstream & stream, tabs t, Games::IDs game);
+    void WriteCustomOperatorDeleteArrayFunction(ofstream & stream, tabs t, Games::IDs game);
     bool ContainsType(string const &typeName, bool withPointers = true);
     void AddFunction(Function &func_to_add);
     void SetParent(Struct *parent);

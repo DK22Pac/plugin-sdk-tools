@@ -144,11 +144,13 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
         });
     }
 
+    bool makeNewLine = false;
     // enums
     for (auto &e : mEnums) {
         stream << endl;
         e.Write(stream, t);
         stream << endl;
+        makeNewLine = true;
     }
     // structs
     for (auto &s : mStructs) {
@@ -156,17 +158,28 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
             stream << endl;
             s.Write(stream, t, *this, allModules, game);
             stream << endl;
+            makeNewLine = true;
         }
     }
     // variables
+    unsigned int numWrittenVars = 0;
     for (auto &v : mVariables) {
-        stream << endl;
+        if (makeNewLine) {
+            stream << endl;
+            makeNewLine = false;
+        }
         v.WriteDeclaration(stream, t, game, false);
         stream << endl;
+        numWrittenVars++;
     }
+    if (numWrittenVars > 0)
+        makeNewLine = true;
     //functions
     for (auto &f : mFunctions) {
-        stream << endl;
+        if (makeNewLine) {
+            stream << endl;
+            makeNewLine = false;
+        }
         f.WriteDeclaration(stream, t, game);
         stream << endl;
     }
