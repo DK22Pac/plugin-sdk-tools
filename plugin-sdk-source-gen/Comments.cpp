@@ -13,11 +13,28 @@ void WriteComment(ofstream &stream, string const &comment, tabs t, unsigned int 
                 stream << t() << string(pos, ' ');
             stream << ' ';
         }
-        stream << "//!";
-        if (pos != 0)
-            stream << '<';
+        if (pos != 0) {
+            if (first) {
+                if (last)
+                    stream << "//!<";
+                else
+                    stream << "/**<";
+            }
+            else
+                stream << "    ";
+        }
+        else
+            stream << "//!";
         stream << ' ' << line;
-        if (!last || pos == 0)
+        if (pos != 0) {
+            if (last) {
+                if (!first)
+                    stream << "*/";
+            }
+            else
+                stream << "\\n" << endl;
+        }
+        else
             stream << endl;
     });
 }

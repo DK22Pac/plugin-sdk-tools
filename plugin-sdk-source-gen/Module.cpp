@@ -75,7 +75,8 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
         if (type.mIsRenderWare)
             addUsedTypeName("RenderWare", needsHeader);
         else if (type.mIsCustom) {
-            addUsedTypeName(type.mName, needsHeader && type.IsPointer());
+            if (!type.mWasSetFromRawType)
+                addUsedTypeName(type.mName, needsHeader && type.IsPointer());
             if (type.mIsTemplate) {
                 for (auto &t : type.mTemplateTypes) {
                     if (t.mIsCustom)

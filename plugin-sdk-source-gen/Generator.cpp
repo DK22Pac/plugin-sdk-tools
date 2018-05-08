@@ -109,6 +109,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             string fullType = JsonIO::readJsonString(jm, "rawType"); // read custom type
                             if (fullType.empty()) // if custom is not defined, read default type
                                 fullType = JsonIO::readJsonString(jm, "type");
+                            else
+                                m.mType.mWasSetFromRawType = true;
                             m.mOffset = JsonIO::readJsonNumber(jm, "offset");
                             m.mSize = JsonIO::readJsonNumber(jm, "size");
                             bool isAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
@@ -326,8 +328,10 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 newFn.mPriority = String::ToNumber(fnPriority);
                                 newFn.mVTableIndex = String::ToNumber(fnVTableIndex);
                                 string retType = fnRetType;
-                                if (String::StartsWith(retType, "raw "))
+                                if (String::StartsWith(retType, "raw ")) {
                                     retType = retType.substr(4);
+                                    newFn.mRetType.mWasSetFromRawType = true;
+                                }
                                 newFn.mRetType.SetFromString(retType);
                                 // raw CPool<CPed> *:pool int:value
                                 // [raw] Type : Name
@@ -339,10 +343,9 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     string paramType = fnParameters.substr(currPos, colonPos - currPos);
                                     String::Trim(paramType);
                                     FunctionParameter param;
-                                    bool isRawParam = false;
                                     if (String::StartsWith(paramType, "raw ")) {
                                         param.mType.SetFromString(paramType.substr(4));
-                                        isRawParam = true;
+                                        param.mType.mWasSetFromRawType = true;
                                     }
                                     else
                                         param.mType.SetFromString(paramType);

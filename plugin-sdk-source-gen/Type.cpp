@@ -27,6 +27,7 @@ Type::Type(Type const &rhs) {
         mFunctionRetType = nullptr;
     mIsTemplate = rhs.mIsTemplate;
     mTemplateTypes = rhs.mTemplateTypes;
+    mWasSetFromRawType = rhs.mWasSetFromRawType;
     mDbgTokens = rhs.mDbgTokens;
 }
 
@@ -120,6 +121,8 @@ string GetCorrectTypeName(string const &typeName, bool &corrected) {
         return "unsigned long";
     else if (typeName == "FLOAT")
         return "float";
+    else if (typeName == "BOOL")
+        return "bool";
     corrected = false;
     return typeName;
 }

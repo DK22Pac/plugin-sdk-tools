@@ -74,6 +74,8 @@ public:
     bool mIsTemplate = false;
     Vector<Type> mTemplateTypes;
 
+    bool mWasSetFromRawType = false;
+
     // debug
     Vector<Token> mDbgTokens;
 
