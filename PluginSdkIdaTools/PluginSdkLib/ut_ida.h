@@ -24,5 +24,7 @@ qstring getAddrName(ea_t ea);
 qstring getFunctionName(ea_t ea);
 
 unsigned int getDword(ea_t ea);
-bool isOffset(ea_t ea);
+bool isOffsetAtAddress(ea_t ea);
+bool isCodeAtAddress(ea_t ea);
 int guessTInfo(tinfo_t *tif, tid_t id);
+int getInstructionSize(ea_t ea);

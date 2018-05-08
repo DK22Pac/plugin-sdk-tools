@@ -105,7 +105,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             vtClassInfo.className = vtClassName;
                             unsigned int vtSize = 0;
                             auto vtFuncAddr = ea;
-                            while (isOffset(vtFuncAddr) && (vtSize == 0 || getAddrName(vtFuncAddr).empty())) {
+                            while (isOffsetAtAddress(vtFuncAddr) && (vtSize == 0 || getAddrName(vtFuncAddr).empty())) {
                                 auto funcAddr = getDword(vtFuncAddr);
                                 if (funcAddr != 0) {
                                     if (get_func(funcAddr)) {

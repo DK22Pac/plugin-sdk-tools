@@ -17,8 +17,18 @@ qvector<XRef> getXrefToAddress(ea_t ea, bool isFunc) {
             xref.m_type = XRef::Call;
         else if (xb.type == fl_JF || xb.type == fl_JN)
             xref.m_type = XRef::Jump;
-        else if (xb.type == fl_USobsolete || xb.type == dr_O)
+        else if (xb.type == fl_USobsolete || xb.type == dr_O) {
             xref.m_type = XRef::Callback;
+            if (isCodeAtAddress(xref.m_address)) {
+                auto insnlen = getInstructionSize(xref.m_address);
+                if (insnlen >= 4)
+                    xref.m_address += insnlen - 4;
+                else {
+                    warning("Unable to decode instruction at address 0x%X\nin getXrefToAddress()\n%d", xref.m_address, insnlen);
+                    xref.m_address = 0;
+                }
+            }
+        }
         else
             continue;
         if (isFunc && xb.type == dr_O) { // vtable

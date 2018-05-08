@@ -193,11 +193,19 @@ unsigned int getDword(ea_t ea) {
 #endif
 }
 
-bool isOffset(ea_t ea) {
+bool isOffsetAtAddress(ea_t ea) {
 #if (IDA_VER >= 70)
     return is_off0(get_flags(ea));
 #else
     return isOff0(get_flags_novalue(ea));
+#endif
+}
+
+bool isCodeAtAddress(ea_t ea) {
+#if (IDA_VER >= 70)
+    return is_code(get_flags(ea));
+#else
+    return isCode(get_flags_novalue(ea));
 #endif
 }
 
@@ -206,5 +214,14 @@ int guessTInfo(tinfo_t *tif, tid_t id) {
     return guess_tinfo(tif, id);
 #else
     return guess_tinfo2(id, tif);
+#endif
+}
+
+int getInstructionSize(ea_t ea) {
+#if (IDA_VER >= 70)
+    insn_t insn;
+    return decode_insn(&insn, ea);
+#else
+    return decode_insn(ea);
 #endif
 }
