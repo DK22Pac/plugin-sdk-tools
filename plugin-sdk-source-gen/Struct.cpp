@@ -22,6 +22,10 @@ void SetAccess(ofstream &stream, tabs t, Struct::Access &accessVar, Struct::Acce
 
 void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module> const &allModules, Games::IDs game) {
     WriteComment(stream, mComment, t, 0);
+    
+    bool isPacked = (mSize % 4) != 0;
+    if (isPacked)
+        stream << t() << "#pragma pack(push, 1)" << endl;
     stream << t();
     Access access = Access::Public;
     if (mKind == Kind::Struct)
@@ -86,6 +90,9 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module
     WriteFunctions(stream, t, game, false, false, numWrittenMembers > 0 || numWrittenVariables > 0);
     --t;
     stream << t() << '}' << ';';
+
+    if (isPacked)
+        stream << endl << t() << "#pragma pack(pop)";
 
     if (mHasVTable) {
         stream << endl;
