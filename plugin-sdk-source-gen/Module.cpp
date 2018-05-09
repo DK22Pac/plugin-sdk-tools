@@ -110,6 +110,7 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
                 addUsedType(m.mType);
         }
         for (auto &f : s.mFunctions) { // function parameters
+            addUsedType(f.mRetType);
             for (auto &p : f.mParameters)
                 addUsedType(p.mType);
         }
