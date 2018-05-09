@@ -21,6 +21,12 @@ public:
     List<Variable> mVariables;
     List<Function> mFunctions;
 
+    bool mHasSourceFile = false;
+    bool mHasMetaFile = false;
+
+    Set<string> mRequiredModules;
+    Set<string> mForbiddenModules;
+
     List<string> mErrors;
     List<string> mWarnings;
 

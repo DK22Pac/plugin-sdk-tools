@@ -1,8 +1,8 @@
 #include "StringEx.h"
 #include <algorithm>
 
-List<string> String::Split(string const &str, string const &delim) {
-    List<string> result;
+Vector<string> String::Split(string const &str, string const &delim) {
+    Vector<string> result;
     if (str.length() > 0) {
         size_t b = 0;
         size_t e = str.find(delim);

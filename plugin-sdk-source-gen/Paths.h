@@ -15,8 +15,8 @@ public:
 
     static inline path GetModulesDir(path const &sdkpath, Games::IDs game) {
         path p = sdkpath / "generated" / "modules" / Games::GetGameFolder(game);
-        if (!exists(p))
-            create_directories(p);
+        if (!exists(p / "meta"))
+            create_directories(p / "meta");
         return p;
     }
 

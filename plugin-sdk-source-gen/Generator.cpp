@@ -12,7 +12,10 @@ void Generator::Generate(path const &sdkpath) {
         List<Module> modules;
         cout << "Reading GTA " << Games::GetGameAbbr(Games::ToID(i)) << endl;
         ReadGame(modules, sdkpath, Games::ToID(i));
-        UpdateStructs(modules);
+        cout << "Updating modules" << endl;
+        UpdateModules(modules);
+        cout << "Reading relations file" << endl;
+        ReadRelationsFile(sdkpath / "database" / "module_relations.txt", modules);
         cout << "Writing modules for GTA " << Games::GetGameAbbr(Games::ToID(i)) << endl;
         WriteModules(sdkpath, Games::ToID(i), modules);
     }
@@ -497,7 +500,7 @@ void Generator::WriteModules(path const &sdkpath, Games::IDs game, List<Module> 
     }
 }
 
-void Generator::UpdateStructs(List<Module> &modules) {
+void Generator::UpdateModules(List<Module> &modules) {
     if (modules.size() == 0)
         return;
     for (Module &m : modules) {
@@ -517,5 +520,105 @@ void Generator::UpdateStructs(List<Module> &modules) {
     for (Module &m : modules) {
         for (Struct &s : m.mStructs)
             s.OnUpdateStructs(modules);
+        unsigned int numModuleFunctions = m.mFunctions.size();
+        unsigned int numModuleVariables = m.mVariables.size();
+        for (Struct &s : m.mStructs) {
+            numModuleFunctions += s.mFunctions.size();
+            numModuleVariables += s.mVariables.size();
+        }
+        m.mHasSourceFile = numModuleFunctions > 0 || numModuleVariables > 0;
+        m.mHasMetaFile = numModuleFunctions > 0;
+    }
+}
+
+void Generator::ReadRelationsFile(path const &filepath, List<Module> &modules) {
+    ifstream file(filepath);
+    if (!file.is_open()) {
+        ErrorCode(0, "%s: Unable to open relations file", __FUNCTION__);
+        return;
+    }
+    size_t lncounter = 0;
+    for (string line; getline(file, line); ) {
+        ++lncounter;
+        if (line.empty() || String::Compare(line, 0, '#'))
+            continue;
+        auto values = String::Split(line, " ");
+        if (values.size() < 3 || (values.size() >= 4 && !String::StartsWith(values[3], ";"))) {
+            ErrorCode(0, "%s: Error in relations file:\n\"%s\"\nat line %u", __FUNCTION__, "Wrong parameter count", lncounter);
+            continue;
+        }
+        string rel = values[1];
+        string name1 = values[0];
+        string name2 = values[2];
+        bool findDerived1 = false, findDerived2 = false;
+        List<Struct *> derivedStructs1, derivedStructs2;
+
+        if (String::EndsWith(name1, "^")) {
+            name1.pop_back();
+            findDerived1 = true;
+        }
+        if (String::EndsWith(name2, "^")) {
+            name2.pop_back();
+            findDerived2 = true;
+        }
+
+        function<void(List<Struct *> &, Struct *)> CollectChildren = [&](List<Struct *> &structs, Struct *struc) {
+            structs.push_back(struc);
+            for (auto c : struc->mChilds)
+                CollectChildren(structs, c);
+        };
+
+        auto module1 = Module::Find(modules, name1);
+        if (module1 && findDerived1) {
+            auto struc = module1->FindStruct(name1);
+            if (struc) {
+                for (auto struc : struc->mChilds)
+                    CollectChildren(derivedStructs1, struc);
+            }
+        }
+        auto module2 = Module::Find(modules, name2);
+        if (module2 && findDerived2) {
+            auto struc = module2->FindStruct(name2);
+            if (struc) {
+                for (auto struc : struc->mChilds)
+                    CollectChildren(derivedStructs2, struc);
+            }
+        }
+
+        enum class RelType { Required, Forbidden };
+
+        function<void(Module *, string const &, RelType)> AddRelationForOneModule = [](Module *m, string const &name, RelType rt) {
+            if (m)
+                if (rt == RelType::Required)
+                    m->mRequiredModules.insert(name);
+                else
+                    m->mForbiddenModules.insert(name);
+        };
+
+        auto AddRelation = [&](Module *m1, List<Struct *> &ds1, string const &n2, List<Struct *> &ds2, RelType rt) {
+            AddRelationForOneModule(m1, n2, rt);
+            for (auto s : ds1)
+                AddRelationForOneModule(s->mModule, n2, rt);
+            for (auto s2 : ds2) {
+                if (s2->mModule) {
+                    AddRelationForOneModule(m1, s2->mModule->mName, rt);
+                    for (auto s : ds1)
+                        AddRelationForOneModule(s->mModule, s2->mModule->mName, rt);
+                }
+            }
+        };
+
+        if (rel == "=")
+            AddRelation(module1, derivedStructs1, name2, derivedStructs2, RelType::Required);
+        else if (rel == ">")
+            AddRelation(module1, derivedStructs1, name2, derivedStructs2, RelType::Forbidden);
+        else if (rel == "<")
+            AddRelation(module2, derivedStructs2, name1, derivedStructs1, RelType::Forbidden);
+        else if (rel == "<>") {
+            AddRelation(module1, derivedStructs1, name2, derivedStructs2, RelType::Forbidden);
+            AddRelation(module2, derivedStructs2, name1, derivedStructs1, RelType::Forbidden);
+        }
+        else
+            ErrorCode(0, "%s: Error in relations file:\n\"%s\"\nat line %u", __FUNCTION__, "Wrong relation type", lncounter);
     }
 }

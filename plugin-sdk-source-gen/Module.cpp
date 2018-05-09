@@ -31,14 +31,17 @@ Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
     s.mName = name;
     s.mScope = scope;
     s.mModuleName = mName;
+    s.mModule = this;
     mStructs.push_back(s);
     return &mStructs.back();
 }
 
 void Module::Write(path const &folder, List<Module> const &allModules, Games::IDs game) {
     WriteHeader(folder, allModules, game);
-    WriteSource(folder, allModules, game);
-    WriteMeta(folder / "meta", allModules, game);
+    if (mHasSourceFile)
+        WriteSource(folder, allModules, game);
+    if (mHasMetaFile)
+        WriteMeta(folder / "meta", allModules, game);
 }
 
 bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Games::IDs game) {
@@ -58,6 +61,8 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     vector<pair<string, bool>> usedTypes;
 
     auto addUsedTypeName = [&](string const &typeName, bool needsHeader = true) {
+        if (mForbiddenModules.find(typeName) != mForbiddenModules.end())
+            needsHeader = false;
         bool found = false;
         for (auto &e : usedTypes) {
             if (e.first == typeName) {
@@ -76,20 +81,20 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
             addUsedTypeName("RenderWare", needsHeader);
         else if (type.mIsCustom) {
             if (!type.mWasSetFromRawType)
-                addUsedTypeName(type.mName, needsHeader && type.IsPointer());
+                addUsedTypeName(type.mName, needsHeader);
             if (type.mIsTemplate) {
                 for (auto &t : type.mTemplateTypes) {
                     if (t.mIsCustom)
-                        addUsedTypeName(t.mName, false);
+                        addUsedTypeName(t.mName);
                 }
             }
             if (type.mIsFunction) {
                 for (auto &t : type.mFunctionParams) {
                     if (t.mIsCustom)
-                        addUsedTypeName(t.mName, false);
+                        addUsedTypeName(t.mName);
                 }
                 if (type.mFunctionRetType)
-                    addUsedTypeName(type.mFunctionRetType->mName, false);
+                    addUsedTypeName(type.mFunctionRetType->mName);
             }
         }
     };
@@ -106,21 +111,24 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
         }
         for (auto &f : s.mFunctions) { // function parameters
             for (auto &p : f.mParameters)
-                addUsedType(p.mType, false);
+                addUsedType(p.mType);
         }
     }
     for (auto &v : mVariables) // variables
         addUsedType(v.mType);
     for (auto &f : mFunctions) { // function parameters
         for (auto &p : f.mParameters)
-            addUsedType(p.mType, false);
+            addUsedType(p.mType);
     }
+
+    // required modules
+    for (auto &req : mRequiredModules)
+        addUsedTypeName(req);
 
     // print include headers
     for (size_t i = numDefinedTypes; i < usedTypes.size(); i++) {
         auto &t = usedTypes[i];
-        // TODO: check if we can include this header here
-        {
+        if (t.second) {
             stream << "#include " << '"' << t.first << ".h" << '"' << endl;
             t.second = true;
         }
@@ -131,7 +139,7 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     for (size_t i = numDefinedTypes; i < usedTypes.size(); i++) {
         auto &t = usedTypes[i];
         if (!t.second) {
-            stream << endl << "class " << t.first;
+            stream << endl << "class " << t.first << ";";
             numForwardDeclarations++;
         }
     }
@@ -185,7 +193,8 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
         stream << endl;
     }
 
-    stream << endl << "#include " << '"' << "meta/meta." << mName + ".h" << '"' << endl;
+    if (mHasMetaFile)
+        stream << endl << "#include " << '"' << "meta/meta." << mName + ".h" << '"' << endl;
 
     return true;
 }

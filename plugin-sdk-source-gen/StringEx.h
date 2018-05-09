@@ -6,7 +6,7 @@ using namespace std;
 
 class String {
 public:
-    static List<string> Split(string const &str, string const &delim);
+    static Vector<string> Split(string const &str, string const &delim);
     static void Break(string const &str, string const &breakWord, string &outLeft, string &outRight, bool reverseSearch);
     static void Replace(string &str, const string &what, const string &to);
     static bool StartsWith(string const &str, string const &with);

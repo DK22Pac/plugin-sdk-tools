@@ -33,6 +33,7 @@ public:
 
     string mName;                 // class name
     string mModuleName;           // module name
+    Module *mModule = nullptr;
     Kind mKind = Kind::Struct;    // class/struct/union
     unsigned int mSize = 0;       // class size in bytes
     unsigned int mAlignment = 0;  // alignment in bytes
