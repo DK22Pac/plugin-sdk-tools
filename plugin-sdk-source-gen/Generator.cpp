@@ -99,6 +99,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     s.mAlignment = JsonIO::readJsonNumber(j, "alignment");
                     s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
                     s.mIsCoreClass = JsonIO::readJsonBool(j, "isCoreClass");
+                    s.mIsAbstractClass = JsonIO::readJsonBool(j, "isAbstract");
                     s.mHasVectorDeletingDestructor = JsonIO::readJsonBool(j, "hasVectorDeletingDtor");
                     s.mVTableAddress = JsonIO::readJsonNumber(j, "vtableAddress");
                     s.mHasVTable = s.mVTableAddress != 0;

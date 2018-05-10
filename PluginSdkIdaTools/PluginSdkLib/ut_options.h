@@ -40,7 +40,7 @@ void getExtraInfo(qstring const &inCommentStr, qstring &outComment, qvector<qstr
 }
 
 void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsStruct,
-    bool &outIsAnonymous, bool &outIsCoreClass, bool &outHasVectorDeletingDtor);
+    bool &outIsAnonymous, bool &outIsCoreClass, bool &outIsAbstractClass, bool &outHasVectorDeletingDtor);
 void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsBase);
 void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsClass);
 void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBitWidth, bool &outIsCounter);

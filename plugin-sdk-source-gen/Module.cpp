@@ -109,15 +109,18 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
             if (!m.mIsVTable)
                 addUsedType(m.mType);
         }
-        for (auto &f : s.mFunctions) { // function parameters
+        for (auto &f : s.mFunctions) { // struct function parameters and return value
             addUsedType(f.mRetType);
             for (auto &p : f.mParameters)
                 addUsedType(p.mType);
         }
+        for (auto &v : s.mVariables) // struct variables
+            addUsedType(v.mType);
     }
     for (auto &v : mVariables) // variables
         addUsedType(v.mType);
-    for (auto &f : mFunctions) { // function parameters
+    for (auto &f : mFunctions) { // function parameters and return value
+        addUsedType(f.mRetType);
         for (auto &p : f.mParameters)
             addUsedType(p.mType);
     }

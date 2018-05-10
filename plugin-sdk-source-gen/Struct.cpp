@@ -329,25 +329,116 @@ void Struct::WriteStackObjectFunction(ofstream & stream, tabs t, Games::IDs game
     stream << t() << "}" << endl;
 }
 
+void AddOperatorNewToUniqueList(List<Function *> uniqueList, Function *fn) {
+    // check if we already have function with such signature (actually, we check parameters only)
+
+    auto CompareFunctions = [](Function *f1, Function *f2) {
+        if (f1->mParameters.size() == f2->mParameters.size()) {
+            for (size_t i = 0; i < f1->mParameters.size(); i++) {
+                if (f1->mParameters[i].mType.GetFullType(false) != f2->mParameters[i].mType.GetFullType(false))
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    };
+
+    for (auto f : uniqueList) {
+        if (CompareFunctions(f, fn))
+            return;
+    }
+
+    uniqueList.push_back(fn);
+}
+
+void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::IDs game, Function *ctor) {
+    List<Function *> opNewList;
+    bool hasDefaultOperatorNew = false;
+    if (mDefaultOperatorNew) {
+        opNewList.push_back(mDefaultOperatorNew);
+        hasDefaultOperatorNew = true;
+    }
+    for (auto n : mOperatorsNew)
+        opNewList.push_back(mDefaultOperatorNew);
+    // now for all hierarchy, find non-overloaded operators
+    Struct *parent = mParent;
+    while (parent) {
+        if (parent->mDefaultOperatorNew) {
+            AddOperatorNewToUniqueList(opNewList, parent->mDefaultOperatorNew);
+            if (!hasDefaultOperatorNew)
+                hasDefaultOperatorNew = true;
+        }
+        for (auto n : parent->mOperatorsNew)
+            AddOperatorNewToUniqueList(opNewList, n);
+        parent = parent->mParent;
+    }
+    if (!hasDefaultOperatorNew)
+        opNewList.push_back(nullptr);
+
+    for (auto n : opNewList) {
+        stream << t() << "template <>" << endl;
+        stream << t();
+        if (n)
+            stream << GameVersions::GetSupportedGameVersionsMacro(game, ctor->mVersionInfo, n->mVersionInfo);
+        else
+            stream << GameVersions::GetSupportedGameVersionsMacro(game, ctor->mVersionInfo);
+        stream << " " << GetFullName() << " *operator_new<" << GetFullName() << ">(";
+        bool firstParam = true;
+        if (n && n->mParameters.size() > 1) {
+            // custom operator new parameters
+            Iterate(n->mParameters, [&](FunctionParameter &p) {
+                if (firstParam)
+                    firstParam = false;
+                else
+                    stream << ", ";
+                stream << p.mType.BeforeName() << p.mName << p.mType.AfterName();
+            }, 1);
+        }
+        if (ctor->mParameters.size() > 1) {
+            // custom constructor parameters
+            Iterate(ctor->mParameters, [&](FunctionParameter &p) {
+                if (firstParam)
+                    firstParam = false;
+                else
+                    stream << ", ";
+                stream << p.mType.BeforeName() << p.mName << p.mType.AfterName();
+            }, 1);
+        }
+        stream << ") {" << endl;
+        ++t;
+        // TODO: allocate & construct object here
+        --t;
+        stream << t() << "}" << endl;
+    }
+}
+
 void Struct::WriteCustomOperatorDeleteFunction(ofstream & stream, tabs t, Games::IDs game) {
     Function *dtor = mDeletingDestructor;
     if (!dtor)
         dtor = mBaseDestructor;
-    stream << t() << "template <>" << endl;
-    stream << t() << GameVersions::GetSupportedGameVersionsMacro(game, dtor->mVersionInfo) << " void operator_delete<";
-    stream << GetFullName() << ">(" << GetFullName() << " *obj) {" << endl;
-    ++t;
-    stream << t() << "if (obj == nullptr) return;" << endl;
-    if (dtor == mDeletingDestructor)
-        dtor->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_DeletingDestructor);
-    else {
-        dtor->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_BaseDestructor);
-        Function *opDelete = mDefaultOperatorDelete;
+    Function *opDelete = mDefaultOperatorDelete;
+    bool usesDeletingDestructor = dtor == mDeletingDestructor;
+    if (!usesDeletingDestructor) {
         Struct *parent = mParent;
         while (!opDelete && parent) {
             opDelete = parent->mDefaultOperatorDelete;
             parent = parent->mParent;
         }
+    }
+    stream << t() << "template <>" << endl;
+    stream << t();
+    if (!usesDeletingDestructor && opDelete)
+        stream << GameVersions::GetSupportedGameVersionsMacro(game, dtor->mVersionInfo, opDelete->mVersionInfo);
+    else
+        stream << GameVersions::GetSupportedGameVersionsMacro(game, dtor->mVersionInfo);
+    stream << " void operator_delete<";
+    stream << GetFullName() << ">(" << GetFullName() << " *obj) {" << endl;
+    ++t;
+    stream << t() << "if (obj == nullptr) return;" << endl;
+    if (usesDeletingDestructor)
+        dtor->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_DeletingDestructor);
+    else {
+        dtor->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_BaseDestructor);
         if (opDelete)
             opDelete->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_OperatorDelete);
         else
@@ -361,32 +452,40 @@ void Struct::WriteCustomOperatorDeleteArrayFunction(ofstream & stream, tabs t, G
     Function *dtor = mDeletingDestructor;
     if (!dtor)
         dtor = mBaseDestructor;
+    bool usesDeletingDestructor = dtor == mDeletingDestructor && mHasVectorDeletingDestructor;
+    Function *opDeleteArray = mDefaultOperatorDeleteArray;
+    if (!usesDeletingDestructor) {
+        Struct *parent = mParent;
+        while (!opDeleteArray && parent) {
+            opDeleteArray = parent->mDefaultOperatorDeleteArray;
+            parent = parent->mParent;
+        }
+    }
     stream << t() << "template <>" << endl;
-    stream << t() << GameVersions::GetSupportedGameVersionsMacro(game, dtor->mVersionInfo) << " void operator_delete_array<";
+    stream << t();
+    if (!usesDeletingDestructor && opDeleteArray)
+        stream << GameVersions::GetSupportedGameVersionsMacro(game, dtor->mVersionInfo, opDeleteArray->mVersionInfo);
+    else
+        stream << GameVersions::GetSupportedGameVersionsMacro(game, dtor->mVersionInfo);
+    stream << " void operator_delete_array<";
     stream << GetFullName() << ">(" << GetFullName() << " *array) {" << endl;
     ++t;
     stream << t() << "if (array == nullptr) return;" << endl;
-    if (dtor == mDeletingDestructor && mHasVectorDeletingDestructor)
+    if (usesDeletingDestructor)
         dtor->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_Array_DeletingArrayDestructor);
     else {
-        stream << t() << "void *allocatedMem = reinterpret_cast<void *>(reinterpret_cast<char *>(array) - 4);" << endl;
-        stream << t() << "unsigned int arraySize = *reinterpret_cast<unsigned int *>(allocatedMem);" << endl;
+        stream << t() << "void *data = reinterpret_cast<void *>(reinterpret_cast<char *>(array) - 4);" << endl;
+        stream << t() << "unsigned int arraySize = *reinterpret_cast<unsigned int *>(data);" << endl;
         stream << t() << "for (unsigned int i = 0; i < arraySize; i++)" << endl;
         ++t;
         dtor->WriteFunctionCall(stream, t, game, dtor == mDeletingDestructor ?
             Function::SpecialCall::Custom_Array_DeletingDestructor :
             Function::SpecialCall::Custom_Array_BaseDestructor);
         --t;
-        Function *opDeleteArray = mDefaultOperatorDeleteArray;
-        Struct *parent = mParent;
-        while (!opDeleteArray && parent) {
-            opDeleteArray = parent->mDefaultOperatorDeleteArray;
-            parent = parent->mParent;
-        }
         if (opDeleteArray)
             opDeleteArray->WriteFunctionCall(stream, t, game, Function::SpecialCall::Custom_Array_OperatorDelete);
         else
-            stream << t() << "operator delete(allocatedMem);" << endl;
+            stream << t() << "operator delete(data);" << endl;
     }
     --t;
     stream << t() << "}" << endl;
@@ -410,18 +509,23 @@ void Struct::WriteGeneratedConstruction(ofstream & stream, tabs t, Games::IDs ga
         if (mBaseDestructor)
             WriteStackObjectFunction(stream, t, game, mBaseDestructor);
 
-        // TODO: implement overloaded operators?
+        // maybe also implement overloaded operators?
         --t;
         stream << t() << "}" << endl;
         hasStackObject = true;
     }
     if (mDefaultConstructor || !mCustomConstructors.empty() || !mCopyConstructors.empty() || mBaseDestructor || mDeletingDestructor) {
         stream << endl;
-        // TODO: write operator_new, operator_new_array, operator_delete, operator_delete_array
         if (mBaseDestructor || mDeletingDestructor) {
             WriteCustomOperatorDeleteFunction(stream, t, game);
             WriteCustomOperatorDeleteArrayFunction(stream, t, game);
         }
+        if (mDefaultConstructor)
+            WriteCustomOperatorNewFunction(stream, t, game, mDefaultConstructor);
+        for (auto c : mCustomConstructors)
+            WriteCustomOperatorNewFunction(stream, t, game, c);
+        for (auto c : mCopyConstructors)
+            WriteCustomOperatorNewFunction(stream, t, game, c);
     }
 }
 

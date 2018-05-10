@@ -19,4 +19,16 @@ public:
         }
         return result;
     }
+
+    template<typename T>
+    static string GetSupportedGameVersionsMacro(Games::IDs game, T *exeVersionInfos1, T *exeVersionInfos2) {
+        string result = "SUPPORTED";
+        for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
+            if (game == Games::IDs::GTASA && i == 1) // skip GTASA 1.0 US HoodLum
+                continue;
+            if (exeVersionInfos1[i].mAddress != 0 && exeVersionInfos2[i].mAddress != 0)
+                result += "_" + String::ToUpper(Games::GetGameVersionName(game, i));
+        }
+        return result;
+    }
 };
