@@ -77,24 +77,27 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     };
 
     auto addUsedType = [&](Type &type, bool needsHeader = true) {
-        if (type.mIsRenderWare)
-            addUsedTypeName("RenderWare", needsHeader);
-        else if (type.mIsCustom) {
-            if (!type.mWasSetFromRawType)
+        if (type.mIsForwardDecl)
+            addUsedTypeName(type.mName, false);
+        else {
+            if (type.mIsRenderWare)
+                addUsedTypeName("RenderWare", needsHeader);
+            else if (type.mIsCustom) {
                 addUsedTypeName(type.mName, needsHeader);
-            if (type.mIsTemplate) {
-                for (auto &t : type.mTemplateTypes) {
-                    if (t.mIsCustom)
-                        addUsedTypeName(t.mName);
+                if (type.mIsTemplate) {
+                    for (auto &t : type.mTemplateTypes) {
+                        if (t.mIsCustom)
+                            addUsedTypeName(t.mName, needsHeader);
+                    }
                 }
-            }
-            if (type.mIsFunction) {
-                for (auto &t : type.mFunctionParams) {
-                    if (t.mIsCustom)
-                        addUsedTypeName(t.mName);
+                if (type.mIsFunction) {
+                    for (auto &t : type.mFunctionParams) {
+                        if (t.mIsCustom)
+                            addUsedTypeName(t.mName, needsHeader);
+                    }
+                    if (type.mFunctionRetType && type.mFunctionRetType->mIsCustom)
+                        addUsedTypeName(type.mFunctionRetType->mName, needsHeader);
                 }
-                if (type.mFunctionRetType)
-                    addUsedTypeName(type.mFunctionRetType->mName);
             }
         }
     };

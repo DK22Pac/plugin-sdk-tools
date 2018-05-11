@@ -62,6 +62,10 @@ public:
     enum class SpecialCall {
         None,
         StackObject,
+        Custom_Constructor,
+        Custom_OperatorNew,
+        Custom_Array_Constructor,
+        Custom_Array_OperatorNew,
         Custom_DeletingDestructor,
         Custom_BaseDestructor,
         Custom_OperatorDelete,
@@ -105,7 +109,8 @@ public:
     ExeVersionInfo mVersionInfo[Games::GetMaxGameVersions()];
 
     string GetFullName() const; // combine name + scope
-    void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, SpecialCall specialType = SpecialCall::None);
+    void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn = true,
+        SpecialCall specialType = SpecialCall::None);
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
     void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);

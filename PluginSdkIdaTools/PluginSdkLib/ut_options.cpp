@@ -76,7 +76,7 @@ void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outMo
     bool &outIsAnonymous, bool &outIsCoreClass, bool &outIsAbstractClass, bool &outHasVectorDeletingDtor)
 {
     getExtraInfo(line, outComment, getStructOptions(), outModuleName, outScope, outIsStruct, outIsAnonymous, outIsCoreClass,
-        outHasVectorDeletingDtor);
+        outIsAbstractClass, outHasVectorDeletingDtor);
 }
 
 void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsBase) {

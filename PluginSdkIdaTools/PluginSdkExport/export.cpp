@@ -345,6 +345,7 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             if (!funcParamRawType.empty()) {
                                 funcParam.m_type = funcParamRawType;
                                 funcParam.m_rawType = true;
+                                funcParam.m_name = funcParam.m_name.substr(3);
                             }
                         }
                         entry.m_params.push_back(funcParam);

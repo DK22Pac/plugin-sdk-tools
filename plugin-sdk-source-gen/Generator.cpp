@@ -117,8 +117,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 m.mType.mWasSetFromRawType = true;
                             m.mOffset = JsonIO::readJsonNumber(jm, "offset");
                             m.mSize = JsonIO::readJsonNumber(jm, "size");
-                            bool isAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
-                            bool isBaseClass = JsonIO::readJsonBool(j, "isBase");
+                            bool isAnonymous = JsonIO::readJsonBool(jm, "isAnonymous");
+                            bool isBaseClass = JsonIO::readJsonBool(jm, "isBase");
                             m.mComment = JsonIO::readJsonString(jm, "comment");
                             if (fullType.empty()) {
                                 if (m.mSize == 1)
@@ -165,7 +165,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
             if (!varsFile.is_open()) {
                 // exit if can't open base file
                 if (i == 0) {
-                    Message("%s: Unable to open base file for variables (%s)", __FUNCTION__, varsFilePath.string().c_str());
+                    cout << "ERROR (%s): Unable to open base file for variables (%s)", __FUNCTION__, varsFilePath.string().c_str();
                     break;
                 }
             }
@@ -264,7 +264,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
             if (!funcsFile.is_open()) {
                 // exit if can't open base file
                 if (i == 0) {
-                    Message("%s: Unable to open base file for functions (%s)", __FUNCTION__, funcsFilePath.string().c_str());
+                    cout << "ERROR (%s): Unable to open base file for functions (%s)", __FUNCTION__, funcsFilePath.string().c_str();
                     break;
                 }
             }

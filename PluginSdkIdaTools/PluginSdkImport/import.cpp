@@ -583,8 +583,9 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 fnFullComment += f.m_module;
                 // rettype
                 if (f.m_rawRetType) {
-                    fnFullComment += " rettype:";
+                    fnFullComment += " rettype:\"";
                     fnFullComment += f.m_retType;
+                    fnFullComment += "\"";
                 }
                 // isconst
                 if (f.m_isConst)
@@ -594,8 +595,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     fnFullComment += " priority:before";
                 // raw parameters types
                 for (auto const &fp : f.m_params) {
-                    if (!fp.m_name.empty() && startsWith(fp.m_name, "rt_") && fp.m_rawType) {
-                        fnFullComment += " ";
+                    if (fp.m_rawType) {
+                        fnFullComment += " rt_";
                         fnFullComment += fp.m_name;
                         fnFullComment += ":\"";
                         fnFullComment += fp.m_type;

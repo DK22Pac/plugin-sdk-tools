@@ -19,7 +19,8 @@ struct Token {
         NUMBER,
         KEYWORD_CLASS,
         KEYWORD_STRUCT,
-        KEYWORD_ENUM
+        KEYWORD_ENUM,
+        KEYWORD_INBUILT
     };
 
     string value;
@@ -74,7 +75,8 @@ public:
     bool mIsTemplate = false;
     Vector<Type> mTemplateTypes;
 
-    bool mWasSetFromRawType = false;
+    bool mWasSetFromRawType = false; // this type was set from 'rawtype' or 'rt_...' attribute
+    bool mIsForwardDecl = false; // this type used 'struct' or 'class' in declaration
 
     // debug
     Vector<Token> mDbgTokens;

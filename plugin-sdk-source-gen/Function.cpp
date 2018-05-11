@@ -42,12 +42,15 @@ string Function::NameForWrapper(Games::IDs game, bool definition, string const &
     return result;
 }
 
-void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, SpecialCall specialType) {
-    bool noReturn = mRetType.mIsVoid || IsConstructor() || IsDestructor();
-    if (mRVOParamIndex != -1) {
-        FunctionParameter &retParam = mParameters[mRVOParamIndex];
-        stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
-        noReturn = true;
+void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn, SpecialCall specialType) {
+    bool noReturn = true;
+    if (writeReturn) {
+        noReturn = (mRetType.mIsVoid && mRetType.mPointers.empty()) || IsConstructor() || IsDestructor();
+        if (mRVOParamIndex != -1) {
+            FunctionParameter &retParam = mParameters[mRVOParamIndex];
+            stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
+            noReturn = true;
+        }
     }
     stream << t();
     if (!noReturn)
@@ -88,21 +91,26 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, Spec
         if (!mIsVirtual || index != 0)
             stream << ", ";
         if (index == 0 && specialType == SpecialCall::StackObject)
-            stream << "reinterpret_cast<" << mClassName << " *>(buff)";
-        else if (index == 0 && (specialType == SpecialCall::Custom_DeletingDestructor ||
-            specialType == SpecialCall::Custom_BaseDestructor || specialType == SpecialCall::Custom_OperatorDelete))
+            stream << "reinterpret_cast<" << mClassName << " *>(objBuff)";
+        else if (index == 0 && specialType == SpecialCall::Custom_OperatorNew)
+            stream << "sizeof(" << mClassName << ")";
+        else if (index == 0 && specialType == SpecialCall::Custom_Array_OperatorNew)
+            stream << "sizeof(" << mClassName << ") * objCount + 4";
+        else if (index == 0 && (specialType == SpecialCall::Custom_Constructor ||
+            specialType == SpecialCall::Custom_DeletingDestructor || specialType == SpecialCall::Custom_BaseDestructor ||
+            specialType == SpecialCall::Custom_OperatorDelete))
         {
             stream << "obj";
         }
         else if (index == 0 && (specialType == SpecialCall::Custom_Array_DeletingArrayDestructor
             || specialType == SpecialCall::Custom_Array_OperatorDelete))
         {
-            stream << "array";
+            stream << "objArray";
         }
         else if (index == 0 && (specialType == SpecialCall::Custom_Array_BaseDestructor ||
-            specialType == SpecialCall::Custom_Array_DeletingDestructor))
+            specialType == SpecialCall::Custom_Array_DeletingDestructor || specialType == SpecialCall::Custom_Array_Constructor))
         {
-            stream << "&array[i]";
+            stream << "&objArray[i]";
         }
         else if (index == 1 && (specialType == SpecialCall::Custom_DeletingDestructor ||
             specialType == SpecialCall::Custom_Array_DeletingDestructor))
@@ -120,10 +128,8 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, Spec
         }
     });
     stream << ");" << endl;
-    if (mRVOParamIndex != -1) {
-        FunctionParameter &retParam = mParameters[mRVOParamIndex];
-        stream << t() << "return " << retParam.mName << ";" << endl;
-    }
+    if (!noReturn && mRVOParamIndex != -1)
+        stream << t() << "return " << mParameters[mRVOParamIndex].mName << ";" << endl;
 }
 
 void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {

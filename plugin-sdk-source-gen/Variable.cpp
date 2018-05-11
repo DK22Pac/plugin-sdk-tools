@@ -24,7 +24,7 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
         mType.mIsConst = true;
     else
         mType.mIsConst = false;
-    stream << t() << "PLUGIN_VARIABLE" << ' ' << GetNameWithRefType(true) << " = ";
+    stream << t() << GetNameWithRefType(true) << " = ";
     if (mType.mArraySize[0] == 0)
         stream << '*';
     stream << "reinterpret_cast<";

@@ -27,6 +27,7 @@ Type::Type(Type const &rhs) {
         mFunctionRetType = nullptr;
     mIsTemplate = rhs.mIsTemplate;
     mTemplateTypes = rhs.mTemplateTypes;
+    mIsForwardDecl = rhs.mIsForwardDecl;
     mWasSetFromRawType = rhs.mWasSetFromRawType;
     mDbgTokens = rhs.mDbgTokens;
 }
@@ -150,6 +151,10 @@ bool ObtainRegularToken(string const &tokenWord, Token &outToken) {
     }
     if (tokenWord == "enum") {
         outToken = { tokenWord, Token::KEYWORD_ENUM };
+        return true;
+    }
+    if (tokenWord == "inbuilt") {
+        outToken = { tokenWord, Token::KEYWORD_INBUILT };
         return true;
     }
     if (tokenWord.length() >= 7 && tokenWord[0] == '_' && tokenWord[1] == '_') {
@@ -471,7 +476,7 @@ void Type::SetFromTokens(Vector<Token> const &tokens) {
                                 arySize = 1;
                                 i += 1;
                             }
-                            else if (right >= 2 && tokens[i + 1].type == Token::NUMBER 
+                            else if (right >= 2 && tokens[i + 1].type == Token::NUMBER
                                 && tokens[i + 2].type == Token::SPECIAL_CHAR
                                 && tokens[i + 2].value[0] == ']')
                             {
@@ -536,11 +541,17 @@ void Type::SetFromTokens(Vector<Token> const &tokens) {
             }
             else if (IsFunctionCCToken(t))
                 SetFunctionTypeFromToken(t);
+            else if (t.type == Token::KEYWORD_STRUCT || t.type == Token::KEYWORD_CLASS || t.type == Token::KEYWORD_ENUM)
+                mIsForwardDecl = true;
+            else if (t.type == Token::KEYWORD_INBUILT)
+                mIsInBuilt = true;
             else if (t.type == Token::INBUILT_TYPE_NAME || t.type == Token::CUSTOM_TYPE_NAME || t.type == Token::VOID_TYPE) {
                 if (mName.empty()) {
                     mName = t.value;
-                    mIsInBuilt = t.type == Token::INBUILT_TYPE_NAME || t.type == Token::VOID_TYPE;
-                    mIsCustom = t.type == Token::CUSTOM_TYPE_NAME;
+                    if (!mIsInBuilt) {
+                        mIsInBuilt = t.type == Token::INBUILT_TYPE_NAME || t.type == Token::VOID_TYPE;
+                        mIsCustom = t.type == Token::CUSTOM_TYPE_NAME;
+                    }
                     mIsVoid = t.type == Token::VOID_TYPE;
                     mIsRenderWare = IsRenderWareTypeName(mName);
                 }
