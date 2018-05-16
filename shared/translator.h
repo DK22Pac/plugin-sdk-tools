@@ -8,8 +8,6 @@
 #include "translators\gta3_steam_translator.h"
 
 inline unsigned int translateAddr(Games::IDs game, unsigned int version, unsigned int address) {
-    if (address == 0)
-        return 0;
     switch (game) {
     case Games::GTASA:
         switch (version) {
@@ -45,7 +43,7 @@ inline unsigned int translateAddr(Games::IDs game, unsigned int version, unsigne
         case 1: // 11en
             return translate_gta3_11en(address);
         case 2: // steam
-            return translate_gta3_steam(address);
+            return translate_gta3_11en_to_steam(translate_gta3_11en(address));
         }
         break;
     }

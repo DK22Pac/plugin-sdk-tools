@@ -5,6 +5,8 @@
 */
 
 inline unsigned int translate_gtavc_11en(unsigned int address) {
+    if (address == 0)
+        return 0;
     if (address < 0x489D0C)
         return address;
     else if (address < 0x489D10)

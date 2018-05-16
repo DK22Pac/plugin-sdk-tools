@@ -6,6 +6,8 @@
 */
 
 inline unsigned int translate_gta3_11en(unsigned int address) {
+    if (address == 0)
+        return 0;
     // .bss
     if (address >= 0x95CDAE)
         return address + 0x1B8;

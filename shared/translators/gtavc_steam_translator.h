@@ -5,6 +5,8 @@
 */
 
 inline unsigned int translate_gtavc_steam(unsigned int address) {
+    if (address == 0)
+        return 0;
     if (address < 0x41CC07)
         return address - 0x0;
     else if (address < 0x41CC20)

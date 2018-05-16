@@ -7,6 +7,8 @@
 */
 
 inline unsigned int translate_gtasa_10eu(unsigned int address) {
+    if (address == 0)
+        return address;
     if (address >= 0x746720 && address < 0x857000) {
         if (address >= 0x7BA940)
             return address + 0x40;
