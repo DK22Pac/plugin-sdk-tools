@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
             else
                 refFile << String::ToHexString(translateAddr(game, gameVer, addr));
             if (bFunctions)
-                refFile << "," << CSV::Value(csvRefs);
+                refFile << ",";
             refFile << "," << CSV::Value(csvDemangledName) << endl;
         }
 
