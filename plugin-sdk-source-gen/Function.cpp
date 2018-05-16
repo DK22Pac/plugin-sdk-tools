@@ -165,11 +165,12 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     stream << t() << "static const bool is_virtual = " << (mIsVirtual ? "true" : "false") << ";" << endl;
     stream << t() << "static const int vtable_index = " << mVTableIndex << ";" << endl;
     stream << t() << "using mv_addresses_t = MvAddresses<" << Addresses(game) << ">;" << endl;
-    stream << t() << "using refs_t = RefList<";
+    stream << t() << "// total references count: ";
     List<FunctionReference> refs;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
         std::istringstream ss(mVersionInfo[i].mRefsStr);
         std::string token;
+        unsigned int refsCount = 0;
         while (ss >> token) {
             FunctionReference ref;
             ref.mGameVersion = i;
@@ -181,8 +182,14 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
             ss >> token;
             ref.mRefIndexInObject = String::ToNumber(token);
             refs.push_back(ref);
+            refsCount++;
         }
+        if (i != 0)
+            stream << ", ";
+        stream << Games::GetGameVersionName(game, i) << " (" << refsCount << ")";
     }
+    stream << endl;
+    stream << t() << "using refs_t = RefList<";
     if (refs.size() > 0) {
         t++;
         IterateFirstLast(refs, [&](FunctionReference &ref, bool first, bool last) {
