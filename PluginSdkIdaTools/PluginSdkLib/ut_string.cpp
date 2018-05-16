@@ -155,6 +155,16 @@ bool jsonWriteToFile(json const &j, char const *filepath) {
     return false;
 }
 
+bool isNumber(qstring const & str) {
+    if (str.empty())
+        return false;
+    for (char c : str) {
+        if (!isdigit(c))
+            return false;
+    }
+    return true;
+}
+
 int toNumber(qstring const &str) {
     return (startsWith(str, "0x") ? strtol(str.substr(2).c_str(), nullptr, 16) : strtol(str.c_str(), nullptr, 10));
 }

@@ -107,6 +107,7 @@ qstring toString(T intVal) {
     return format("%d", intVal);
 }
 
+bool isNumber(qstring const &str);
 int toNumber(qstring const &str);
 
 qstring toUpper(qstring const &str);

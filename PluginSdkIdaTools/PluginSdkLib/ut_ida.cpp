@@ -42,7 +42,8 @@ bool isDataPrefixReserved(qstring const &name) {
         startsWith(name, "IID_") ||
         startsWith(name, "CLSID_") ||
         startsWith(name, "??_") ||
-        startsWith(name, "_eh_");
+        startsWith(name, "_eh_") ||
+        (startsWith(name, "a") && isNumber(name.substr(1)));
 }
 
 bool isPrefixReserved(qstring const &name) {
