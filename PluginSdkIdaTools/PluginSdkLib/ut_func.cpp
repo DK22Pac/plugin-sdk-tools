@@ -155,8 +155,17 @@ bool Function::ToReferenceCSV(qvector<Function> const &baseEntries, char const *
     if (outFile) {
         qfprintf(outFile, "%s,%s,Refs_%s,NameComment\n", baseVersion, version, version);
         for (size_t i = 0; i < baseEntries.size(); i++) {
-            qfprintf(outFile, "0x%X,0x%X,%s,%s\n", baseEntries[i].m_address, entries[i].m_address, csvvalue(entries[i].m_refsStr).c_str(),
-                csvvalue(baseEntries[i].m_demangledName).c_str());
+            if (!baseEntries[i].m_name.empty()) {
+                auto fn = Function::Find(baseEntries[i].m_name, entries);
+                if (fn) {
+                    qfprintf(outFile, "0x%X,0x%X,%s,%s\n", baseEntries[i].m_address, fn->m_address, csvvalue(fn->m_refsStr).c_str(),
+                        csvvalue(baseEntries[i].m_demangledName).c_str());
+                }
+                else
+                    qfprintf(outFile, "0x%X,0,,%s\n", baseEntries[i].m_address, csvvalue(baseEntries[i].m_demangledName).c_str());
+            }
+            else
+                qfprintf(outFile, "0x%X,0,,\n", baseEntries[i].m_address);
         }
         qfclose(outFile);
         return true;

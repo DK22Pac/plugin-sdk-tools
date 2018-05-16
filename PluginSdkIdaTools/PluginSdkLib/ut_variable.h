@@ -14,7 +14,7 @@ public:
     qstring m_comment;
     bool m_isReadOnly = false;
 
-    static unsigned int Find(qstring const &name, qvector<Variable> const &entries);
+    static Variable const *Find(qstring const &name, qvector<Variable> const &entries);
 
     static qvector<Variable> FromCSV(char const *filepath);
     static qvector<Variable> FromReferenceCSV(char const *filepath, qvector<Variable> const &baseVars);

@@ -2,12 +2,12 @@
 #include "ut_string.h"
 #include "ut_ida.h"
 
-unsigned int Variable::Find(qstring const &name, qvector<Variable> const &entries) {
+Variable const *Variable::Find(qstring const &name, qvector<Variable> const &entries) {
     for (auto const &i : entries) {
         if (i.m_name == name)
-            return i.m_address;
+            return &i;
     }
-    return 0;
+    return nullptr;
 }
 
 qvector<Variable> Variable::FromCSV(char const *filepath) {
@@ -112,8 +112,19 @@ bool Variable::ToReferenceCSV(qvector<Variable> const &baseEntries, char const *
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
         qfprintf(outFile, "%s,%s,NameComment\n", baseVersion, version);
-        for (size_t i = 0; i < baseEntries.size(); i++)
-            qfprintf(outFile, "0x%X,0x%X,%s\n", baseEntries[i].m_address, entries[i].m_address, csvvalue(baseEntries[i].m_demangledName).c_str());
+        for (size_t i = 0; i < baseEntries.size(); i++) {
+            if (!baseEntries[i].m_name.empty()) {
+                auto var = Variable::Find(baseEntries[i].m_name, entries);
+                if (var) {
+                    qfprintf(outFile, "0x%X,0x%X,%s\n", baseEntries[i].m_address, var->m_address,
+                        csvvalue(baseEntries[i].m_demangledName).c_str());
+                }
+                else
+                    qfprintf(outFile, "0x%X,0,%s\n", baseEntries[i].m_address, csvvalue(baseEntries[i].m_demangledName).c_str());
+            }
+            else
+                qfprintf(outFile, "0x%X,0,\n", baseEntries[i].m_address);
+        }
         qfclose(outFile);
         return true;
     }
