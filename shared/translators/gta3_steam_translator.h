@@ -16,7 +16,7 @@ inline unsigned int translate_gta3_11en_to_steam(unsigned int address) {
     if (address >= 0x663EC0)
         return address + 0x10140;
     // other RW data
-    if (address >= 0x661018)
+    if (address >= 0x661010)
         return 0;
     if (address >= 0x661010)
         return address + 0x10010;

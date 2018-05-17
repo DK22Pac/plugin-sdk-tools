@@ -158,8 +158,8 @@ bool jsonWriteToFile(json const &j, char const *filepath) {
 bool isNumber(qstring const & str) {
     if (str.empty())
         return false;
-    for (char c : str) {
-        if (!isdigit(c))
+    for (size_t i = 0; i < str.length(); i++) {
+        if (!isdigit(str[i]))
             return false;
     }
     return true;
