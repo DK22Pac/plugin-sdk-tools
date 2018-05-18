@@ -11,7 +11,7 @@ string Function::GetFullName() const {
     return mScope + "::" + mName;
 }
 
-string Function::NameForWrapper(Games::IDs game, bool definition, string const &customName) {
+string Function::NameForWrapper(Games::IDs game, bool definition, string const &customName, bool wsFuncs) {
     string result;
     if (!definition) {
         result += GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) + " ";
@@ -36,13 +36,19 @@ string Function::NameForWrapper(Games::IDs game, bool definition, string const &
     IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
         if (index != 0)
             result += ", ";
+        if (wsFuncs)
+            p.mType.mName = "char";
         result += p.mType.BeforeName() + p.mName + p.mType.AfterName();
+        if (wsFuncs)
+            p.mType.mName = "wchar_t";
+        if (!definition && !p.mDefValue.empty())
+            result += " = " + p.mDefValue;
     }, mNumParamsToSkipForWrapper);
     result += ")";
     return result;
 }
 
-void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn, SpecialCall specialType) {
+void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn, SpecialCall specialType, bool wsFuncs) {
     bool noReturn = true;
     if (writeReturn) {
         noReturn = (mRetType.mIsVoid && mRetType.mPointers.empty()) || IsConstructor() || IsDestructor();
@@ -132,7 +138,7 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool
         stream << t() << "return " << mParameters[mRVOParamIndex].mName << ";" << endl;
 }
 
-void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
+void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs) {
     stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
     stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");";
     if (mClass && mClass->UsesCustomConstruction() &&
@@ -141,16 +147,16 @@ void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
         return;
     }
     stream << endl << endl;
-    stream << t() << NameForWrapper(game, true) << " {" << endl;
+    stream << t() << NameForWrapper(game, true, string(), wsFuncs) << " {" << endl;
     ++t;
-    WriteFunctionCall(stream, t, game);
+    WriteFunctionCall(stream, t, game, true, Function::SpecialCall::None, wsFuncs);
     --t;
     stream << t() << "}";
 }
 
-void Function::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game) {
+void Function::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs) {
     WriteComment(stream, mComment, t, 0);
-    stream << t() << NameForWrapper(game, false) << ";";
+    stream << t() << NameForWrapper(game, false, string(), wsFuncs) << ";";
 }
 
 void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {

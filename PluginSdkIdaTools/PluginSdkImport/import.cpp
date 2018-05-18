@@ -595,13 +595,10 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     fnFullComment += " priority:before";
                 // raw parameters types
                 for (auto const &fp : f.m_params) {
-                    if (fp.m_rawType) {
-                        fnFullComment += " rt_";
-                        fnFullComment += fp.m_name;
-                        fnFullComment += ":\"";
-                        fnFullComment += fp.m_type;
-                        fnFullComment += "\"";
-                    }
+                    if (fp.m_rawType)
+                        fnFullComment += qstring(" rt_") + fp.m_name + ":" + csvvalue(fp.m_type, ' ');
+                    if (!fp.m_defValue.empty())
+                        fnFullComment += qstring(" dt_") + fp.m_name + ":" + csvvalue(fp.m_defValue, ' ');
                 }
                 // default comment
                 if (!f.m_comment.empty()) {

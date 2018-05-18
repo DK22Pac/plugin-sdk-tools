@@ -17,7 +17,7 @@ bool startsWith(qstring const &strToCheck, qstring const &strStart);
 bool endsWith(qstring const &strToCheck, qstring const &strEnd);
 bool contains(qstring const &str, qstring const &substr);
 
-qstring csvvalue(qstring const &value);
+qstring csvvalue(qstring const &value, char delim = ',');
 
 // example usage:
 //    readcsv(csvline, outParam1, outParam2, ...);

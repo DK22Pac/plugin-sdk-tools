@@ -95,12 +95,15 @@ void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &out
     getExtraInfo(line, outComment, getFunctionOptions(), outModuleName, outRetType, outPriority, outIsConst);
 }
 
-void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType) {
+void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType, qstring &outDefValue) {
     auto lineEnd = line.find('\n');
+    qstring optionsLine;
     if (lineEnd != qstring::npos)
-        getOptionValue(line.substr(0, lineEnd), argName, outRawType);
+        optionsLine = line.substr(0, lineEnd);
     else
-        getOptionValue(line, argName, outRawType);
+        optionsLine = line;
+    getOptionValue(optionsLine, qstring("rt_") + argName, outRawType);
+    getOptionValue(optionsLine, qstring("dt_") + argName, outDefValue);
 }
 
 void getVariableExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRawType) {

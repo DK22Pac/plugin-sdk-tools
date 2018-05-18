@@ -13,8 +13,14 @@ using namespace std;
 class Struct;
 
 struct FunctionParameter {
+    enum class WSType {
+        None, In, Out, InOut
+    };
+
     string mName;
     Type mType;
+    string mDefValue;
+    WSType mWSType = WSType::None;
 };
 
 struct FunctionReference {
@@ -98,6 +104,7 @@ public:
     int mVTableIndex = -1;         // function index in virtual table
     bool mIsVirtual = false;       // function is virtual (placed in virtual table)
     bool mWrittenToSource = false; // a temporary flag to detect if we already written this function to source file
+    bool mHasWSParameters = false; // do we have wide-string parameters
 
     Vector<FunctionParameter> mParameters;
 
@@ -110,11 +117,11 @@ public:
 
     string GetFullName() const; // combine name + scope
     void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn = true,
-        SpecialCall specialType = SpecialCall::None);
-    void WriteDefinition(ofstream &stream, tabs t, Games::IDs game);
-    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game);
+        SpecialCall specialType = SpecialCall::None, bool wsFuncs = false);
+    void WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs = false);
+    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs = false);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
-    string NameForWrapper(Games::IDs game, bool definition, string const &customName = string());
+    string NameForWrapper(Games::IDs game, bool definition, string const &customName = string(), bool wsFuncs = false);
     string MetaDesc();
     string AddrOfMacro(bool global);
     string Addresses(Games::IDs game);

@@ -122,15 +122,15 @@ void EndFunction(ofstream &stream, unsigned int &numWrittenFunctions) {
 }
 
 void WriteOneFunction(Function *fn, ofstream &stream, tabs t, Games::IDs game, unsigned int &numWrittenFunctions,
-    bool definitions, bool metadata, bool makeNewLine)
+    bool definitions, bool metadata, bool makeNewLine, bool wsFuncs = false)
 {
     StartFunction(stream, numWrittenFunctions, definitions, metadata, makeNewLine);
     if (metadata)
         fn->WriteMeta(stream, t, game);
     else if (definitions)
-        fn->WriteDefinition(stream, t, game);
+        fn->WriteDefinition(stream, t, game, wsFuncs);
     else
-        fn->WriteDeclaration(stream, t, game);
+        fn->WriteDeclaration(stream, t, game, wsFuncs);
     fn->mWrittenToSource = true;
     EndFunction(stream, numWrittenFunctions);
 }
@@ -155,7 +155,7 @@ void WriteBlock(Function *fn, ofstream &stream, tabs t, Games::IDs game, unsigne
 }
 
 void WriteBlock(List<Function *> funcs, ofstream &stream, tabs t, Games::IDs game, unsigned int &numWrittenBlocks,
-    unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine)
+    unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine, bool wsFuncs = false)
 {
     if (funcs.size() > 0) {
         unsigned int writtenCount = 0;
@@ -166,7 +166,7 @@ void WriteBlock(List<Function *> funcs, ofstream &stream, tabs t, Games::IDs gam
                     StartBlock(stream, numWrittenBlocks, definitions, metadata);
                     first = false;
                 }
-                WriteOneFunction(fn, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
+                WriteOneFunction(fn, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine, wsFuncs);
                 writtenCount++;
             }
         }
@@ -312,6 +312,14 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
                 sf->mWrittenToSource = true;
         }
         WriteBlock(mStaticFunctions, stream, t, game, numWrittenBlocks, numWrittenFunctions, definitions, metadata, makeNewLine);
+
+        // Write WS functions
+        List<Function *> wsFunctions;
+        for (auto &f : mFunctions) {
+            if (f.mHasWSParameters)
+                wsFunctions.push_back(&f);
+        }
+        WriteBlock(wsFunctions, stream, t, game, numWrittenBlocks, numWrittenFunctions, definitions, metadata, makeNewLine, true);
     }
     return numWrittenFunctions;
 }

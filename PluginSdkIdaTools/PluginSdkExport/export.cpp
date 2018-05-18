@@ -339,13 +339,12 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         Function::Param funcParam;
                         funcParam.m_name = p.name;
                         p.type.print(&funcParam.m_type);
-                        if (!funcParam.m_name.empty() && startsWith(funcParam.m_name, "rt_")) {
-                            qstring funcParamRawType;
-                            getFunctionArgumentExtraInfo(cmtLine, funcParam.m_name, funcParamRawType);
+                        if (!funcParam.m_name.empty()) {
+                            qstring funcParamRawType, funcParamDefValue;
+                            getFunctionArgumentExtraInfo(cmtLine, funcParam.m_name, funcParamRawType, funcParam.m_defValue);
                             if (!funcParamRawType.empty()) {
                                 funcParam.m_type = funcParamRawType;
                                 funcParam.m_rawType = true;
-                                funcParam.m_name = funcParam.m_name.substr(3);
                             }
                         }
                         entry.m_params.push_back(funcParam);

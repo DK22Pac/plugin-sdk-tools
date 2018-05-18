@@ -26,8 +26,8 @@ qvector<Function> Function::FromCSV(char const *filepath) {
                 entry.m_priority = toNumber(priority);
                 entry.m_vtableIndex = toNumber(vtindex);
                 entry.m_isConst = isConstStr != "0";
-                // raw CPool<CPed> *:pool int:value
-                // [raw] Type : Name
+                // raw CPool<CPed> *:pool int:value(10)
+                // [raw] Type:Name(DefaultValue)
                 size_t currPos = 0;
                 while (1) {
                     auto colonPos = paramsStr.find(':', currPos);
@@ -43,14 +43,20 @@ qvector<Function> Function::FromCSV(char const *filepath) {
                     else
                         param.m_type = paramType;
                     auto spacePos = paramsStr.find(' ', colonPos + 1);
-                    if (spacePos == qstring::npos) {
+                    if (spacePos == qstring::npos)
                         param.m_name = paramsStr.substr(colonPos + 1);
-                        entry.m_params.push_back(param);
-                        break;
+                    else {
+                        param.m_name = paramsStr.substr(colonPos + 1, spacePos);
+                        currPos = spacePos + 1;
                     }
-                    param.m_name = paramsStr.substr(colonPos + 1, spacePos);
-                    currPos = spacePos + 1;
+                    auto defPos = param.m_name.find('(');
+                    if (defPos != qstring::npos && param.m_name.last() == ')') {
+                        param.m_defValue = param.m_name.substr(defPos + 1, param.m_name.length() - 1);
+                        param.m_name = param.m_name.substr(0, defPos);
+                    }
                     entry.m_params.push_back(param);
+                    if (spacePos == qstring::npos)
+                        break;
                 }
                 entries.push_back(entry);
             }
@@ -135,6 +141,8 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
                 parameters += i.m_params[p].m_type;
                 parameters += ':';
                 parameters += i.m_params[p].m_name;
+                if (!i.m_params[p].m_defValue.empty())
+                    parameters += qstring("(") + i.m_params[p].m_defValue + ")";
                 if (p != (i.m_params.size() - 1))
                     parameters += ' ';
             }

@@ -354,14 +354,20 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     else
                                         param.mType.SetFromString(paramType);
                                     auto spacePos = fnParameters.find(' ', colonPos + 1);
-                                    if (spacePos == string::npos) {
+                                    if (spacePos == string::npos)
                                         param.mName = fnParameters.substr(colonPos + 1);
-                                        newFn.mParameters.push_back(param);
-                                        break;
+                                    else {
+                                        param.mName = fnParameters.substr(colonPos + 1, spacePos - (colonPos + 1));
+                                        currPos = spacePos + 1;
                                     }
-                                    param.mName = fnParameters.substr(colonPos + 1, spacePos - (colonPos + 1));
-                                    currPos = spacePos + 1;
+                                    auto defPos = param.mName.find('(');
+                                    if (defPos != string::npos && param.mName.back() == ')') {
+                                        param.mDefValue = param.mName.substr(defPos + 1, param.mName.length() - defPos - 2);
+                                        param.mName = param.mName.substr(0, defPos);
+                                    }
                                     newFn.mParameters.push_back(param);
+                                    if (spacePos == string::npos)
+                                        break;
                                 }
                                 bool isThiscall = newFn.mCC == Function::CC_THISCALL;
                                 unsigned int rvoParamIndex = isThiscall ? 1 : 0;
@@ -379,6 +385,24 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                                 if (p.mType.mPointers.size() > 0 && p.mType.mPointers.back() == '*') {
                                                     p.mType.mPointers.back() = '&';
                                                     p.mName = p.mName.substr(4);
+                                                }
+                                            }
+                                            else if (String::StartsWith(p.mName, "ws") && p.mType.mName == "wchar_t") {
+                                                string wsType = p.mName.substr(2);
+                                                if (String::StartsWith(wsType, "in_")) {
+                                                    p.mWSType = FunctionParameter::WSType::In;
+                                                    p.mName = wsType.substr(3);
+                                                    newFn.mHasWSParameters = true;
+                                                }
+                                                else if (String::StartsWith(wsType, "out_")) {
+                                                    p.mWSType = FunctionParameter::WSType::Out;
+                                                    p.mName = wsType.substr(4);
+                                                    newFn.mHasWSParameters = true;
+                                                }
+                                                else if (String::StartsWith(wsType, "inout_")) {
+                                                    p.mWSType = FunctionParameter::WSType::InOut;
+                                                    p.mName = wsType.substr(6);
+                                                    newFn.mHasWSParameters = true;
                                                 }
                                             }
                                         }

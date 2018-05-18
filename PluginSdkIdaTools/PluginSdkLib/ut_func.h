@@ -7,6 +7,7 @@ public:
     public:
         qstring m_name;
         qstring m_type;
+        qstring m_defValue;
         bool m_rawType = false;
     };
 

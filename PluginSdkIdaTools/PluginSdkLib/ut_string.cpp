@@ -1,9 +1,9 @@
 #include "ut_string.h"
 #include "idp.hpp"
 
-qstring csvvalue(qstring const &value) {
+qstring csvvalue(qstring const &value, char delim) {
     qstring retval = value;
-    if (value.find(',') != qstring::npos) {
+    if (value.find(delim) != qstring::npos) {
         retval.insert(0, '"');
         retval.append('"');
     }
