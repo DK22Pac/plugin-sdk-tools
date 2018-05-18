@@ -83,7 +83,7 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool
             if (!first || !noReturn || mIsVirtual)
                 stream << ", ";
             if (mClass && !mIsStatic && first)
-                stream << mClassName << " *";
+                stream << mShortClassName << " *";
             else
                 stream << p.mType.GetFullType(false);
         });
@@ -97,11 +97,11 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool
         if (!mIsVirtual || index != 0)
             stream << ", ";
         if (index == 0 && specialType == SpecialCall::StackObject)
-            stream << "reinterpret_cast<" << mClassName << " *>(objBuff)";
+            stream << "reinterpret_cast<" << mFullClassName << " *>(objBuff)";
         else if (index == 0 && specialType == SpecialCall::Custom_OperatorNew)
-            stream << "sizeof(" << mClassName << ")";
+            stream << "sizeof(" << mFullClassName << ")";
         else if (index == 0 && specialType == SpecialCall::Custom_Array_OperatorNew)
-            stream << "sizeof(" << mClassName << ") * objCount + 4";
+            stream << "sizeof(" << mFullClassName << ") * objCount + 4";
         else if (index == 0 && (specialType == SpecialCall::Custom_Constructor ||
             specialType == SpecialCall::Custom_DeletingDestructor || specialType == SpecialCall::Custom_BaseDestructor ||
             specialType == SpecialCall::Custom_OperatorDelete))
@@ -267,7 +267,7 @@ string Function::MetaDesc() {
     if (mUsage == Usage::Default || mUsage == Usage::Operator)
         result = GetFullName();
     else
-        result = mClassName;
+        result = mFullClassName;
     if (UsesOverloadedMetaMacro()) {
         result += ", ";
         if (mUsage == Usage::DefaultConstructor || mUsage == Usage::CustomConstructor || mUsage == Usage::CopyConstructor)

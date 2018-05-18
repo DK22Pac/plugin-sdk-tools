@@ -86,7 +86,8 @@ public:
     string mName;                  // function name (without class name and scope)
     string mMangledName;           // mangled name
     string mScope;                 // scope (scope::function_name)
-    string mClassName;             // class name
+    string mFullClassName;             // class name (full name with scope)
+    string mShortClassName;        // class name (without scope)
     string mModuleName;            // module name
     CC mCC = CC_CDECL;             // calling convention
     Type mRetType;                 // function return type

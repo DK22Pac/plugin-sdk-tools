@@ -2,6 +2,7 @@
 #include "Module.h"
 #include <iostream>
 #include "Comments.h"
+#include "StringEx.h"
 #include <unordered_set>
 
 Module *Module::Find(List<Module> &modules, string const &name) {
@@ -26,6 +27,17 @@ Struct *Module::FindStruct(string const &name, bool bFullName) {
     return nullptr;
 }
 
+void AddScopeStruct(Module *m, string const &scope, Struct *struc) {
+    if (scope.empty())
+        return;
+    string newScope, className;
+    String::Break(scope, "::", newScope, className, true);
+    Struct *ss = m->FindStruct(scope, true);
+    if (!ss)
+        ss = m->AddEmptyStruct(className, newScope);
+    struc->SetEnclose(ss);
+}
+
 Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
     Struct s;
     s.mName = name;
@@ -33,7 +45,9 @@ Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
     s.mModuleName = mName;
     s.mModule = this;
     mStructs.push_back(s);
-    return &mStructs.back();
+    Struct *result = &mStructs.back();
+    AddScopeStruct(this, scope, &mStructs.back());
+    return result;
 }
 
 void Module::Write(path const &folder, List<Module> const &allModules, Games::IDs game) {
@@ -169,7 +183,7 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     }
     // structs
     for (auto &s : mStructs) {
-        if (!s.mIsAnonymous) {
+        if (!s.mIsAnonymous && !s.mEncloseClass) {
             stream << endl;
             s.Write(stream, t, *this, allModules, game);
             stream << endl;
@@ -195,6 +209,17 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
         }
         f.WriteDeclaration(stream, t, game);
         stream << endl;
+    }
+    makeNewLine = true;
+    // structs extra info
+    for (auto &s : mStructs) {
+        if (!s.mIsAnonymous) {
+            if (makeNewLine) {
+                stream << endl;
+                makeNewLine = false;
+            }
+            s.WriteStructExtraInfo(stream);
+        }
     }
 
     if (mHasMetaFile)

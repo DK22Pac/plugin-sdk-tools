@@ -51,6 +51,20 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module
         ++numWrittenMembers;
         makeNewLine = true;
     }
+
+    if (mNestedClasses.size() > 0) {
+        if (makeNewLine) {
+            stream << endl;
+            makeNewLine = false;
+        }
+        SetAccess(stream, t, access, Access::Public);
+        for (auto nested : mNestedClasses) {
+            nested->Write(stream, t, myModule, allModules, game);
+            stream << endl;
+            ++numWrittenMembers;
+            makeNewLine = true;
+        }
+    }
     
     IterateFirstLast(mMembers, [&](StructMember &m, bool first, bool last) {
         if (m.mIsBase)
@@ -93,18 +107,6 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module
 
     if (isPacked)
         stream << endl << t() << "#pragma pack(pop)";
-
-    if (mHasVTable) {
-        stream << endl;
-        stream << endl;
-        stream << "VTABLE_DESC(" << GetFullName() << ", " << String::ToHexString(mVTableAddress) << ", " << mVTableSize << ");";
-    }
-
-    if (mSize > 0) {
-        stream << endl;
-        stream << endl;
-        stream << "VALIDATE_SIZE(" << GetFullName() << ", " << String::ToHexString(mSize) << ");";
-    }
 }
 
 void StartFunction(ofstream &stream, unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine) {
@@ -275,12 +277,15 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
                             if (numWrittenVirtualFuncs == 0)
                                 StartBlock(stream, numWrittenBlocks, definitions, metadata);
                             Struct *oldClass = f->mClass;
-                            string oldClassName = f->mClassName;
+                            string oldFullClassName = f->mFullClassName;
+                            string oldShortClassName = f->mShortClassName;
                             f->mClass = this;
-                            f->mClassName = mName;
+                            f->mFullClassName = GetFullName();
+                            f->mShortClassName = mName;
                             WriteOneFunction(f, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
                             f->mClass = oldClass;
-                            f->mClassName = oldClassName;
+                            f->mFullClassName = oldFullClassName;
+                            f->mShortClassName = oldShortClassName;
                             numWrittenVirtualFuncs++;
                         }
                         else {
@@ -735,6 +740,12 @@ void Struct::SetParent(Struct *parent) {
         parent->mChilds.push_back(this);
 }
 
+void Struct::SetEnclose(Struct * enclose) {
+    mEncloseClass = enclose;
+    if (enclose)
+        enclose->mNestedClasses.push_back(this);
+}
+
 bool Struct::UsesCustomConstruction() {
     if (mConstruction != Construction::Unknown)
         return mConstruction == Construction::Custom;
@@ -760,4 +771,11 @@ bool Struct::UsesCustomConstruction() {
             return true;
     }
     return false;
+}
+
+void Struct::WriteStructExtraInfo(ofstream & stream) {
+    if (mHasVTable)
+        stream << "VTABLE_DESC(" << GetFullName() << ", " << String::ToHexString(mVTableAddress) << ", " << mVTableSize << ");" << endl;
+    if (mSize > 0)
+        stream << "VALIDATE_SIZE(" << GetFullName() << ", " << String::ToHexString(mSize) << ");" << endl;
 }

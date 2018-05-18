@@ -34,7 +34,7 @@ public:
     string mName;                 // class name
     string mModuleName;           // module name
     Module *mModule = nullptr;
-    Kind mKind = Kind::Struct;    // class/struct/union
+    Kind mKind = Kind::Class;    // class/struct/union
     unsigned int mSize = 0;       // class size in bytes
     unsigned int mAlignment = 0;  // alignment in bytes
     bool mIsAnonymous = false;    // is anonymous class (class has no name)
@@ -95,5 +95,7 @@ public:
     bool ContainsType(string const &typeName, bool withPointers = true);
     void AddFunction(Function &func_to_add);
     void SetParent(Struct *parent);
+    void SetEnclose(Struct *enclose);
     bool UsesCustomConstruction();
+    void WriteStructExtraInfo(ofstream &stream);
 };

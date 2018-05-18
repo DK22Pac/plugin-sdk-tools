@@ -84,9 +84,9 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                         modules.push_back(tmp);
                         m = &modules.back();
                     }
-                    Struct s;
-                    s.mName = JsonIO::readJsonString(j, "name");
-                    s.mScope = JsonIO::readJsonString(j, "scope");
+                    string sName = JsonIO::readJsonString(j, "name");
+                    string sScope = JsonIO::readJsonString(j, "scope");
+                    Struct &s = *m->AddEmptyStruct(sName, sScope);
                     s.mModuleName = moduleName;
                     string kind = JsonIO::readJsonString(j, "kind");
                     if (kind == "struct")
@@ -148,7 +148,6 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             s.mMembers.push_back(m);
                         }
                     }
-                    m->mStructs.push_back(s);
                 }
             }
         }
@@ -307,7 +306,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     fnDemName.c_str(), fnAddress.c_str()));
                             }
                             else {
-                                string fnScope;
+                                string fnScope, classScope;
                                 auto bp = fnDemName.find('(');
                                 if (bp != string::npos)
                                     fnDemName = fnDemName.substr(0, bp);
@@ -319,8 +318,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 newFn.mModuleName = fnModuleName;
                                 newFn.mScope = fnScope;
                                 if (!newFn.mScope.empty()) {
-                                    string classScope;
-                                    String::Break(newFn.mScope, "::", classScope, newFn.mClassName, true);
+                                    String::Break(newFn.mScope, "::", classScope, newFn.mShortClassName, true);
+                                    newFn.mFullClassName = newFn.mScope;
                                 }
                                 newFn.mCC = cc;
                                 newFn.mType = fnType;
@@ -337,6 +336,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     newFn.mRetType.mWasSetFromRawType = true;
                                 }
                                 newFn.mRetType.SetFromString(retType);
+                                if (!classScope.empty() && newFn.mRetType.mName == newFn.mShortClassName)
+                                    newFn.mRetType.mName = newFn.mFullClassName;
                                 // raw CPool<CPed> *:pool int:value
                                 // [raw] Type : Name
                                 size_t currPos = 0;
@@ -407,21 +408,23 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                             }
                                         }
                                     }
+                                    if (!classScope.empty() && p.mType.mName == newFn.mShortClassName)
+                                        p.mType.mName = newFn.mFullClassName;
                                 });
                                 if (newFn.mRVOParamIndex != -1)
                                     newFn.mNumParamsToSkipForWrapper = newFn.mRVOParamIndex + 1;
                                 else if (isThiscall)
                                     newFn.mNumParamsToSkipForWrapper = 1;
 
-                                bool isInsideClass = !newFn.mClassName.empty();
+                                bool isInsideClass = !newFn.mFullClassName.empty();
                                 newFn.mIsStatic = !isThiscall && isInsideClass;
                                 newFn.mIsVirtual = newFn.mVTableIndex != -1;
 
                                 // find function 'usage'
-                                if (isInsideClass && newFn.mName == newFn.mClassName) {
+                                if (isInsideClass && newFn.mName == newFn.mShortClassName) {
                                     if (newFn.mParameters.size() == 1)
                                         newFn.mUsage = Function::Usage::DefaultConstructor;
-                                    else if (newFn.mParameters.size() >= 1 && newFn.mParameters[1].mType.mName == newFn.mClassName
+                                    else if (newFn.mParameters.size() >= 1 && newFn.mParameters[1].mType.mName == newFn.mShortClassName
                                         && newFn.mParameters[1].mType.mPointers.size() == 1
                                         && newFn.mParameters[1].mType.mPointers[0] == '&')
                                     {
@@ -430,7 +433,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     else
                                         newFn.mUsage = Function::Usage::CustomConstructor;
                                 }
-                                else if (isInsideClass && newFn.mName == "_" + newFn.mClassName || newFn.mName == "destructor"
+                                else if (isInsideClass && newFn.mName == "_" + newFn.mShortClassName || newFn.mName == "destructor"
                                     || String::EndsWith(newFn.mMangledName, "D2Ev"))
                                 {
                                     newFn.mUsage = Function::Usage::BaseDestructor;
@@ -458,8 +461,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
 
                                 // change ret type from pointer to ref (for copy constructors and operators)
                                 if (isInsideClass && (newFn.mUsage == Function::Usage::CopyConstructor || newFn.mUsage == Function::Usage::Operator)) {
-                                    if (newFn.mRetType.mName == newFn.mClassName && newFn.mRetType.mPointers.size() == 1 &&
-                                        newFn.mRetType.mPointers[0] == '*')
+                                    if ((newFn.mRetType.mName == newFn.mShortClassName || newFn.mRetType.mName == newFn.mFullClassName)
+                                        && newFn.mRetType.mPointers.size() == 1 && newFn.mRetType.mPointers[0] == '*')
                                     {
                                         newFn.mRetType.mPointers[0] = '&';
                                     }
@@ -467,7 +470,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
 
                                 // fix destructor name
                                 if (newFn.IsDestructor())
-                                    newFn.mName = "~" + newFn.mClassName;
+                                    newFn.mName = "~" + newFn.mShortClassName;
 
                                 if (fnScope.empty())
                                     m->AddFunction(newFn);
@@ -478,10 +481,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                         s->AddFunction(newFn);
                                     else {
                                         // function class not found
-                                        string newClassName, newClassScope;
-                                        String::Break(fnScope, "::", newClassScope, newClassName, true);
-                                        Struct *newClass = m->AddEmptyStruct(newClassName, newClassScope);
-                                        newClass->mKind = Struct::Kind::Class;
+                                        Struct *newClass = m->AddEmptyStruct(newFn.mShortClassName, classScope);
                                         newClass->AddFunction(newFn);
                                     }
                                 }
