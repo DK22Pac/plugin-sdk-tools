@@ -94,7 +94,7 @@ void showform() {
         }
     }
 
-    qstrncpy(gOutputFolder, "%PLUGIN_SDK_DIR%", 17);
+    qstrncpy(gOutputFolder, "%GTA_DATABASES%", 16);
 
     qstring formdef =
         "BUTTON NO NONE\n"
