@@ -98,7 +98,7 @@ void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> cons
         }
         if (!anonymousType)
             stream << t() << m.mType.BeforeName();
-        else
+        else if(!m.mIsAnonymous)
             stream << ' ';
         if (!m.mIsAnonymous)
             stream << m.mName;

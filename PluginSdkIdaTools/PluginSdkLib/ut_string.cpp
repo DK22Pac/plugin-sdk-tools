@@ -60,8 +60,8 @@ void startWritingToJson() {
 }
 
 char const *jsonOrderedName(char const *name) {
-    static char orderedName[32];
-    qsnprintf(orderedName, 32, "$ORD%010d$%s", OrderingSignsCount(), name);
+    static char orderedName[256];
+    qsnprintf(orderedName, 256, "$ORD%010d$%s", OrderingSignsCount(), name);
     OrderingSignsCount()++;
     return orderedName;
 }
