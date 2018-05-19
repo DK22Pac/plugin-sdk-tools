@@ -21,6 +21,7 @@ public:
     bool mIsBase = false;     // is base class
     bool mIsPadding = false;  // if member has "_pad" in its name
     bool mIsVTable = false;   // is vtable pointer
+    bool mIsAnonymous = false; // is anonymous member (has no name)
 };
 
 class Struct {
@@ -85,7 +86,7 @@ public:
 
     void OnUpdateStructs(List<Module> &modules); // update things before we write to source files
     string GetFullName();         // combine name + scope
-    void Write(ofstream &stream, tabs t, Module const &myModule, List<Module> const &allModules, Games::IDs game);
+    void Write(ofstream &stream, tabs t, Module &myModule, List<Module> const &allModules, Games::IDs game);
     unsigned int WriteFunctions(ofstream &stream, tabs t, Games::IDs game, bool definitions, bool metadata, bool makeNewLine);
     void WriteGeneratedConstruction(ofstream &stream, tabs t, Games::IDs game);
     void WriteStackObjectFunction(ofstream & stream, tabs t, Games::IDs game, Function *fn);

@@ -86,6 +86,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     }
                     string sName = JsonIO::readJsonString(j, "name");
                     string sScope = JsonIO::readJsonString(j, "scope");
+                    if (sName.rfind("::") != string::npos)
+                        String::Break(sName, "::", sScope, sName, true);
                     Struct &s = *m->AddEmptyStruct(sName, sScope);
                     s.mModuleName = moduleName;
                     string kind = JsonIO::readJsonString(j, "kind");
@@ -97,7 +99,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                         s.mKind = Struct::Kind::Class;
                     s.mSize = JsonIO::readJsonNumber(j, "size");
                     s.mAlignment = JsonIO::readJsonNumber(j, "alignment");
-                    s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
+                    if (!s.mIsAnonymous)
+                        s.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
                     s.mIsCoreClass = JsonIO::readJsonBool(j, "isCoreClass");
                     s.mIsAbstractClass = JsonIO::readJsonBool(j, "isAbstract");
                     s.mHasVectorDeletingDestructor = JsonIO::readJsonBool(j, "hasVectorDeletingDtor");
@@ -137,8 +140,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 m.mIsBase = true;
                                 s.mParentName = m.mType.mName;
                             }
-                            if (isAnonymous)
-                                m.mName.clear();
+                            if (isAnonymous || String::StartsWith(m.mName, "anonymous_"))
+                                m.mIsAnonymous = true;
                             if (String::StartsWith(m.mName, "_pad") || String::StartsWith(m.mName, "__pad")) {
                                 m.mName = "_pad" + String::ToHexString(m.mOffset, false);
                                 m.mIsPadding = true;

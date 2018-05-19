@@ -1,3 +1,4 @@
+#include "..\shared\Utility.h"
 #include "Type.h"
 #include "StringEx.h"
 #include <algorithm>
@@ -147,6 +148,10 @@ bool ObtainRegularToken(string const &tokenWord, Token &outToken) {
     }
     if (tokenWord == "struct") {
         outToken = { tokenWord, Token::KEYWORD_STRUCT };
+        return true;
+    }
+    if (tokenWord == "union") {
+        outToken = { tokenWord, Token::KEYWORD_UNION };
         return true;
     }
     if (tokenWord == "enum") {
@@ -371,7 +376,7 @@ string Type::AfterName(bool includeArrays) {
         result += '(';
         IterateFirstLast(mFunctionParams, [&](Type &type, bool first, bool last) {
             if (!first)
-                result += ' ' + ',';
+                result += ", ";
             result += type.GetFullType();
         });
         result += ')';
@@ -541,8 +546,11 @@ void Type::SetFromTokens(Vector<Token> const &tokens) {
             }
             else if (IsFunctionCCToken(t))
                 SetFunctionTypeFromToken(t);
-            else if (t.type == Token::KEYWORD_STRUCT || t.type == Token::KEYWORD_CLASS || t.type == Token::KEYWORD_ENUM)
+            else if (t.type == Token::KEYWORD_STRUCT || t.type == Token::KEYWORD_CLASS
+                || t.type == Token::KEYWORD_UNION || t.type == Token::KEYWORD_ENUM)
+            {
                 mIsForwardDecl = true;
+            }
             else if (t.type == Token::KEYWORD_INBUILT)
                 mIsInBuilt = true;
             else if (t.type == Token::INBUILT_TYPE_NAME || t.type == Token::CUSTOM_TYPE_NAME || t.type == Token::VOID_TYPE) {

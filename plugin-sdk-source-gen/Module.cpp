@@ -41,6 +41,8 @@ void AddScopeStruct(Module *m, string const &scope, Struct *struc) {
 Struct *Module::AddEmptyStruct(string const &name, string const &scope) {
     Struct s;
     s.mName = name;
+    if (s.mName.find('$') != string::npos)
+        s.mIsAnonymous = true;
     s.mScope = scope;
     s.mModuleName = mName;
     s.mModule = this;
@@ -104,14 +106,14 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
                             addUsedTypeName(t.mName, needsHeader);
                     }
                 }
-                if (type.mIsFunction) {
-                    for (auto &t : type.mFunctionParams) {
-                        if (t.mIsCustom)
-                            addUsedTypeName(t.mName, needsHeader);
-                    }
-                    if (type.mFunctionRetType && type.mFunctionRetType->mIsCustom)
-                        addUsedTypeName(type.mFunctionRetType->mName, needsHeader);
+            }
+            else if (type.mIsFunction) {
+                for (auto &t : type.mFunctionParams) {
+                    if (t.mIsCustom)
+                        addUsedTypeName(t.mName, needsHeader);
                 }
+                if (type.mFunctionRetType && type.mFunctionRetType->mIsCustom)
+                    addUsedTypeName(type.mFunctionRetType->mName, needsHeader);
             }
         }
     };

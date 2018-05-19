@@ -20,7 +20,7 @@ void SetAccess(ofstream &stream, tabs t, Struct::Access &accessVar, Struct::Acce
     }
 }
 
-void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module> const &allModules, Games::IDs game) {
+void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> const &allModules, Games::IDs game) {
     WriteComment(stream, mComment, t, 0);
     
     bool isPacked = (mSize % 4) != 0;
@@ -52,17 +52,21 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module
         makeNewLine = true;
     }
 
-    if (mNestedClasses.size() > 0) {
+    auto numNamedNestedClasses = count_if(mNestedClasses.begin(), mNestedClasses.end(), [](Struct *s) { return !s->mIsAnonymous; });
+
+    if (numNamedNestedClasses > 0) {
         if (makeNewLine) {
             stream << endl;
             makeNewLine = false;
         }
         SetAccess(stream, t, access, Access::Public);
         for (auto nested : mNestedClasses) {
-            nested->Write(stream, t, myModule, allModules, game);
-            stream << endl;
-            ++numWrittenMembers;
-            makeNewLine = true;
+            if (!nested->mIsAnonymous) {
+                nested->Write(stream, t, myModule, allModules, game);
+                stream << endl;
+                ++numWrittenMembers;
+                makeNewLine = true;
+            }
         }
     }
     
@@ -83,9 +87,22 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module
             SetAccess(stream, t, access, Access::Private);
         else
             SetAccess(stream, t, access, Access::Public);
-        stream << t();
         auto pos = stream.tellp();
-        stream << m.mType.BeforeName() << m.mName << m.mType.AfterName() << ';';
+        bool anonymousType = false;
+        if (m.mType.mIsCustom) {
+            auto typeStruct = myModule.FindStruct(m.mType.mName, true);
+            if (typeStruct && typeStruct->mIsAnonymous) {
+                typeStruct->Write(stream, t, myModule, allModules, game);
+                anonymousType = true;
+            }
+        }
+        if (!anonymousType)
+            stream << t() << m.mType.BeforeName();
+        else
+            stream << ' ';
+        if (!m.mIsAnonymous)
+            stream << m.mName;
+        stream << m.mType.AfterName() << ';';
         WriteComment(stream, m.mComment, t, stream.tellp() - pos);
         stream << endl;
         ++numWrittenMembers;
@@ -103,7 +120,9 @@ void Struct::Write(ofstream &stream, tabs t, Module const &myModule, List<Module
     // functions
     WriteFunctions(stream, t, game, false, false, numWrittenMembers > 0 || numWrittenVariables > 0);
     --t;
-    stream << t() << '}' << ';';
+    stream << t() << '}';
+    if (!mIsAnonymous)
+        stream << ';';
 
     if (isPacked)
         stream << endl << t() << "#pragma pack(pop)";

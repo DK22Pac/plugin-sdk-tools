@@ -19,6 +19,7 @@ struct Token {
         NUMBER,
         KEYWORD_CLASS,
         KEYWORD_STRUCT,
+        KEYWORD_UNION,
         KEYWORD_ENUM,
         KEYWORD_INBUILT
     };
