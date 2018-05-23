@@ -32,6 +32,7 @@ public:
 
     static Module *Find(List<Module> &modules, string const &name);
     Struct *FindStruct(string const &name, bool bFullName = false);
+    Enum *FindEnum(string const &name, bool bFullName = false);
     Struct *AddEmptyStruct(string const &name, string const &scope);
     void AddFunction(Function const &fn);
 

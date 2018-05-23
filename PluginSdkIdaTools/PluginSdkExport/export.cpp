@@ -516,8 +516,9 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     #endif
 
                         qstring memberComment, memberRawType;
-                        bool isMemberAnonymous, isBaseAttr;
-                        getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isMemberAnonymous, isBaseAttr);
+                        bool isMemberAnonymous, isBaseAttr, isBitfield;
+                        getStructMemberExtraInfo(memberCmtLine, memberComment, memberRawType, isMemberAnonymous, isBaseAttr,
+                            isBitfield);
 
                         json jmember;
                         jmember[jsonOrderedName("name")] = mname.c_str();
@@ -547,6 +548,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         }
                         if (isBaseAttr || isBaseClass)
                             jmember[jsonOrderedName("isBase")] = true;
+                        if (isBitfield)
+                            jmember[jsonOrderedName("isBitfield")] = true;
                         if (!memberComment.empty())
                             jmember[jsonOrderedName("comment")] = memberComment.c_str();
                         members.push_back(jmember);
@@ -599,9 +602,9 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 if (get_enum_cmt(e, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
                     cmtLine = cmtLineBuf;
             #endif
-                qstring comment, moduleName, scope;
+                qstring comment, moduleName, scope, startWord;
                 bool isClass;
-                getEnumExtraInfo(cmtLine, comment, moduleName, scope, isClass);
+                getEnumExtraInfo(cmtLine, comment, moduleName, scope, isClass, startWord);
 
                 auto flags = get_enum_flag(e);
             #if (IDA_VER >= 70)
@@ -631,6 +634,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 j[jsonOrderedName("isHexademical")] = isHexademical;
                 j[jsonOrderedName("isSigned")] = (flags & 0x20000) == 0x20000;
                 j[jsonOrderedName("isBitfield")] = is_bf(e);
+                if (!startWord.empty())
+                    j[jsonOrderedName("startWord")] = startWord.c_str();
                 j[jsonOrderedName("comment")] = comment.c_str();
                 auto &members = j[jsonOrderedName("members")];
                 members = json::array();

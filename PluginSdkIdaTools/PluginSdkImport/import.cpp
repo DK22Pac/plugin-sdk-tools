@@ -101,6 +101,9 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     bool enIsClass = jsonReadBool(j, "isClass");
                     if (enIsClass)
                         enFullCommentLine += " isclass:true";
+                    qstring enStartWord = jsonReadString(j, "startWord");
+                    if (!enStartWord.empty())
+                        enFullCommentLine += qstring(" startWord:") + csvvalue(enStartWord);
                     qstring enCommentLine = jsonReadString(j, "comment");
                     if (!enCommentLine.empty()) {
                         enCommentLine.replace(";;", "\n");
@@ -156,32 +159,6 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                     enMemberName.c_str(), enumName.c_str(), enumMemberErrorMessage(addEnMemberResult).c_str());
                             }
                         }
-                        // set comments for enum members
-                        struct enum_visitor : public enum_member_visitor_t {
-                            enum_visitor(qvector<enum_member_comment_info> &_comments, qstring const &_enumName) : 
-                                m_comments(_comments), m_enumName(_enumName) {}
-                            virtual int idaapi visit_enum_member(const_t cid, uval_t value) {
-                                qstring name;
-                                get_enum_member_name(&name, cid);
-                                for (auto &cm : m_comments) {
-                                    if (!cm.used && cm.memberName == name) {
-                                        set_enum_member_cmt(cid, cm.comment.c_str(), false);
-                                        cm.used = true;
-                                    }
-                                }
-                                for (auto &cm : m_comments) {
-                                    if (!cm.used) {
-                                        
-                                    }
-                                }
-                                return 0;
-                            }
-                            qvector<enum_member_comment_info> &m_comments;
-                            qstring m_enumName;
-                        };
-
-                        enum_visitor visitor(enumMemberComments, enumName);
-                        for_all_enum_members(et, visitor);
                     }
                     // bitfield
                     set_enum_bf(et, jsonReadBool(j, "isBitfield"));
@@ -244,6 +221,7 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                             m.m_isString = jsonReadBool(jm, "isString");
                             m.m_isAnonymous = jsonReadBool(jm, "isAnonymous");
                             m.m_isBase = jsonReadBool(jm, "isBase");
+                            m.m_isBitfield = jsonReadBool(jm, "isBitfield");
                             m.m_comment = jsonReadString(jm, "comment");
                             if (m.m_type.empty()) {
                                 if (m.m_size == 1)
@@ -392,6 +370,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                         stFullMemberComment += " isanonymous:true";
                     if (m.m_isBase)
                         stFullMemberComment += " isbase:true";
+                    if (m.m_isBitfield)
+                        stFullMemberComment += " isbitfield:true";
                     if (!m.m_comment.empty()) {
                         qstring stMemberComment = m.m_comment;
                         stMemberComment.replace(";;", "\n");

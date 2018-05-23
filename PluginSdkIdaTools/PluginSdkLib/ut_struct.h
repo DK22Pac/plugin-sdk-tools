@@ -21,6 +21,7 @@ public:
         bool m_isAnonymous = false;
         bool m_isString = false;
         bool m_isBase = false;
+        bool m_isBitfield = false;
 
         Member() = default;
     };

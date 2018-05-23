@@ -79,12 +79,16 @@ void getStructExtraInfo(qstring const &line, qstring &outComment, qstring &outMo
         outIsAbstractClass, outHasVectorDeletingDtor);
 }
 
-void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsBase) {
-    getExtraInfo(line, outComment, getStructMemberOptions(), outRawType, outIsAnonymous, outIsBase);
+void getStructMemberExtraInfo(qstring const &line, qstring &outComment, qstring &outRawType, bool &outIsAnonymous, bool &outIsBase,
+    bool &outIsBitfield)
+{
+    getExtraInfo(line, outComment, getStructMemberOptions(), outRawType, outIsAnonymous, outIsBase, outIsBitfield);
 }
 
-void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsClass) {
-    getExtraInfo(line, outComment, getEnumOptions(), outModuleName, outScope, outIsClass);
+void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outScope, bool &outIsClass,
+    qstring &outStartWord)
+{
+    getExtraInfo(line, outComment, getEnumOptions(), outModuleName, outScope, outIsClass, outStartWord);
 }
 
 void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBitWidth, bool &outIsCounter) {
@@ -131,6 +135,7 @@ qvector<qstring> getEnumOptions() {
     options.push_back("module");
     options.push_back("scope");
     options.push_back("isclass");
+    options.push_back("startword");
     return options;
 }
 
@@ -158,5 +163,6 @@ qvector<qstring> getStructMemberOptions() {
     options.push_back("rawtype");
     options.push_back("isanonymous");
     options.push_back("isbase");
+    options.push_back("isbitfield");
     return options;
 }

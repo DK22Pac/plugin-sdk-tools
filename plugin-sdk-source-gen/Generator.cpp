@@ -51,6 +51,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     e.mIsHexademical = JsonIO::readJsonBool(j, "isHexademical");
                     e.mIsSigned = JsonIO::readJsonBool(j, "isSigned");
                     e.mIsBitfield = JsonIO::readJsonBool(j, "isBitfield");
+                    e.mStartWord = JsonIO::readJsonString(j, "startWord");
                     e.mComment = JsonIO::readJsonString(j, "comment");
                     auto &members = j.find("members");
                     if (members != j.end()) {
@@ -59,6 +60,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             m.mName = JsonIO::readJsonString(jm, "name");
                             m.mValue = JsonIO::readJsonNumber(jm, "value");
                             m.mComment = JsonIO::readJsonString(jm, "comment");
+                            m.mBitWidth = JsonIO::readJsonNumber(jm, "bitWidth");
                             e.mMembers.push_back(m);
                         }
                     }
@@ -122,6 +124,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             m.mSize = JsonIO::readJsonNumber(jm, "size");
                             bool isAnonymous = JsonIO::readJsonBool(jm, "isAnonymous");
                             bool isBaseClass = JsonIO::readJsonBool(jm, "isBase");
+                            bool isBitfield = JsonIO::readJsonBool(jm, "isBitfield");
                             m.mComment = JsonIO::readJsonString(jm, "comment");
                             if (fullType.empty()) {
                                 if (m.mSize == 1)
@@ -148,6 +151,11 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             }
                             if (m.mOffset == 0 && (m.mName == "vtable" || m.mName == "vftable" || m.mName == "vmt"))
                                 m.mIsVTable = true;
+                            if (isBitfield) {
+                                m.mBitfield = s.mModule->FindEnum(m.mType.mName);
+                                if (m.mBitfield)
+                                    m.mBitfield->mUsedAsBitfieldMember = true;
+                            }
                             s.mMembers.push_back(m);
                         }
                     }

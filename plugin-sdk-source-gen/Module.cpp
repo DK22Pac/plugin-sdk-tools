@@ -27,6 +27,19 @@ Struct *Module::FindStruct(string const &name, bool bFullName) {
     return nullptr;
 }
 
+Enum *Module::FindEnum(string const & name, bool bFullName) {
+    for (auto &e : mEnums) {
+        string enumName;
+        if (bFullName)
+            enumName = e.GetFullName();
+        else
+            enumName = e.mName;
+        if (enumName == name)
+            return &e;
+    }
+    return nullptr;
+}
+
 void AddScopeStruct(Module *m, string const &scope, Struct *struc) {
     if (scope.empty())
         return;
@@ -179,9 +192,11 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     bool makeNewLine = true;
     // enums
     for (auto &e : mEnums) {
-        stream << endl;
-        e.Write(stream, t);
-        stream << endl;
+        if (!e.mUsedAsBitfieldMember) {
+            stream << endl;
+            e.Write(stream, t);
+            stream << endl;
+        }
     }
     // structs
     for (auto &s : mStructs) {

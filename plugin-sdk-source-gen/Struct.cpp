@@ -70,6 +70,7 @@ void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> cons
         }
     }
     
+    bool writingBitfield = false;
     IterateFirstLast(mMembers, [&](StructMember &m, bool first, bool last) {
         if (m.mIsBase)
             return;
@@ -88,22 +89,41 @@ void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> cons
         else
             SetAccess(stream, t, access, Access::Public);
         auto pos = stream.tellp();
-        bool anonymousType = false;
-        if (m.mType.mIsCustom) {
-            auto typeStruct = myModule.FindStruct(m.mType.mName, true);
-            if (typeStruct && typeStruct->mIsAnonymous) {
-                typeStruct->Write(stream, t, myModule, allModules, game);
-                anonymousType = true;
-            }
+        if (m.mBitfield) {
+            //if (!writingBitfield) {
+                stream << t() << "struct {" << endl;
+                ++t;
+            //}
+            m.mBitfield->WriteBitfield(stream, t, m.mIsAnonymous);
+
+            // write bitfield ending
+            --t;
+            stream << t() << '}';
+            if (!m.mIsAnonymous)
+                stream << ' ' << m.mName;
+            stream << ';';
+            WriteComment(stream, m.mComment, t, stream.tellp() - pos);
+            writingBitfield = true;
         }
-        if (!anonymousType)
-            stream << t() << m.mType.BeforeName();
-        else if(!m.mIsAnonymous)
-            stream << ' ';
-        if (!m.mIsAnonymous)
-            stream << m.mName;
-        stream << m.mType.AfterName() << ';';
-        WriteComment(stream, m.mComment, t, stream.tellp() - pos);
+        else {
+            bool anonymousType = false;
+            if (m.mType.mIsCustom) {
+                auto typeStruct = myModule.FindStruct(m.mType.mName, true);
+                if (typeStruct && typeStruct->mIsAnonymous) {
+                    typeStruct->Write(stream, t, myModule, allModules, game);
+                    anonymousType = true;
+                }
+            }
+            if (!anonymousType)
+                stream << t() << m.mType.BeforeName();
+            else if (!m.mIsAnonymous)
+                stream << ' ';
+            if (!m.mIsAnonymous)
+                stream << m.mName;
+            stream << m.mType.AfterName() << ';';
+            WriteComment(stream, m.mComment, t, stream.tellp() - pos);
+            writingBitfield = false;
+        }
         stream << endl;
         ++numWrittenMembers;
     });

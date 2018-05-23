@@ -1,6 +1,7 @@
 #include "ida.hpp"
 #include "idp.hpp"
 #include "loader.hpp"
+#include "enum.hpp"
 #include "ut_ida.h"
 #include "ut_options.h"
 
@@ -14,7 +15,9 @@ char PreviousModuleLabelName[256];
 enum class CommentEntity {
     Unknown,
     Function,
-    Variable
+    Variable,
+    Struct,
+    Enum
 };
 
 // Get entity type at this address
@@ -32,6 +35,48 @@ CommentEntity GetEntityAt(ea_t address) {
 // Get entity type at current address
 CommentEntity GetCurrentEntity() {
     return GetEntityAt(get_screen_ea());
+}
+
+qstring GetModuleFromComment(qstring const &comment, CommentEntity entityType) {
+    qstring outComment, outModuleName, strDummy; bool boolDummy;
+    if (entityType == CommentEntity::Function)
+        getFunctionExtraInfo(comment, outComment, outModuleName, strDummy, strDummy, boolDummy);
+    else if (entityType == CommentEntity::Variable)
+        getVariableExtraInfo(comment, outComment, outModuleName, strDummy);
+    else if (entityType == CommentEntity::Struct)
+        getStructExtraInfo(comment, outComment, outModuleName, strDummy, boolDummy, boolDummy, boolDummy, boolDummy, boolDummy);
+    else if (entityType == CommentEntity::Enum)
+        getEnumExtraInfo(comment, outComment, outModuleName, strDummy, boolDummy, strDummy);
+    return outModuleName;
+}
+
+qstring GetCommentWithNewModule(qstring const &oldComment, qstring const &moduleName, CommentEntity entityType) {
+    qstring oldModuleName = GetModuleFromComment(oldComment, entityType);
+    qstring newModuleStr = qstring("module:") + moduleName + " ";
+    qstring realComment, optionStr;
+    qstrvec_t options;
+    if (entityType == CommentEntity::Function)
+        options = getFunctionOptions();
+    else if (entityType == CommentEntity::Variable)
+        options = getVariableOptions();
+    else if (entityType == CommentEntity::Struct)
+        options = getStructOptions();
+    else if (entityType == CommentEntity::Enum)
+        options = getEnumOptions();
+    getOptionsAndComment(oldComment, options, realComment, optionStr);
+    optionStr += " ";
+    qstring moduleStr = qstring("module:") + oldModuleName + " ";
+    auto moduleStrPos = optionStr.find(moduleStr);
+    if (moduleStrPos != qstring::npos)
+        optionStr.remove(moduleStrPos, moduleStr.length());
+    else
+        moduleStrPos = 0;
+    optionStr.insert(moduleStrPos, newModuleStr);
+    optionStr.trim2();
+    qstring result = optionStr;
+    if (realComment.size() > 0)
+        result += qstring("\n") + realComment;
+    return result;
 }
 
 struct Default {};        // Set plugin-sdk comment...
@@ -82,17 +127,13 @@ struct CommentHandler : public action_handler_t {
         #endif
         }
         else {
-            qstring outComment, outModuleName, outRetType, outPriority;
-            bool outIsConst;
-            getFunctionExtraInfo(comment, outComment, outModuleName, outRetType, outPriority, outIsConst);
-            qstring moduleStr = qstring("module:") + outModuleName + " ";
+            auto oldModuleName = GetModuleFromComment(comment, IsVariable? CommentEntity::Variable : CommentEntity::Function);
             if constexpr(std::is_same_v<CommentOptionType, ModuleOnly>) {
-                qstring str = outModuleName;
-                
+                qstring str = oldModuleName;
             #if (IDA_VER >= 70)
                 if (ask_str(&str, HIST_IDENT, "Enter module name for %s:", entityName.c_str())) {
             #else
-                char *askresult = askstr(HIST_IDENT, outModuleName.c_str(), "Enter module name for %s:", entityName.c_str());
+                char *askresult = askstr(HIST_IDENT, oldModuleName.c_str(), "Enter module name for %s:", entityName.c_str());
                 if (askresult) {
                     str = askresult;
             #endif
@@ -102,22 +143,8 @@ struct CommentHandler : public action_handler_t {
             }
             else if constexpr(std::is_same_v<CommentOptionType, PreviousModule>)
                 changeComment = true;
-            if (changeComment) {
-                qstring newModuleStr = qstring("module:") + LastModuleName + " ";
-                qstring realComment, optionStr;
-                getOptionsAndComment(comment, IsVariable? getVariableOptions() : getFunctionOptions(), realComment, optionStr);
-                optionStr += " ";
-                auto moduleStrPos = optionStr.find(moduleStr);
-                if (moduleStrPos != qstring::npos)
-                    optionStr.remove(moduleStrPos, moduleStr.length());
-                else
-                    moduleStrPos = 0;
-                optionStr.insert(moduleStrPos, newModuleStr);
-                optionStr.trim2();
-                comment = optionStr;
-                if (realComment.size() > 0)
-                    comment += qstring("\n") + realComment;
-            }
+            if (changeComment)
+                comment = GetCommentWithNewModule(comment, LastModuleName, IsVariable ? CommentEntity::Variable : CommentEntity::Function);
         }
         if (changeComment) {
             bool err = false;
@@ -141,13 +168,167 @@ struct CommentHandler : public action_handler_t {
     }
 };
 
+struct assign_module_action_handler : public action_handler_t {
+    virtual int idaapi activate(action_activation_ctx_t *) {
+        qstring moduleName;     
+    #if (IDA_VER >= 70)
+        if (ask_str(&moduleName, HIST_IDENT, "Module name:")) {
+    #else
+        char *askresult = askstr(HIST_IDENT, NULL, "Module name:");
+        if (askresult) {
+            moduleName = askresult;
+        #endif
+            if (!moduleName.empty()) {
+                
+                // functions
+
+                auto func = get_next_func(0);
+                while (func) {
+                    ea_t funcAddr;
+                #if (IDA_VER >= 70)
+                    funcAddr = func->start_ea;
+                #else
+                    funcAddr = func->startEA;
+                #endif
+                    qstring funcName = get_short_name(funcAddr);
+                    if (startsWith(funcName, moduleName)) {
+                        auto funcName2 = funcName.substr(moduleName.length());
+                        if (startsWith(funcName2, "::") || startsWith(funcName2, "__")) {
+                        #if (IDA_VER >= 70)
+                            qstring oldComment;
+                            get_func_cmt(&oldComment, func, false);
+                        #else
+                            qstring oldComment = get_func_cmt(func, false);
+                        #endif
+                            qstring newComment = GetCommentWithNewModule(oldComment, moduleName, CommentEntity::Function);
+                            if (!set_func_cmt(func, newComment.c_str(), false)) {
+                                warning("Unable to set function '%s' comment at address 0x%X\nComment:\n%s",
+                                    funcName.c_str(), funcAddr, newComment.c_str());
+                            }
+                        }
+                    }
+                #if (IDA_VER >= 70)
+                    func = get_next_func(func->start_ea);
+                #else
+                    func = get_next_func(func->startEA);
+                #endif
+                }
+
+                // variables
+
+                auto seg = get_first_seg();
+                while (seg) {
+                    qstring segName;
+                #if (IDA_VER >= 70)
+                    get_segm_name(&segName, seg);
+                #else
+                    static char segNameBuf[32];
+                    if (get_true_segm_name(seg, segNameBuf, 32) != static_cast<ssize_t>(-1))
+                        segName = segNameBuf;
+                #endif
+                    if (isDataSegment(segName)) {
+                    #if (IDA_VER >= 70)
+                        auto ea = seg->start_ea;
+                        while (ea < seg->end_ea) {
+                    #else
+                        auto ea = seg->startEA;
+                        while (ea < seg->endEA) {
+                    #endif
+                            int size = 1;
+                            tinfo_t type;
+                        #if (IDA_VER >= 70)
+                            if (get_tinfo(&type, ea)) {
+                        #else
+                            if (get_tinfo2(ea, &type)) {
+                        #endif
+                                // get type size
+                                size = type.get_size();
+                                if (size < 1)
+                                    size = 1;
+                                auto itemSize = get_item_size(ea);
+                                if (itemSize > size)
+                                    size = itemSize;
+                            }
+                            auto varName = get_short_name(ea);
+                            if (startsWith(varName, moduleName)) {
+                                auto varName2 = varName.substr(moduleName.length());
+                                if (startsWith(varName2, "::") || startsWith(varName2, "__")) {
+                                    qstring oldComment;
+                                #if (IDA_VER >= 70)
+                                    get_cmt(&oldComment, ea, false);
+                                #else
+                                    static char cmtLineBuf[2048];
+                                    if (get_cmt(ea, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                                        oldComment = cmtLineBuf;
+                                #endif
+                                    qstring newComment = GetCommentWithNewModule(oldComment, moduleName, CommentEntity::Variable);
+                                    if (!set_cmt(ea, newComment.c_str(), false)) {
+                                        warning("Unable to set variable '%s' comment at address 0x%X\nComment:\n%s",
+                                            varName.c_str(), ea, newComment.c_str());
+                                    }
+                                }
+                            }
+                            ea += size;
+                        }
+                    }
+                #if (IDA_VER >= 70)
+                    seg = get_next_seg(seg->start_ea);
+                #else
+                    seg = get_next_seg(seg->startEA);
+                #endif
+                }
+
+                // struct
+
+                auto strucid = get_struc_id(moduleName.c_str());
+                if (strucid != BADADDR) {
+                    qstring oldComment;
+                #if (IDA_VER >= 70)
+                    get_struc_cmt(&oldComment, strucid, false);
+                #else
+                    static char cmtLineBuf[2048];
+                    if (get_struc_cmt(strucid, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                        oldComment = cmtLineBuf;
+                #endif
+                    qstring newComment = GetCommentWithNewModule(oldComment, moduleName, CommentEntity::Struct);
+                    set_struc_cmt(strucid, newComment.c_str(), false);
+                }
+
+                // enum
+
+                auto enumid = get_enum(moduleName.c_str());
+                if (enumid != BADADDR) {
+                    qstring oldComment;
+                #if (IDA_VER >= 70)
+                    get_enum_cmt(&oldComment, enumid, false);
+                #else
+                    static char cmtLineBuf[2048];
+                    if (get_enum_cmt(enumid, false, cmtLineBuf, 2048) != static_cast<ssize_t>(-1))
+                        oldComment = cmtLineBuf;
+                #endif
+                    qstring newComment = GetCommentWithNewModule(oldComment, moduleName, CommentEntity::Enum);
+                    set_enum_cmt(enumid, newComment.c_str(), false);
+                }
+            }
+        }
+        return 0;
+    }
+
+    virtual action_state_t idaapi update(action_update_ctx_t *) {
+        return AST_ENABLE_ALWAYS;
+    }
+};
+
 static CommentHandler<Default> set_comment_action;
 static CommentHandler<ModuleOnly> set_module_action;
 static CommentHandler<PreviousModule> set_previous_module_action;
+assign_module_action_handler assign_module_action;
 action_desc_t set_comment_action_desc = ACTION_DESC_LITERAL("PluginSdk:set_comment", "Set plugin-sdk comment...", &set_comment_action, NULL, NULL, -1);
 action_desc_t set_module_action_desc = ACTION_DESC_LITERAL("PluginSdk:set_module", "Set plugin-sdk module...", &set_module_action, NULL, NULL, -1);
 action_desc_t set_previous_module_action_desc =
     ACTION_DESC_LITERAL("PluginSdk:set_previous_module", PreviousModuleLabelName, &set_previous_module_action, NULL, NULL, -1);
+action_desc_t assign_module_action_desc = ACTION_DESC_LITERAL("PluginSdk:assign_module", "Assign plugin-sdk module...", 
+    &assign_module_action, NULL, NULL, -1);
 
 ssize_t idaapi hook_cb(void *user_data, int notification_code, va_list va) {
 #if (IDA_VER >= 70)
@@ -191,6 +372,8 @@ int idaapi init(void) {
     register_action(set_comment_action_desc);
     register_action(set_module_action_desc);
     register_action(set_previous_module_action_desc);
+    register_action(assign_module_action_desc);
+    attach_action_to_menu("Edit/Other", "PluginSdk:assign_module", SETMENU_APP);
     inited = true;
     return PLUGIN_KEEP;
 }
@@ -209,6 +392,8 @@ void idaapi term(void) {
         unregister_action("PluginSdk:set_module");
         unregister_action("PluginSdk:set_previous_module");
         unhook_from_notification_point(HT_UI, hook_cb);
+        unregister_action("PluginSdk:assign_module");
+        detach_action_from_menu("Edit/Other", "PluginSdk:assign_module");
     }
 }
 

@@ -6,6 +6,7 @@
 #include "Type.h"
 #include "Function.h"
 #include "Variable.h"
+#include "Enum.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ public:
     bool mIsPadding = false;  // if member has "_pad" in its name
     bool mIsVTable = false;   // is vtable pointer
     bool mIsAnonymous = false; // is anonymous member (has no name)
+    Enum *mBitfield = nullptr; // associated bitfield
 };
 
 class Struct {
