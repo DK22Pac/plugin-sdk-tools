@@ -138,7 +138,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                             }
                             m.mType.SetFromString(fullType);
                             if (s.mKind != Struct::Kind::Union && m.mOffset == 0 &&
-                                (isBaseClass || String::StartsWith(m.mName, "baseclass_")))
+                                (isBaseClass || m.mName == "base" || String::StartsWith(m.mName, "baseclass_")))
                             {
                                 m.mIsBase = true;
                                 s.mParentName = m.mType.mName;

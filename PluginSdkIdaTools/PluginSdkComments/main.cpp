@@ -179,6 +179,8 @@ struct assign_module_action_handler : public action_handler_t {
             moduleName = askresult;
         #endif
             if (!moduleName.empty()) {
+
+                unsigned int numFunctions = 0, numVariables = 0, numEnums = 0, numStructs = 0;
                 
                 // functions
 
@@ -205,6 +207,8 @@ struct assign_module_action_handler : public action_handler_t {
                                 warning("Unable to set function '%s' comment at address 0x%X\nComment:\n%s",
                                     funcName.c_str(), funcAddr, newComment.c_str());
                             }
+                            else
+                                numFunctions++;
                         }
                     }
                 #if (IDA_VER >= 70)
@@ -266,6 +270,8 @@ struct assign_module_action_handler : public action_handler_t {
                                         warning("Unable to set variable '%s' comment at address 0x%X\nComment:\n%s",
                                             varName.c_str(), ea, newComment.c_str());
                                     }
+                                    else
+                                        numVariables++;
                                 }
                             }
                             ea += size;
@@ -292,6 +298,7 @@ struct assign_module_action_handler : public action_handler_t {
                 #endif
                     qstring newComment = GetCommentWithNewModule(oldComment, moduleName, CommentEntity::Struct);
                     set_struc_cmt(strucid, newComment.c_str(), false);
+                    numStructs++;
                 }
 
                 // enum
@@ -308,7 +315,11 @@ struct assign_module_action_handler : public action_handler_t {
                 #endif
                     qstring newComment = GetCommentWithNewModule(oldComment, moduleName, CommentEntity::Enum);
                     set_enum_cmt(enumid, newComment.c_str(), false);
+                    numEnums++;
                 }
+
+                msg("Assigned module '%s' to: %d function(s), %d variable(s), %d struct(s), %d enum(s)\n",
+                    moduleName.c_str(), numFunctions, numVariables, numStructs, numEnums);
             }
         }
         return 0;

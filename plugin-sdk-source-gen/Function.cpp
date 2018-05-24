@@ -48,7 +48,9 @@ string Function::NameForWrapper(Games::IDs game, bool definition, string const &
     return result;
 }
 
-void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn, SpecialCall specialType, bool wsFuncs) {
+void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn, SpecialCall specialType,
+    SpecialData specialData, bool wsFuncs)
+{
     bool noReturn = true;
     if (writeReturn) {
         noReturn = (mRetType.mIsVoid && mRetType.mPointers.empty()) || IsConstructor() || IsDestructor();
@@ -99,9 +101,9 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool
         if (index == 0 && specialType == SpecialCall::StackObject)
             stream << "reinterpret_cast<" << mFullClassName << " *>(objBuff)";
         else if (index == 0 && specialType == SpecialCall::Custom_OperatorNew)
-            stream << "sizeof(" << mFullClassName << ")";
+            stream << "sizeof(" << specialData.mClassNameForOpNewDelete << ")";
         else if (index == 0 && specialType == SpecialCall::Custom_Array_OperatorNew)
-            stream << "sizeof(" << mFullClassName << ") * objCount + 4";
+            stream << "sizeof(" << specialData.mClassNameForOpNewDelete << ") * objCount + 4";
         else if (index == 0 && (specialType == SpecialCall::Custom_Constructor ||
             specialType == SpecialCall::Custom_DeletingDestructor || specialType == SpecialCall::Custom_BaseDestructor ||
             specialType == SpecialCall::Custom_OperatorDelete))
@@ -149,7 +151,7 @@ void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool w
     stream << endl << endl;
     stream << t() << NameForWrapper(game, true, string(), wsFuncs) << " {" << endl;
     ++t;
-    WriteFunctionCall(stream, t, game, true, Function::SpecialCall::None, wsFuncs);
+    WriteFunctionCall(stream, t, game, true, Function::SpecialCall::None, SpecialData(), wsFuncs);
     --t;
     stream << t() << "}";
 }

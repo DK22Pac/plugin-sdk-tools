@@ -81,6 +81,10 @@ public:
         Custom_Array_OperatorDelete
     };
 
+    struct SpecialData {
+        string mClassNameForOpNewDelete;
+    };
+
     Struct *mClass = nullptr;      // ptr to class (nullptr if there's no class)
 
     string mName;                  // function name (without class name and scope)
@@ -118,7 +122,7 @@ public:
 
     string GetFullName() const; // combine name + scope
     void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn = true,
-        SpecialCall specialType = SpecialCall::None, bool wsFuncs = false);
+        SpecialCall specialType = SpecialCall::None, SpecialData specialData = SpecialData(), bool wsFuncs = false);
     void WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs = false);
     void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs = false);
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);

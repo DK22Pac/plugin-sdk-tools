@@ -315,16 +315,16 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
                         if (vf) {
                             if (numWrittenVirtualFuncs == 0)
                                 StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                            Struct *oldClass = f->mClass;
-                            string oldFullClassName = f->mFullClassName;
-                            string oldShortClassName = f->mShortClassName;
-                            f->mClass = this;
-                            f->mFullClassName = GetFullName();
-                            f->mShortClassName = mName;
-                            WriteOneFunction(f, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                            f->mClass = oldClass;
-                            f->mFullClassName = oldFullClassName;
-                            f->mShortClassName = oldShortClassName;
+                            Struct *oldClass = vf->mClass;
+                            string oldFullClassName = vf->mFullClassName;
+                            string oldShortClassName = vf->mShortClassName;
+                            vf->mClass = this;
+                            vf->mFullClassName = GetFullName();
+                            vf->mShortClassName = mName;
+                            WriteOneFunction(vf, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
+                            vf->mClass = oldClass;
+                            vf->mFullClassName = oldFullClassName;
+                            vf->mShortClassName = oldShortClassName;
                             numWrittenVirtualFuncs++;
                         }
                         else {
@@ -381,7 +381,7 @@ void Struct::WriteStackObjectFunction(ofstream & stream, tabs t, Games::IDs game
     stream << t() << "}" << endl;
 }
 
-void AddOperatorNewToUniqueList(List<Function *> uniqueList, Function *fn) {
+void AddOperatorNewToUniqueList(List<Function *> &uniqueList, Function *fn) {
     // check if we already have function with such signature (actually, we check parameters only)
 
     auto CompareFunctions = [](Function *f1, Function *f2) {
@@ -480,8 +480,10 @@ void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::ID
             // allocate data
             stream << t() << "void *objData = ";
             if (n) {
+                Function::SpecialData spdata;
+                spdata.mClassNameForOpNewDelete = GetFullName();
                 n->WriteFunctionCall(stream, tabs(0), game, false, isArray ?
-                    Function::SpecialCall::Custom_Array_OperatorNew : Function::SpecialCall::Custom_OperatorNew);
+                    Function::SpecialCall::Custom_Array_OperatorNew : Function::SpecialCall::Custom_OperatorNew, spdata);
             }
             else {
                 stream << "operator new(sizeof(" << GetFullName() << ")";

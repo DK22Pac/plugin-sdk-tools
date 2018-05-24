@@ -130,6 +130,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                 type.print(&entry.m_type);
                             entry.m_name = addrName;
                             entry.m_demangledName = get_short_name(ea);
+                            qstring tmpdem = entry.m_demangledName;
+                            tmpdem.replace("__", "::");
+                            if (entry.m_name == tmpdem)
+                                entry.m_demangledName = entry.m_name;
+
                             qstring cmtLine;
                         #if (IDA_VER >= 70)
                             get_cmt(&cmtLine, ea, false);
