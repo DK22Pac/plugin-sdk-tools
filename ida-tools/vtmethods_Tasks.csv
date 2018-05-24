@@ -1,0 +1,47 @@
+Task,ParentTable,MethodName,MethodDecl
+CTask,,_ZN$CN$D0Ev,"void __thiscall f($CN$ *this, unsigned char deletingFlags)"
+CTask,,_ZNK$CN$5CloneEv,$CN$ *__thiscall f($CN$ *this)
+CTask,,_ZNK$CN$10GetSubTaskEv,class CTask *__thiscall f($CN$ *this)
+CTask,,_ZNK$CN$12IsSimpleTaskEv,bool __thiscall f($CN$ *this)
+CTask,,_ZNK$CN$11GetTaskTypeEv,int __thiscall f($CN$ *this)
+CTask,,_ZN$CN$9StopTimerEPK6CEvent,"void __thiscall f($CN$ *this, class CEvent *_event)"
+CTask,,_ZN$CN$13MakeAbortableEP4CPediPK6CEvent,"bool __thiscall f($CN$ *this, class CPed *ped, int priority, class CEvent const *_event)"
+CTaskSimple,CTask,_ZN$CN$10ProcessPedEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CTaskSimple,CTask,_ZN$CN$14SetPedPositionEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplex,CTask,_ZN$CN$10SetSubTaskEP5CTask,"void __thiscall f($CN$ *this, class CTask *subTask)"
+CTaskComplex,CTask,_ZN$CN$17CreateNextSubTaskEP4CPed,"class CTask *__thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplex,CTask,_ZN$CN$18CreateFirstSubTaskEP4CPed,"class CTask *__thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplex,CTask,_ZN$CN$14ControlSubTaskEP4CPed,"class CTask *__thiscall f($CN$ *this, class CPed *ped)"
+CTaskSimpleHitFromBack,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitFromLeft,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitFromRight,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitByGunFromFront,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitByGunFromRear,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitByGunFromLeft,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitByGunFromRight,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitFromFront,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitFromBehind,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHitWall,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleAbseil,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleCower,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleScratchHead,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleUseAtm,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleChat,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleHandsUp,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleLookAbout,CTaskSimple,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskSimpleIKChain,CTaskSimple,_ZN$CN$13CreateIKChainEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexEnterCar,CTaskComplex,_ZN$CN$37CreateNextSubTask_AfterSimpleCarAlignEP4CPed,"class CTask *__thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexCarDrive,CTaskComplex,_ZNK$CN$8SetUpCarEv,void __thiscall f($CN$ *this)
+CTaskComplexCarDrive,CTaskComplex,_ZNK$CN$27CreateSubTaskCannotGetInCarEP4CPed,"class CTask *__thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexCarDrive,CTaskComplex,_ZN$CN$5DriveEP4CPed,"class CTask *__thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexWander,CTaskComplex,_ZNK$CN$13GetWanderTypeEv,int __thiscall f($CN$ *this)
+CTaskComplexWander,CTaskComplex,_ZN$CN$12ScanForStuffEP4CPed,"void __thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexWander,CTaskComplex,_ZN$CN$9UpdateDirEPK4CPed,"void __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskComplexWander,CTaskComplex,_ZN$CN$15UpdatePathNodesEPK4CPedhR12CNodeAddressS4_Rh,"void __thiscall f($CN$ *this, class CPed const *ped, unsigned char dir,class CNodeAddress *ref_originNode,class CNodeAddress *ref_targetNode, unsigned char *ref_outDir)"
+CTaskComplexUseSwatRope,CTaskComplex,_ZNK$CN$15IsInterruptableEPK4CPed,"bool __thiscall f($CN$ *this, class CPed const *ped)"
+CTaskComplexUseSwatRope,CTaskComplex,_ZN$CN$13AbortUrgentlyEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexGangLeader,CTaskComplex,_ZN$CN$12ScanForStuffEP4CPed,"void __thiscall f($CN$ *this, class CPed *ped)"
+CTaskComplexPartner,CTaskComplex,_ZN$CN$19StreamRequiredAnimsEv,void __thiscall f($CN$ *this)
+CTaskComplexPartner,CTaskComplex,_ZN$CN$19RemoveStreamedAnimsEv,void __thiscall f($CN$ *this)
+CTaskComplexPartner,CTaskComplex,_ZN$CN$18GetPartnerSequenceEv,class CTask *__thiscall f($CN$ *this)
+CTaskComplexFollowPedFootsteps,CTaskComplex,_ZN$CN$13CreateSubTaskEiPK4CPed,"class CTask *__thiscall f($CN$ *this, int taskType, class CPed const *ped)"

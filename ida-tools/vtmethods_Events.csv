@@ -1,0 +1,19 @@
+ClassName,ParentTable,MethodName,MethodDecl
+CEvent,,_ZN$CN$D0Ev,"void __thiscall f($CN$ *this, unsigned char deletingFlags)"
+CEvent,,_ZNK$CN$12GetEventTypeEv,int __thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$16GetEventPriorityEv,int __thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$11GetLifeTimeEv,int __thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$5CloneEv,$CN$ *__thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$10AffectsPedEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CEvent,,_ZNK$CN$15AffectsPedGroupEP9CPedGroup,"bool __thiscall f($CN$ *this, class CPedGroup *pedGroup)"
+CEvent,,_ZNK$CN$15IsCriminalEventEv,bool __thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$19ReportCriminalEventEP4CPed,"void __thiscall f($CN$ *this, class CPed *ped)"
+CEvent,,_ZNK$CN$19HasEditableResponseEv,bool __thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$15GetSourceEntityEv,class CEntity *__thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$17TakesPriorityOverERK6CEvent,"bool __thiscall f($CN$ *this, CEvent const * ref__event)"
+CEvent,,_ZNK$CN$18GetLocalSoundLevelEv,float __thiscall f($CN$ *this)
+CEvent,,_ZNK$CN$24DoInformVehicleOccupantsEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CEvent,,_ZNK$CN$7IsValidEP4CPed,"bool __thiscall f($CN$ *this, class CPed *ped)"
+CEvent,,_ZNK$CN$27CanBeInterruptedBySameEventEv,bool __thiscall f($CN$ *this)
+CEventEditableResponse,CEvent,_ZNK$CN$13CloneEditableEv,$CN$ *__thiscall f($CN$ *this)
+CEventScriptCommand,CEvent,_ZNK$CN$15CloneScriptTaskEv,class CTask *__thiscall f($CN$ *this)
