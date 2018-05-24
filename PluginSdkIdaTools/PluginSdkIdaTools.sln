@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkComments", "Plugin
 		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA} = {BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PrcoessVTables", "PrcoessVTables\PrcoessVTables.vcxproj", "{565052C1-8508-4E6B-9C37-CE72485AC071}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		IDA 6.8|Windows = IDA 6.8|Windows
@@ -42,6 +44,10 @@ Global
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
+		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 6.8|Windows.ActiveCfg = IDA 6.8|Win32
+		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
+		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
+		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
