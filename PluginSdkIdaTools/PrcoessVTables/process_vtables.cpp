@@ -328,8 +328,6 @@ void process_vtables(char const *tablesFilePath, char const *methodsFilePath,
         for (auto const &vtStruct : vtStructs) {
             qstring className, classDeclName;
             getClassNamesForDecl(vtStruct.first, className, classDeclName);
-            if (VTableUnionForBaseClass && rootClassName == className)
-                continue;
             qstring structName = qstring("_vtable_") + className;
             auto methodsTable = vtStruct.second;
             auto stid = get_struc_id(structName.c_str());
@@ -337,7 +335,9 @@ void process_vtables(char const *tablesFilePath, char const *methodsFilePath,
             if (stid != BADNODE) {
                 s = get_struc(stid);
                 auto strucsize = get_struc_size(stid);
-                if (del_struc_members(s, 0, strucsize + 1) == -1) {
+                if (del_struc_members(s, 0, strucsize + 1) != -1)
+                    setflag(s->props, SF_UNION, false);
+                else {
                     warning("Error: Unable to delete struct '%s' data", structName.c_str());
                     continue;
                 }
@@ -435,16 +435,14 @@ void process_vtables(char const *tablesFilePath, char const *methodsFilePath,
         begin_type_updating(UTP_STRUCT);
 
         while (VTableUnionForBaseClass) {
-            qstring structName = qstring("_vtable_") + rootClassName;
+            qstring structName = qstring("_vtable_union_") + rootClassName;
             auto stid = get_struc_id(structName.c_str());
             struc_t *s = nullptr;
             if (stid != BADNODE) {
                 s = get_struc(stid);
                 auto strucsize = get_struc_size(stid);
-                if (del_struc_members(s, 0, strucsize + 1) != -1) {
-                    if (!s->is_union())
-                        setflag(s->props, SF_UNION, true);
-                }
+                if (del_struc_members(s, 0, strucsize + 1) != -1)
+                    setflag(s->props, SF_UNION, true);
                 else {
                     warning("Error: Unable to delete struct '%s' data", structName.c_str());
                     break;
