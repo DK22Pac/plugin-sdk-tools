@@ -47,7 +47,10 @@ void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> cons
     bool makeNewLine = false;
     if (UsesCustomConstruction()) {
         SetAccess(stream, t, access, Access::Private);
-        stream << t() << "PLUGIN_NO_DEFAULT_CONSTRUCTION(" << mName << ")" << endl;
+        stream << t() << "PLUGIN_NO_DEFAULT_CONSTRUCTION";
+        if (mHasVTableMember)
+            stream << "_VIRTUALBASE";
+        stream << "(" << mName << ")" << endl;
         ++numWrittenMembers;
         makeNewLine = true;
     }
@@ -72,17 +75,11 @@ void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> cons
     
     bool writingBitfield = false;
     IterateFirstLast(mMembers, [&](StructMember &m, bool first, bool last) {
-        if (m.mIsBase)
+        if (m.mIsBase || m.mIsVTable)
             return;
         if (makeNewLine) {
             stream << endl;
             makeNewLine = false;
-        }
-        if (m.mIsVTable) {
-            SetAccess(stream, t, access, Access::Private);
-            stream << t() << "void *vtable;" << endl;
-            ++numWrittenMembers;
-            return;
         }
         if (m.mIsPadding)
             SetAccess(stream, t, access, Access::Private);

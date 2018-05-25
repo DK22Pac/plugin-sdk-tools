@@ -44,6 +44,7 @@ public:
     bool mIsCoreClass = false;    // is core class
     bool mIsAbstractClass = false; // this class has pure virtual functions; NOTE: not used yet
     bool mHasVTable = false;      // has vtable in exe
+    bool mHasVTableMember = false; // has vtable member
     bool mHasVirtualFunctions = false; // has virtual functions in mFunctions
     bool mHasVirtualDestructor = false; // has virtual destructor in mFunctions
     bool mHasVectorDeletingDestructor = false; // can we use deleting destructor to delete an array?

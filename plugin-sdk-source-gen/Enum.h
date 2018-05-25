@@ -24,6 +24,7 @@ public:
     bool mIsHexademical = false; // hexademical values
     bool mIsSigned = false;   // signed values
     bool mIsBitfield = false; // bitfield
+    bool mIsAnonymous = false; // anonymous enum
     bool mUsedAsBitfieldMember = false; // used as bitfield member in struct
     string mStartWord;        // start word for enum members
     string mComment;          // enum comment

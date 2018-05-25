@@ -51,6 +51,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     e.mIsHexademical = JsonIO::readJsonBool(j, "isHexademical");
                     e.mIsSigned = JsonIO::readJsonBool(j, "isSigned");
                     e.mIsBitfield = JsonIO::readJsonBool(j, "isBitfield");
+                    e.mIsAnonymous = JsonIO::readJsonBool(j, "isAnonymous");
                     e.mStartWord = JsonIO::readJsonString(j, "startWord");
                     e.mComment = JsonIO::readJsonString(j, "comment");
                     auto &members = j.find("members");
@@ -137,7 +138,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                     fullType = "char[" + to_string(m.mSize) + "]";
                             }
                             m.mType.SetFromString(fullType);
-                            if (s.mKind != Struct::Kind::Union && m.mOffset == 0 &&
+                            if (s.mParentName.empty() &&
                                 (isBaseClass || m.mName == "base" || String::StartsWith(m.mName, "baseclass_")))
                             {
                                 m.mIsBase = true;
@@ -149,8 +150,10 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 m.mName = "_pad" + String::ToHexString(m.mOffset, false);
                                 m.mIsPadding = true;
                             }
-                            if (m.mOffset == 0 && (m.mName == "vtable" || m.mName == "vftable" || m.mName == "vmt"))
+                            if (!s.mHasVTableMember && m.mOffset == 0 && (m.mName == "vtable" || m.mName == "vftable" || m.mName == "vmt")) {
                                 m.mIsVTable = true;
+                                s.mHasVTableMember = true;
+                            }
                             if (isBitfield) {
                                 m.mBitfield = s.mModule->FindEnum(m.mType.mName);
                                 if (m.mBitfield)
