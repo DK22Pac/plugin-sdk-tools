@@ -45,7 +45,7 @@ void Struct::Write(ofstream &stream, tabs t, Module &myModule, List<Module> cons
     ++t;
     unsigned int numWrittenMembers = 0;
     bool makeNewLine = false;
-    if (UsesCustomConstruction()) {
+    if (UsesCustomConstruction() || mHasVTableMember) {
         SetAccess(stream, t, access, Access::Private);
         stream << t() << "PLUGIN_NO_DEFAULT_CONSTRUCTION";
         if (mHasVTableMember)
@@ -242,11 +242,6 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
             Vector<Function *> vtable(mVTableSize, nullptr);
             for (auto f : mVirtualFunctions)
                 vtable[f->mVTableIndex] = f;
-            if (!definitions) {
-                StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                stream << t() << "/* virtual functions */" << endl;
-                EndBlock(numWrittenBlocks);
-            }
             unsigned int currIndex = 0;
             IterateIndex(vtable, [&](Function *f, int index) {
                 if (f && f->IsDestructor()) {
@@ -337,11 +332,6 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
             });
             if (numWrittenVirtualFuncs > 0)
                 EndBlock(numWrittenBlocks);
-            if (!definitions) {
-                StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                stream << t() << "/* virtual functions - end */" << endl;
-                EndBlock(numWrittenBlocks);
-            }
         }
         for (auto sf : mNonStaticFunctions) {
             if (sf->mUsage != Function::Usage::Default)
@@ -400,8 +390,8 @@ void AddOperatorNewToUniqueList(List<Function *> &uniqueList, Function *fn) {
     uniqueList.push_back(fn);
 }
 
-void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::IDs game, Function *ctor) {
-    for (int i = 0; i < 2; i++) {
+void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::IDs game, Function *ctor, bool writeArrayNew) {
+    for (int i = 0; i < (writeArrayNew + 1); i++) {
         bool isArray = i == 1;
         List<Function *> opNewList;
         bool hasDefaultOperatorNew = false;
@@ -617,11 +607,11 @@ void Struct::WriteGeneratedConstruction(ofstream & stream, tabs t, Games::IDs ga
     if (mDefaultConstructor || !mCustomConstructors.empty() || !mCopyConstructors.empty() || mBaseDestructor || mDeletingDestructor) {
         stream << endl;
         if (mDefaultConstructor)
-            WriteCustomOperatorNewFunction(stream, t, game, mDefaultConstructor);
+            WriteCustomOperatorNewFunction(stream, t, game, mDefaultConstructor, true);
         for (auto c : mCustomConstructors)
-            WriteCustomOperatorNewFunction(stream, t, game, c);
+            WriteCustomOperatorNewFunction(stream, t, game, c, false);
         for (auto c : mCopyConstructors)
-            WriteCustomOperatorNewFunction(stream, t, game, c);
+            WriteCustomOperatorNewFunction(stream, t, game, c, false);
         if (mBaseDestructor || mDeletingDestructor) {
             WriteCustomOperatorDeleteFunction(stream, t, game);
             WriteCustomOperatorDeleteArrayFunction(stream, t, game);

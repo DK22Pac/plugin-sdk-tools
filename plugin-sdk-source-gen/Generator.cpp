@@ -473,8 +473,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                         newFn.mUsage = Function::Usage::Operator;
                                 }
 
-                                // change ret type from pointer to ref (for copy constructors and operators)
-                                if (isInsideClass && (newFn.mUsage == Function::Usage::CopyConstructor || newFn.mUsage == Function::Usage::Operator)) {
+                                // change ret type from pointer to ref (for operators)
+                                if (isInsideClass && newFn.mUsage == Function::Usage::Operator) {
                                     if ((newFn.mRetType.mName == newFn.mShortClassName || newFn.mRetType.mName == newFn.mFullClassName)
                                         && newFn.mRetType.mPointers.size() == 1 && newFn.mRetType.mPointers[0] == '*')
                                     {

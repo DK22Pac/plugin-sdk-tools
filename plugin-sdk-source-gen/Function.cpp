@@ -18,7 +18,7 @@ string Function::NameForWrapper(Games::IDs game, bool definition, string const &
         if (mIsStatic)
             result += "static ";
     }
-    if (mUsage != Function::Usage::DefaultConstructor && !IsDestructor()) {
+    if (!IsConstructor() && !IsDestructor()) {
         if (mRVOParamIndex != -1)
             result += mParameters[mRVOParamIndex].mType.GetFullTypeRemovePointer();
         else
@@ -144,7 +144,7 @@ void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool w
     stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
     stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");";
     if (mClass && mClass->UsesCustomConstruction() &&
-        (IsConstructor() || IsDestructor() || mUsage == Usage::CopyConstructor || IsOperatorNewDelete()))
+        (IsConstructor() || IsDestructor() || IsOperatorNewDelete()))
     {
         return;
     }
@@ -380,7 +380,8 @@ bool Function::IsDestructor() {
 }
 
 bool Function::IsConstructor() {
-    return mUsage == Function::Usage::DefaultConstructor || mUsage == Function::Usage::CustomConstructor;
+    return mUsage == Function::Usage::DefaultConstructor || mUsage == Function::Usage::CustomConstructor
+        || mUsage == Usage::CopyConstructor;
 }
 
 bool Function::IsOperatorNew() {

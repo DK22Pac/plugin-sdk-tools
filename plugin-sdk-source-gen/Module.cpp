@@ -230,7 +230,7 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
     makeNewLine = true;
     // structs extra info
     for (auto &s : mStructs) {
-        if (!s.mIsAnonymous) {
+        if (!s.mIsAnonymous && (s.mHasVTable || s.mSize > 0)) {
             if (makeNewLine) {
                 stream << endl;
                 makeNewLine = false;

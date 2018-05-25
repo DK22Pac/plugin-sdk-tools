@@ -93,7 +93,7 @@ public:
     unsigned int WriteFunctions(ofstream &stream, tabs t, Games::IDs game, bool definitions, bool metadata, bool makeNewLine);
     void WriteGeneratedConstruction(ofstream &stream, tabs t, Games::IDs game);
     void WriteStackObjectFunction(ofstream & stream, tabs t, Games::IDs game, Function *fn);
-    void WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::IDs game, Function *ctor);
+    void WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::IDs game, Function *ctor, bool writeArrayNew);
     void WriteCustomOperatorDeleteFunction(ofstream & stream, tabs t, Games::IDs game);
     void WriteCustomOperatorDeleteArrayFunction(ofstream & stream, tabs t, Games::IDs game);
     bool ContainsType(string const &typeName, bool withPointers = true);
