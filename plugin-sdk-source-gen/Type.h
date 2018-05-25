@@ -102,5 +102,5 @@ public:
 
     void DbgPrint(size_t offset = 0);
 
-    Type GetReference();
+    Type GetReference(char ref = '&');
 };

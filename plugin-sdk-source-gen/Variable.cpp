@@ -25,10 +25,13 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
     else
         mType.mIsConst = false;
     stream << t() << GetNameWithRefType(true) << " = ";
-    if (mType.mArraySize[0] == 0)
+    if (mType.mArraySize[0] == 0 || !mType.mIsFunction || !mType.mIsPointerToFixedSizeArray)
         stream << '*';
     stream << "reinterpret_cast<";
-    stream << mType.BeforeName() << '*' << mType.AfterName(false);
+    if (mType.mArraySize[0] > 0 && !mType.mIsFunction && !mType.mIsPointerToFixedSizeArray)
+        stream << mType.GetReference('*').GetFullType(false);
+    else
+        stream << mType.BeforeName() << '*' << mType.AfterName(false);
     stream << ">(";
     stream << "GLOBAL_ADDRESS_BY_VERSION(";
     bool first = true;
