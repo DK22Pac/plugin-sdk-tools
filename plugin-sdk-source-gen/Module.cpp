@@ -112,13 +112,14 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
             if (type.mIsRenderWare)
                 addUsedTypeName("RenderWare", needsHeader);
             else if (type.mIsCustom) {
-                addUsedTypeName(type.mName, needsHeader);
                 if (type.mIsTemplate) {
                     for (auto &t : type.mTemplateTypes) {
                         if (t.mIsCustom)
                             addUsedTypeName(t.mName, needsHeader);
                     }
                 }
+                else
+                    addUsedTypeName(type.mName, needsHeader);
             }
             else if (type.mIsFunction) {
                 for (auto &t : type.mFunctionParams) {
