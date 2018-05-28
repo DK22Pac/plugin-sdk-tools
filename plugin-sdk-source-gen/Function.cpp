@@ -140,25 +140,25 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool
         stream << t() << "return " << mParameters[mRVOParamIndex].mName << ";" << endl;
 }
 
-void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs) {
-    stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
-    stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");";
-    if (mClass && mClass->UsesCustomConstruction() &&
-        (IsConstructor() || IsDestructor() || IsOperatorNewDelete()))
-    {
-        return;
+void Function::WriteDefinition(ofstream &stream, tabs t, Games::IDs game, Flags flags) {
+    if (flags.Empty()) {
+        stream << t() << "int " << AddrOfMacro(false) << " = ADDRESS_BY_VERSION(" << Addresses(game) << ");" << endl;
+        stream << t() << "int " << AddrOfMacro(true) << " = GLOBAL_ADDRESS_BY_VERSION(" << Addresses(game) << ");";
     }
-    stream << endl << endl;
-    stream << t() << NameForWrapper(game, true, string(), wsFuncs) << " {" << endl;
+    if (mClass && mClass->UsesCustomConstruction() && (IsConstructor() || IsDestructor() || IsOperatorNewDelete()))
+        return;
+    if (flags.Empty())
+        stream << endl << endl;
+    stream << t() << NameForWrapper(game, true, string(), flags.OverloadedWideStringFunc) << " {" << endl;
     ++t;
-    WriteFunctionCall(stream, t, game, true, Function::SpecialCall::None, SpecialData(), wsFuncs);
+    WriteFunctionCall(stream, t, game, true, Function::SpecialCall::None, SpecialData(), flags.OverloadedWideStringFunc);
     --t;
     stream << t() << "}";
 }
 
-void Function::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs) {
+void Function::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, Flags flags) {
     WriteComment(stream, mComment, t, 0);
-    stream << t() << NameForWrapper(game, false, string(), wsFuncs) << ";";
+    stream << t() << NameForWrapper(game, false, string(), flags.OverloadedWideStringFunc) << ";";
 }
 
 void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {

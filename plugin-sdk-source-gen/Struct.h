@@ -26,6 +26,11 @@ public:
     Enum *mBitfield = nullptr; // associated bitfield
 };
 
+struct VTableMethod {
+    Function *mFunc = nullptr;    // function
+    bool mPureOverriden = false; // pure function, overriden in some derived class
+};
+
 class Struct {
 public:
     enum class Kind { Class, Struct, Union };
@@ -48,8 +53,9 @@ public:
     bool mHasVirtualFunctions = false; // has virtual functions in mFunctions
     bool mHasVirtualDestructor = false; // has virtual destructor in mFunctions
     bool mHasVectorDeletingDestructor = false; // can we use deleting destructor to delete an array?
+    bool mCreatedOrCheckedVTable = false; // needed for vtable generation
     unsigned int mVTableAddress = 0; // virtual table address
-    int mVTableSize = 0;          // count of methods in virtual table
+    unsigned int mVTableSize = 0; // count of methods in virtual table
     Construction mConstruction = Construction::Unknown; // hide class constructors and destructor
     string mComment;              // class comment
     string mScope;                // class scope
@@ -87,6 +93,8 @@ public:
     Function *mDefaultOperatorNewArray = nullptr;
     Function *mDefaultOperatorDeleteArray = nullptr;
 
+    Vector<VTableMethod> mVTable;
+
     void OnUpdateStructs(List<Module> &modules); // update things before we write to source files
     string GetFullName();         // combine name + scope
     void Write(ofstream &stream, tabs t, Module &myModule, List<Module> const &allModules, Games::IDs game);
@@ -102,4 +110,5 @@ public:
     void SetEnclose(Struct *enclose);
     bool UsesCustomConstruction();
     void WriteStructExtraInfo(ofstream &stream);
+    void CreateVTable();
 };

@@ -160,15 +160,15 @@ void EndFunction(ofstream &stream, unsigned int &numWrittenFunctions) {
 }
 
 void WriteOneFunction(Function *fn, ofstream &stream, tabs t, Games::IDs game, unsigned int &numWrittenFunctions,
-    bool definitions, bool metadata, bool makeNewLine, bool wsFuncs = false)
+    bool definitions, bool metadata, bool makeNewLine, Function::Flags flags = Function::Flags())
 {
     StartFunction(stream, numWrittenFunctions, definitions, metadata, makeNewLine);
     if (metadata)
         fn->WriteMeta(stream, t, game);
     else if (definitions)
-        fn->WriteDefinition(stream, t, game, wsFuncs);
+        fn->WriteDefinition(stream, t, game, flags);
     else
-        fn->WriteDeclaration(stream, t, game, wsFuncs);
+        fn->WriteDeclaration(stream, t, game, flags);
     fn->mWrittenToSource = true;
     EndFunction(stream, numWrittenFunctions);
 }
@@ -183,17 +183,17 @@ void EndBlock(unsigned int &numWrittenBlocks) {
 }
 
 void WriteBlock(Function *fn, ofstream &stream, tabs t, Games::IDs game, unsigned int &numWrittenBlocks,
-    unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine)
+    unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine, Function::Flags flags = Function::Flags())
 {
-    if (fn && !fn->mWrittenToSource) {
+    if (fn && (flags.Empty() || !fn->mWrittenToSource)) {
         StartBlock(stream, numWrittenBlocks, definitions, metadata);
-        WriteOneFunction(fn, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
+        WriteOneFunction(fn, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine, flags);
         EndBlock(numWrittenBlocks);
     }
 }
 
 void WriteBlock(List<Function *> funcs, ofstream &stream, tabs t, Games::IDs game, unsigned int &numWrittenBlocks,
-    unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine, bool wsFuncs = false)
+    unsigned int &numWrittenFunctions, bool definitions, bool metadata, bool makeNewLine, Function::Flags flags = Function::Flags())
 {
     if (funcs.size() > 0) {
         unsigned int writtenCount = 0;
@@ -204,7 +204,7 @@ void WriteBlock(List<Function *> funcs, ofstream &stream, tabs t, Games::IDs gam
                     StartBlock(stream, numWrittenBlocks, definitions, metadata);
                     first = false;
                 }
-                WriteOneFunction(fn, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine, wsFuncs);
+                WriteOneFunction(fn, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine, flags);
                 writtenCount++;
             }
         }
@@ -238,101 +238,71 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
         WriteBlock(mOperators, stream, t, game, numWrittenBlocks, numWrittenFunctions, definitions, metadata, makeNewLine);
         // vtable
         unsigned int numWrittenVirtualFuncs = 0;
-        if (mVTableSize > 0) {
-            Vector<Function *> vtable(mVTableSize, nullptr);
-            for (auto f : mVirtualFunctions)
-                vtable[f->mVTableIndex] = f;
-            unsigned int currIndex = 0;
-            IterateIndex(vtable, [&](Function *f, int index) {
-                if (f && f->IsDestructor()) {
-                    if (!definitions) {
-                        if (numWrittenVirtualFuncs == 0)
-                            StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                        StartFunction(stream, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                        stream << t() << "// vtable function #" << index << " (destructor)";
-                        EndFunction(stream, numWrittenFunctions);
-                        numWrittenVirtualFuncs++;
-                    }
-                    else {
-                        if (numWrittenVirtualFuncs == 0)
-                            StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                        WriteOneFunction(f, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                        numWrittenVirtualFuncs++;
+        IterateIndex(mVTable, [&](VTableMethod &vm, int index) {
+            Function *funcToWrite = nullptr;
+            string funcReplacement;
+            Struct *oldClass = nullptr; string oldScope, oldFullClassName, oldShortClassName, oldRetTypeName;
+            bool resetCloneFunc = false;
+
+            if (vm.mFunc) {
+                if (vm.mFunc->IsDestructor() && !definitions)
+                    funcReplacement = "destructor";
+                else {
+                    funcToWrite = vm.mFunc;
+                    if (vm.mPureOverriden) {
+                        oldScope = funcToWrite->mScope;
+                        oldClass = funcToWrite->mClass;
+                        oldFullClassName = funcToWrite->mFullClassName;
+                        oldShortClassName = funcToWrite->mShortClassName;
+                        funcToWrite->mScope = GetFullName();
+                        funcToWrite->mClass = this;
+                        funcToWrite->mFullClassName = GetFullName();
+                        funcToWrite->mShortClassName = mName;
+                        if (funcToWrite->mName == "Clone") {
+                            oldRetTypeName = funcToWrite->mRetType.mName;
+                            funcToWrite->mRetType.mName = GetFullName();
+                            resetCloneFunc = true;
+                        }
                     }
                 }
-                else if (mParent && index < mParent->mVTableSize) {
-                    if (f) {
-                        if (numWrittenVirtualFuncs == 0)
-                            StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                        WriteOneFunction(f, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                        numWrittenVirtualFuncs++;
-                    }
-                    else if (!definitions) {
-                        if (numWrittenVirtualFuncs == 0)
-                            StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                        StartFunction(stream, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                        stream << t() << "// vtable function #" << index << " (not overloaded)";
-                        EndFunction(stream, numWrittenFunctions);
-                        numWrittenVirtualFuncs++;
-                    }
+            }
+            else
+                funcReplacement = "not found";
+            
+            if (funcToWrite || (!definitions && !funcReplacement.empty())) {
+                if (numWrittenVirtualFuncs == 0)
+                    StartBlock(stream, numWrittenBlocks, definitions, metadata);
+                if (funcToWrite) {
+                    Function::Flags flags;
+                    if (vm.mPureOverriden)
+                        flags.OverridenVirtualFunc = true;
+                    WriteOneFunction(funcToWrite, stream, t, game, numWrittenFunctions, definitions, metadata,
+                        numWrittenBlocks == 0 && makeNewLine, flags);
                 }
                 else {
-                    if (f) {
-                        if (numWrittenVirtualFuncs == 0)
-                            StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                        WriteOneFunction(f, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                        numWrittenVirtualFuncs++;
-                    }
-                    else if (!definitions) {
-                        // try to find this function in child classes
-                        function<Function *(Struct *, int)> FindVFunc;
-                        FindVFunc = [&](Struct *s, int vfi) -> Function * {
-                            if (s != this) {
-                                for (auto vf : s->mVirtualFunctions) {
-                                    if (vf->mVTableIndex > vfi)
-                                        break;
-                                    else if (vf->mVTableIndex == vfi) {
-                                        return vf;
-                                    }
-                                }
-                            }
-                            for (Struct *child : s->mChilds) {
-                                Function *result = FindVFunc(child, vfi);
-                                if (result)
-                                    return result;
-                            }
-                            return nullptr;
-                        };
-                        Function *vf = FindVFunc(this, index);
-                        if (vf) {
-                            if (numWrittenVirtualFuncs == 0)
-                                StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                            Struct *oldClass = vf->mClass;
-                            string oldFullClassName = vf->mFullClassName;
-                            string oldShortClassName = vf->mShortClassName;
-                            vf->mClass = this;
-                            vf->mFullClassName = GetFullName();
-                            vf->mShortClassName = mName;
-                            WriteOneFunction(vf, stream, t, game, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                            vf->mClass = oldClass;
-                            vf->mFullClassName = oldFullClassName;
-                            vf->mShortClassName = oldShortClassName;
-                            numWrittenVirtualFuncs++;
-                        }
-                        else {
-                            if (numWrittenVirtualFuncs == 0)
-                                StartBlock(stream, numWrittenBlocks, definitions, metadata);
-                            StartFunction(stream, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
-                            stream << t() << "// vtable function #" << index << " (not found)";
-                            EndFunction(stream, numWrittenFunctions);
-                            numWrittenVirtualFuncs++;
-                        }
-                    }
+                    StartFunction(stream, numWrittenFunctions, definitions, metadata, numWrittenBlocks == 0 && makeNewLine);
+                    if (numWrittenVirtualFuncs != 0)
+                        stream << endl;
+                    stream << t() << "// virtual function #" << index << " (" << funcReplacement << ")" << endl;
+                    EndFunction(stream, numWrittenFunctions);
                 }
-            });
-            if (numWrittenVirtualFuncs > 0)
-                EndBlock(numWrittenBlocks);
-        }
+                numWrittenVirtualFuncs++;
+            }
+
+            if (funcToWrite) {
+                if (vm.mPureOverriden) {
+                    funcToWrite->mScope = oldScope;
+                    funcToWrite->mClass = oldClass;
+                    funcToWrite->mFullClassName = oldFullClassName;
+                    funcToWrite->mShortClassName = oldShortClassName;
+                }
+                if (resetCloneFunc)
+                    funcToWrite->mRetType.mName = oldRetTypeName;
+            }
+        });
+        if (numWrittenVirtualFuncs > 0)
+            EndBlock(numWrittenBlocks);
+
         for (auto sf : mNonStaticFunctions) {
             if (sf->mUsage != Function::Usage::Default)
                 sf->mWrittenToSource = true;
@@ -350,7 +320,9 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
             if (f.mHasWSParameters)
                 wsFunctions.push_back(&f);
         }
-        WriteBlock(wsFunctions, stream, t, game, numWrittenBlocks, numWrittenFunctions, definitions, metadata, makeNewLine, true);
+        Function::Flags flags;
+        flags.OverloadedWideStringFunc = true;
+        WriteBlock(wsFunctions, stream, t, game, numWrittenBlocks, numWrittenFunctions, definitions, metadata, makeNewLine, flags);
     }
     return numWrittenFunctions;
 }
@@ -657,6 +629,8 @@ void Struct::OnUpdateStructs(List<Module> &modules) {
                 mMemberClasses.insert(ms);
         }
     }
+
+    CreateVTable();
 }
 
 bool TypePresentCB(Type &t, string const &typeName) {
@@ -806,4 +780,31 @@ void Struct::WriteStructExtraInfo(ofstream & stream) {
         stream << "VTABLE_DESC(" << GetFullName() << ", " << String::ToHexString(mVTableAddress) << ", " << mVTableSize << ");" << endl;
     if (mSize > 0)
         stream << "VALIDATE_SIZE(" << GetFullName() << ", " << String::ToHexString(mSize) << ");" << endl;
+}
+
+void Struct::CreateVTable() {
+    if (mCreatedOrCheckedVTable)
+        return;
+    if (mParent)
+        mParent->CreateVTable();
+    if (mVTableSize > 0) {
+        if (mParent && mParent->mVTable.size() > 0) {
+            mVTable = mParent->mVTable;
+            if (mParent->mVTable.size() > mVTableSize)
+                mVTable.resize(mVTableSize);
+        }
+        else
+            mVTable.resize(mVTableSize);
+        for (auto vf : mVirtualFunctions) {
+            unsigned int vtIndex = static_cast<unsigned int >(vf->mVTableIndex);
+            mVTable[vtIndex].mFunc = vf;
+            auto parent = mParent;
+            while (parent && parent->mVTable.size() > vtIndex && parent->mVTable[vtIndex].mFunc == nullptr) {
+                parent->mVTable[vtIndex].mFunc = vf;
+                parent->mVTable[vtIndex].mPureOverriden = true;
+                parent = parent->mParent;
+            }
+        }
+    }
+    mCreatedOrCheckedVTable = true;
 }

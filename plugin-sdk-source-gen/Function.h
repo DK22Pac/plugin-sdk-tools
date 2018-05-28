@@ -59,12 +59,6 @@ public:
         CC_UNKNOWN = 255
     };
 
-    enum class VTState {
-        Default,
-        Overloaded,
-        Pure
-    };
-
     enum class SpecialCall {
         None,
         StackObject,
@@ -83,6 +77,18 @@ public:
 
     struct SpecialData {
         string mClassNameForOpNewDelete;
+    };
+
+    union Flags {
+        struct {
+            unsigned int OverloadedWideStringFunc : 1;
+            unsigned int OverridenVirtualFunc : 1;
+        };
+    private:
+        unsigned int IntValue = 0;
+    public:
+        inline bool Empty() { return IntValue == 0; }
+        inline void Clear() { IntValue = 0; }
     };
 
     Struct *mClass = nullptr;      // ptr to class (nullptr if there's no class)
@@ -122,9 +128,9 @@ public:
 
     string GetFullName() const; // combine name + scope
     void WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn = true,
-        SpecialCall specialType = SpecialCall::None, SpecialData specialData = SpecialData(), bool wsFuncs = false);
-    void WriteDefinition(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs = false);
-    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool wsFuncs = false);
+        SpecialCall specialType = SpecialCall::None, SpecialData specialData = SpecialData(), bool wsFunc = false);
+    void WriteDefinition(ofstream &stream, tabs t, Games::IDs game, Flags flags = Flags());
+    void WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, Flags flags = Flags());
     void WriteMeta(ofstream &stream, tabs t, Games::IDs game);
     string NameForWrapper(Games::IDs game, bool definition, string const &customName = string(), bool wsFuncs = false);
     string MetaDesc();
