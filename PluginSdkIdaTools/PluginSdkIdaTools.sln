@@ -21,6 +21,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkComments", "Plugin
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PrcoessVTables", "PrcoessVTables\PrcoessVTables.vcxproj", "{565052C1-8508-4E6B-9C37-CE72485AC071}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA} = {BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
