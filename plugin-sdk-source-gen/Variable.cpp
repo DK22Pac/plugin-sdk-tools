@@ -24,15 +24,7 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
         mType.mIsConst = true;
     else
         mType.mIsConst = false;
-    stream << t() << GetNameWithRefType(true) << " = ";
-    if (mType.mArraySize[0] == 0 || !mType.mIsFunction || !mType.mIsPointerToFixedSizeArray)
-        stream << '*';
-    stream << "reinterpret_cast<";
-    if (mType.mArraySize[0] > 0 && !mType.mIsFunction && !mType.mIsPointerToFixedSizeArray)
-        stream << mType.GetReference('*').GetFullType(false);
-    else
-        stream << mType.BeforeName() << '*' << mType.AfterName(false);
-    stream << ">(";
+    stream << t() << GetNameWithRefType(true) << " = *reinterpret_cast<" << mType.GetReference('*').GetFullType(false) << ">(";
     stream << "GLOBAL_ADDRESS_BY_VERSION(";
     bool first = true;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {

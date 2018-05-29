@@ -327,53 +327,55 @@ string Type::BeforeName(bool leaveSpaceAtTheEnd) {
             result = mFunctionRetType->GetFullType(false);
         else
             result = "void";
-    }
-    else
-        result = mName;
-    if (IsTemplate()) {
-        result += '<';
-        IterateFirstLast(mTemplateTypes, [&](Type &type, bool first, bool last) {
-            if (!first)
-                result += " ,";
-            result += type.GetFullType();
-        });
-        result += '>';
-    }
-    if (mIsConst)
-        result += " const";
-    if (mPointers.size() > 0)
-        result += ' ' + mPointers;
-    if (mIsPointerToFixedSizeArray)
-        result += '(' + mFunctionOrArrayPointers;
-    else if (mIsFunction) {
         result += '(';
-        if (mFunctionCC != CC_CDECL) {
-            if (mFunctionCC == CC_STDCALL)
-                result += "__stdcall ";
-            else if (mFunctionCC == CC_THISCALL)
-                result += "__thiscall ";
-            else if (mFunctionCC == CC_FASTCALL)
-                result += "__fastcall ";
-        }
-        result += mFunctionOrArrayPointers;
     }
+    else {
+        result = mName;
+        if (IsTemplate()) {
+            result += '<';
+            IterateFirstLast(mTemplateTypes, [&](Type &type, bool first, bool last) {
+                if (!first)
+                    result += " ,";
+                result += type.GetFullType();
+            });
+            result += '>';
+        }
+        if (mIsConst)
+            result += " const";
+    }
+    if (mPointers.size() > 0) {
+        if (mIsFunction) {
+            if (mFunctionCC != CC_CDECL) {
+                if (mFunctionCC == CC_STDCALL)
+                    result += "__stdcall ";
+                else if (mFunctionCC == CC_THISCALL)
+                    result += "__thiscall ";
+                else if (mFunctionCC == CC_FASTCALL)
+                    result += "__fastcall ";
+            }
+        }
+        else
+            result += ' ';
+        result += mPointers;
+    }
+    if (!mFunctionOrArrayPointers.empty())
+        result += '(' + mFunctionOrArrayPointers;
     if (leaveSpaceAtTheEnd && !mIsFunction && !mIsPointerToFixedSizeArray && mPointers.size() == 0)
         result += ' ';
     return result;
 }
 
-string Type::AfterName(bool includeArrays) {
+string Type::AfterName() {
     string result;
-    if (mIsPointerToFixedSizeArray)
+    if (!mFunctionOrArrayPointers.empty())
         result += ')';
-    if (includeArrays && mArraySize[0] > 0) {
+    if (mArraySize[0] > 0) {
         result += '[' + to_string(mArraySize[0]) + ']';
         if (mArraySize[1] > 0)
             result += '[' + to_string(mArraySize[1]) + ']';
     }
     if (mIsFunction) {
-        result += ')';
-        result += '(';
+        result += ")(";
         IterateFirstLast(mFunctionParams, [&](Type &type, bool first, bool last) {
             if (!first)
                 result += ", ";
@@ -431,6 +433,7 @@ void Type::AddRetTypeForFunction() {
     mName = "Function";
     mFunctionRetType->mPointers = mPointers;
     mPointers.clear();
+    mFunctionOrArrayPointers.clear();
     mFunctionRetType->mIsConst = mIsConst;
     mIsConst = false;
     mFunctionRetType->mIsInBuilt = mIsInBuilt;
@@ -520,7 +523,7 @@ void Type::SetFromTokens(Vector<Token> const &tokens) {
                                 mIsFunction = true;
                                 AddRetTypeForFunction();
                                 // function types like 'void(int)' are also stored as function pointers
-                                mFunctionOrArrayPointers = "*"; // maybe also add support for references?
+                                mPointers = "*"; // maybe also add support for references?
                             }
                             bool scanParameters = true;
                             if (right >= 1) {
@@ -579,21 +582,17 @@ void AddPointer(string &str, char ptrChar) {
 Type Type::GetReference(char ref) {
     Type newType = *this;
     if (newType.mIsFunction) {
-        if (newType.mArraySize[0] > 0) {
-            AddPointer(newType.mFunctionOrArrayPointers, '*');
-            newType.mArraySize[0] = 0;
-            newType.mArraySize[1] = 0;
-        }
-        else
+        if (newType.mArraySize[0] > 0)
             AddPointer(newType.mFunctionOrArrayPointers, ref);
+        else
+            AddPointer(newType.mPointers, ref);
     }
     else if (newType.mIsPointerToFixedSizeArray)
-        AddPointer(newType.mPointers, ref);
+        AddPointer(newType.mFunctionOrArrayPointers, ref);
     else {
         if (newType.mArraySize[0] > 0) {
-            // make a reference to fixed-size array
             newType.mIsPointerToFixedSizeArray = true;
-            newType.mFunctionOrArrayPointers = ref;
+            AddPointer(newType.mFunctionOrArrayPointers, ref);
         }
         else
             AddPointer(newType.mPointers, ref);

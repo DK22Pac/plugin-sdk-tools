@@ -91,7 +91,7 @@ public:
     string GetFullType(bool leaveSpaceAtTheEnd = true);
     string GetFullTypeRemovePointer();
     string BeforeName(bool leaveSpaceAtTheEnd = true);
-    string AfterName(bool includeArrays = true);
+    string AfterName();
 
     bool IsPointer();
     bool IsTemplate();
