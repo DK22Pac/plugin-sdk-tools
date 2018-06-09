@@ -561,11 +561,22 @@ void Generator::UpdateModules(List<Module> &modules) {
             s.OnUpdateStructs(modules);
         unsigned int numModuleFunctions = m.mFunctions.size();
         unsigned int numModuleVariables = m.mVariables.size();
+        unsigned int numModuleVirtualFunctions = 0;
         for (Struct &s : m.mStructs) {
             numModuleFunctions += s.mFunctions.size();
             numModuleVariables += s.mVariables.size();
+            if (!s.mVTable.empty()) {
+                unsigned int numStructVirtualFunctions = count_if(s.mVTable.begin(), s.mVTable.end(), 
+                    [&](VTableMethod &m) {
+                        return m.mFunc &&
+                            (m.mUnique || (!s.mParent || m.mFunc->mVTableIndex >= static_cast<int>(s.mParent->mVTableSize)));
+                    });
+                if (!s.mIsAbstractClass && s.mVTableSize > numStructVirtualFunctions)
+                    s.mIsAbstractClass = true;
+                numModuleVirtualFunctions += numStructVirtualFunctions;
+            }
         }
-        m.mHasSourceFile = numModuleFunctions > 0 || numModuleVariables > 0;
+        m.mHasSourceFile = numModuleFunctions > 0 || numModuleVariables > 0 || numModuleVirtualFunctions > 0;
         m.mHasMetaFile = numModuleFunctions > 0;
     }
 }
