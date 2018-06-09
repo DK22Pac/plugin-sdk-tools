@@ -399,7 +399,7 @@ void process_vtables(char const *tablesFilePath, char const *methodsFilePath,
                         tableNames.insert(nameInTable, std::make_pair(memberName, 1));
                     else {
                         nameInTable->second++;
-                        memberName.append(nameInTable->second);
+                        memberName.append(toString(nameInTable->second));
                     }
 
                     qstring memberType = method.decl;
