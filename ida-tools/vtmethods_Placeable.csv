@@ -1,0 +1,76 @@
+ClassName,ParentTable,MethodName,MethodDecl
+CPlaceable,,_ZN$CN$D0Ev,"void __thiscall f($CN$ *this, unsigned char deletingFlags)"
+CEntity,CPlaceable,_ZN$CN$3AddERK5CRect,"void __thiscall f($CN$ *this, const CRect *ref_rect)"
+CEntity,CPlaceable,_ZN$CN$3AddEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$6RemoveEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$11SetIsStaticEb,"void __thiscall f($CN$ *this, bool isStatic)"
+CEntity,CPlaceable,_ZN$CN$13SetModelIndexEj,"void __thiscall f($CN$ *this, unsigned int index)"
+CEntity,CPlaceable,_ZN$CN$21SetModelIndexNoCreateEj,"void __thiscall f($CN$ *this, unsigned int index)"
+CEntity,CPlaceable,_ZN$CN$14CreateRwObjectEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$14DeleteRwObjectEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZNK$CN$12GetBoundRectEv,"CRect * __thiscall f($CN$ *this, CRect *ret_outRect)"
+CEntity,CPlaceable,_ZN$CN$14ProcessControlEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$16ProcessCollisionEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$12ProcessShiftEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$13TestCollisionEv,bool __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$8TeleportE7CVectorb,"void __thiscall f($CN$ *this, CVector destination, bool resetRotation)"
+CEntity,CPlaceable,_ZN$CN$30SpecialEntityPreCollisionStuffEP7CEntitybPhPhPhPh,"void __thiscall f($CN$ *this, CEntity *colEntity, bool unk1, unsigned char *unk2, unsigned char *unk3, unsigned char *unk4, unsigned char *unk5)"
+CEntity,CPlaceable,_ZN$CN$31SpecialEntityCalcCollisionStepsEPhPh,"void __thiscall f($CN$ *this, unsigned char *unk1, unsigned char *unk2)"
+CEntity,CPlaceable,_ZN$CN$9PreRenderEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$6RenderEv,void __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$13SetupLightingEv,bool __thiscall f($CN$ *this)
+CEntity,CPlaceable,_ZN$CN$14RemoveLightingEb,"void __thiscall f($CN$ *this, bool removeLights)"
+CEntity,CPlaceable,_ZN$CN$30FlagToDestroyWhenNextProcessedEv,void __thiscall f($CN$ *this)
+CPhysical,CEntity,_ZN$CN$22ProcessEntityCollisionEP7CEntityP9CColPoint,"void __thiscall f($CN$ *this, CEntity *entity, CColPoint *point)"
+CPed,CPhysical,_ZN$CN$11SetMoveAnimEv,void __thiscall f($CN$ *this)
+CPed,CPhysical,_ZN$CN$4SaveEv,bool __thiscall f($CN$ *this)
+CPed,CPhysical,_ZN$CN$4LoadEv,bool __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$28ProcessControlCollisionCheckEv,void __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$20ProcessControlInputsEh,"void __thiscall f($CN$ *this, unsigned char playerNum)"
+CVehicle,CPhysical,_ZN$CN$25GetComponentWorldPositionEiR7CVector,"void __thiscall f($CN$ *this, int componentId, CVector& posnOut)"
+CVehicle,CPhysical,_ZNK$CN$18IsComponentPresentEi,"bool __thiscall f($CN$ *this, int componentId)"
+CVehicle,CPhysical,_ZN$CN$8OpenDoorEP4CPedi6eDoorsfb,"void __thiscall f($CN$ *this, struct CPed* ped, int componentId, eDoors door, float doorOpenRatio, bool playSound)"
+CVehicle,CPhysical,_ZN$CN$15ProcessOpenDoorEP4CPedjjjf,"void __thiscall f($CN$ *this, struct CPed* ped, unsigned int doorComponentId, unsigned int arg2, unsigned int arg3, float arg4)"
+CVehicle,CPhysical,_ZNK$CN$22GetDooorAngleOpenRatioEj,"float __thiscall f($CN$ *this, unsigned int door)"
+CVehicle,CPhysical,_ZNK$CN$22GetDooorAngleOpenRatioE6eDoors,"float __thiscall f($CN$ *this, eDoors door)"
+CVehicle,CPhysical,_ZNK$CN$11IsDoorReadyEj,"bool __thiscall f($CN$ *this, unsigned int door)"
+CVehicle,CPhysical,_ZNK$CN$11IsDoorReadyE6eDoors,"bool __thiscall f($CN$ *this, eDoors door)"
+CVehicle,CPhysical,_ZNK$CN$15IsDoorFullyOpenEj,"bool __thiscall f($CN$ *this, unsigned int door)"
+CVehicle,CPhysical,_ZNK$CN$15IsDoorFullyOpenE6eDoors,"bool __thiscall f($CN$ *this, eDoors door)"
+CVehicle,CPhysical,_ZNK$CN$12IsDoorClosedEj,"bool __thiscall f($CN$ *this, unsigned int door)"
+CVehicle,CPhysical,_ZNK$CN$12IsDoorClosedE6eDoors,"bool __thiscall f($CN$ *this, eDoors door)"
+CVehicle,CPhysical,_ZNK$CN$13IsDoorMissingEj,"bool __thiscall f($CN$ *this, unsigned int door)"
+CVehicle,CPhysical,_ZNK$CN$13IsDoorMissingE6eDoors,"bool __thiscall f($CN$ *this, eDoors door)"
+CVehicle,CPhysical,_ZNK$CN$12IsOpenTopCarEv,bool __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$19RemoveRefsToVehicleEP7CEntity,"void __thiscall f($CN$ *this, CEntity* entity)"
+CVehicle,CPhysical,_ZN$CN$9BlowUpCarEP7CEntityh,"void __thiscall f($CN$ *this, CEntity* culprit, unsigned char noExplosion)"
+CVehicle,CPhysical,_ZN$CN$25BlowUpCarCutSceneNoExtrasEbbbb,"void __thiscall f($CN$ *this, bool noCamShake, bool noSpawnFlyingComps, bool detachWheels, bool explosionSound)"
+CVehicle,CPhysical,_ZN$CN$18SetUpWheelColModelEP9CColModel,"bool __thiscall f($CN$ *this, CColModel* wheelCol)"
+CVehicle,CPhysical,_ZN$CN$9BurstTyreEhb,"bool __thiscall f($CN$ *this, unsigned char tyreComponentId, bool physicalEffect)"
+CVehicle,CPhysical,_ZN$CN$22IsRoomForPedToLeaveCarEjP7CVector,"bool __thiscall f($CN$ *this, unsigned int arg0, CVector* arg1)"
+CVehicle,CPhysical,_ZN$CN$19ProcessDrivingAnimsEP4CPedh,"void __thiscall f($CN$ *this, struct CPed* driver, unsigned char arg1)"
+CVehicle,CPhysical,_ZN$CN$15GetRideAnimDataEv,CRideAnimData *__thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$20SetupSuspensionLinesEv,void __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$23AddMovingCollisionSpeedER7CVector,"void __thiscall f($CN$ *this, CVector *ret_outResult, CVector* ref_arg0)"
+CVehicle,CPhysical,_ZN$CN$3FixEv,void __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$20SetupDamageAfterLoadEv,void __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$26DoBurstAndSoftGroundRatiosEv,void __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZNK$CN$18GetHeightAboveRoadEv,float __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$11PlayCarHornEv,void __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$19GetNumContactWheelsEv,int __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$13VehicleDamageEftP7CEntityP7CVectorS3_11eWeaponType,"void __thiscall f($CN$ *this, float damageIntensity, unsigned short collisionComponent, CEntity* damager, CVector* collisionCoors, CVector* collisionDirection, eWeaponType weapon)"
+CVehicle,CPhysical,_ZNK$CN$16CanPedStepOutCarEb,"bool __thiscall f($CN$ *this, bool arg0)"
+CVehicle,CPhysical,_ZNK$CN$16CanPedJumpOutCarEP4CPed,"bool __thiscall f($CN$ *this, struct CPed *ped)"
+CVehicle,CPhysical,_ZN$CN$14GetTowHitchPosER7CVectorbPS_,"bool __thiscall f($CN$ *this, CVector& posnOut, bool arg1, CVehicle* arg2)"
+CVehicle,CPhysical,_ZN$CN$12GetTowBarPosER7CVectorbPS_,"bool __thiscall f($CN$ *this, CVector& posnOut, bool arg1, CVehicle* arg2)"
+CVehicle,CPhysical,_ZN$CN$10SetTowLinkEPS_b,"bool __thiscall f($CN$ *this, CVehicle* arg0, bool arg1)"
+CVehicle,CPhysical,_ZN$CN$12BreakTowLinkEv,bool __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$14FindWheelWidthEb,"bool __thiscall f($CN$ *this, bool rear)"
+CVehicle,CPhysical,_ZN$CN$4SaveEv,bool __thiscall f($CN$ *this)
+CVehicle,CPhysical,_ZN$CN$4LoadEv,bool __thiscall f($CN$ *this)
+CAutomobile,CVehicle,_ZN$CN$9ProcessAIERj,"bool __thiscall f($CN$ *this, unsigned int* ref_arg0)"
+CAutomobile,CVehicle,_ZN$CN$15ResetSuspensionEv,void __thiscall f($CN$ *this)
+CAutomobile,CVehicle,_ZN$CN$21ProcessFlyingCarStuffEv,void __thiscall f($CN$ *this)
+CAutomobile,CVehicle,_ZN$CN$23DoHoverSuspensionRatiosEv,void __thiscall f($CN$ *this)
+CAutomobile,CVehicle,_ZN$CN$17ProcessSuspensionEv,void __thiscall f($CN$ *this)
+CBike,CVehicle,_ZN$CN$9ProcessAIERj,"bool __thiscall f($CN$ *this, unsigned int* ref_arg0)"
