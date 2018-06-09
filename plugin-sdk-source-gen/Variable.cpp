@@ -44,6 +44,7 @@ void Variable::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool 
     WriteComment(stream, mComment, t, 0);
     stream << t();
     stream << GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) << ' ';
+    stream << "PLUGIN_VARIABLE ";
     if (isStatic)
         stream << "static";
     else
