@@ -244,30 +244,34 @@ unsigned int Struct::WriteFunctions(ofstream &stream, tabs t, Games::IDs game, b
             Struct *oldClass = nullptr; string oldScope, oldFullClassName, oldShortClassName, oldRetTypeName;
             bool resetCloneFunc = false;
 
-            if (vm.mFunc) {
-                if (vm.mFunc->IsDestructor() && !definitions)
-                    funcReplacement = "destructor";
-                else {
-                    funcToWrite = vm.mFunc;
-                    if (vm.mPureOverriden) {
-                        oldScope = funcToWrite->mScope;
-                        oldClass = funcToWrite->mClass;
-                        oldFullClassName = funcToWrite->mFullClassName;
-                        oldShortClassName = funcToWrite->mShortClassName;
-                        funcToWrite->mScope = GetFullName();
-                        funcToWrite->mClass = this;
-                        funcToWrite->mFullClassName = GetFullName();
-                        funcToWrite->mShortClassName = mName;
-                        if (funcToWrite->mName == "Clone") {
-                            oldRetTypeName = funcToWrite->mRetType.mName;
-                            funcToWrite->mRetType.mName = GetFullName();
-                            resetCloneFunc = true;
+            if (vm.mUnique || (!mParent || index >= static_cast<int>(mParent->mVTableSize))) {
+                if (vm.mFunc) {
+                    if (vm.mFunc->IsDestructor() && !definitions)
+                        funcReplacement = "destructor";
+                    else {
+                        funcToWrite = vm.mFunc;
+                        if (vm.mPureOverriden) {
+                            oldScope = funcToWrite->mScope;
+                            oldClass = funcToWrite->mClass;
+                            oldFullClassName = funcToWrite->mFullClassName;
+                            oldShortClassName = funcToWrite->mShortClassName;
+                            funcToWrite->mScope = GetFullName();
+                            funcToWrite->mClass = this;
+                            funcToWrite->mFullClassName = GetFullName();
+                            funcToWrite->mShortClassName = mName;
+                            if (funcToWrite->mName == "Clone") {
+                                oldRetTypeName = funcToWrite->mRetType.mName;
+                                funcToWrite->mRetType.mName = GetFullName();
+                                resetCloneFunc = true;
+                            }
                         }
                     }
                 }
+                else
+                    funcReplacement = "not found";
             }
             else
-                funcReplacement = "not found";
+                funcReplacement = "not overriden";
             
             if (funcToWrite || (!definitions && !funcReplacement.empty())) {
                 if (numWrittenVirtualFuncs == 0)
@@ -790,7 +794,9 @@ void Struct::CreateVTable() {
     if (mVTableSize > 0) {
         if (mParent && mParent->mVTable.size() > 0) {
             mVTable = mParent->mVTable;
-            if (mParent->mVTable.size() > mVTableSize)
+            for (auto &vm : mVTable)
+                vm.mUnique = false;
+            if (mVTableSize > mParent->mVTable.size())
                 mVTable.resize(mVTableSize);
         }
         else
@@ -798,6 +804,7 @@ void Struct::CreateVTable() {
         for (auto vf : mVirtualFunctions) {
             unsigned int vtIndex = static_cast<unsigned int >(vf->mVTableIndex);
             mVTable[vtIndex].mFunc = vf;
+            mVTable[vtIndex].mUnique = true;
             auto parent = mParent;
             while (parent && parent->mVTable.size() > vtIndex && parent->mVTable[vtIndex].mFunc == nullptr) {
                 parent->mVTable[vtIndex].mFunc = vf;

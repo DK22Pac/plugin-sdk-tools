@@ -29,6 +29,7 @@ public:
 struct VTableMethod {
     Function *mFunc = nullptr;    // function
     bool mPureOverriden = false; // pure function, overriden in some derived class
+    bool mUnique = false;
 };
 
 class Struct {
