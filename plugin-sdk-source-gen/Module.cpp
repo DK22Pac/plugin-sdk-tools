@@ -147,6 +147,16 @@ bool Module::WriteHeader(path const &folder, List<Module> const &allModules, Gam
             for (auto &p : f.mParameters)
                 addUsedType(p.mType);
         }
+        for (auto &vm : s.mVTable) { // vtable functions
+            if (vm.mFunc && (vm.mUnique || (!s.mParent || vm.mFunc->mVTableIndex >= static_cast<int>(s.mParent->mVTableSize)))) {
+                if (!vm.mPureOverriden || vm.mFunc->mName != "Clone")
+                    addUsedType(vm.mFunc->mRetType);
+                IterateFirstLast(vm.mFunc->mParameters, [&](FunctionParameter &p, bool first, bool last) {
+                    if (!first)
+                        addUsedType(p.mType);
+                });
+            }
+        }
         for (auto &v : s.mVariables) // struct variables
             addUsedType(v.mType);
     }
