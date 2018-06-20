@@ -10,7 +10,7 @@ void WriteComment(ofstream &stream, string const &comment, tabs t, unsigned int 
             stream << t();
         else {
             if (!first)
-                stream << t() << string(pos, ' ');
+                stream << string(pos, ' ');
             stream << ' ';
         }
         if (pos != 0) {

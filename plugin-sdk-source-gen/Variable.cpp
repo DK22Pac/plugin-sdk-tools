@@ -24,7 +24,8 @@ void Variable::WriteDefinition(ofstream &stream, tabs t, Games::IDs game) {
         mType.mIsConst = true;
     else
         mType.mIsConst = false;
-    stream << t() << GetNameWithRefType(true) << " = *reinterpret_cast<" << mType.GetReference('*').GetFullType(false) << ">(";
+    stream << t() << "PLUGIN_VARIABLE " <<
+        GetNameWithRefType(true) << " = *reinterpret_cast<" << mType.GetReference('*').GetFullType(false) << ">(";
     stream << "GLOBAL_ADDRESS_BY_VERSION(";
     bool first = true;
     for (unsigned int i = 0; i < Games::GetGameVersionsCount(game); i++) {
@@ -44,7 +45,6 @@ void Variable::WriteDeclaration(ofstream &stream, tabs t, Games::IDs game, bool 
     WriteComment(stream, mComment, t, 0);
     stream << t();
     stream << GameVersions::GetSupportedGameVersionsMacro(game, mVersionInfo) << ' ';
-    stream << "PLUGIN_VARIABLE ";
     if (isStatic)
         stream << "static";
     else

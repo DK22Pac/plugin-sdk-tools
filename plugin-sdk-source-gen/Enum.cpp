@@ -98,7 +98,9 @@ void Enum::WriteBitfield(ofstream &stream, tabs t, bool isAnonymousMember) {
     }
     unsigned int totalWidth = mWidth * 8;
     unsigned int currentWidth = 0;
-    IterateFirstLast(mMembers, [&](EnumMember &member, bool first, bool last) {
+    Iterate(mMembers, [&](EnumMember &member) {
+        if (currentWidth != 0 && (currentWidth % 8) == 0)
+            stream << endl;
         stream << t();
         auto pos = stream.tellp(); 
         stream << bitFieldType << ' ';
