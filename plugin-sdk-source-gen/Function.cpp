@@ -136,7 +136,7 @@ void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool
         }
     });
     stream << ");" << endl;
-    if (!noReturn && mRVOParamIndex != -1)
+    if (writeReturn && mRVOParamIndex != -1)
         stream << t() << "return " << mParameters[mRVOParamIndex].mName << ";" << endl;
 }
 
