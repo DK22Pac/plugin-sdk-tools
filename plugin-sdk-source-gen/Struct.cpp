@@ -445,7 +445,7 @@ void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::ID
             if (n) {
                 Function::SpecialData spdata;
                 spdata.mClassNameForOpNewDelete = GetFullName();
-                n->WriteFunctionCall(stream, tabs(0), game, false, isArray ?
+                n->WriteFunctionCall(stream, tabs(0), game, true, isArray ?
                     Function::SpecialCall::Custom_Array_OperatorNew : Function::SpecialCall::Custom_OperatorNew, spdata);
             }
             else {

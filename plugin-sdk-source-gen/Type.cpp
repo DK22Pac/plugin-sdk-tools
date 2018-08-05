@@ -335,7 +335,7 @@ string Type::BeforeName(bool leaveSpaceAtTheEnd) {
             result += '<';
             IterateFirstLast(mTemplateTypes, [&](Type &type, bool first, bool last) {
                 if (!first)
-                    result += " ,";
+                    result += ", ";
                 result += type.GetFullType(false);
             });
             result += '>';
