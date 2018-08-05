@@ -382,11 +382,11 @@ void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::ID
             pmOperatorsNew = &Struct::mOperatorsNew;
         }
         if (this->*pmDefaultOperatorNew) {
-            opNewList.push_back(this->*pmDefaultOperatorNew);
+            AddOperatorNewToUniqueList(opNewList, this->*pmDefaultOperatorNew);
             hasDefaultOperatorNew = true;
         }
         for (auto n : this->*pmOperatorsNew)
-            opNewList.push_back(this->*pmDefaultOperatorNew);
+            AddOperatorNewToUniqueList(opNewList, this->*pmDefaultOperatorNew);
         // now for all hierarchy, find non-overloaded operators
         Struct *parent = mParent;
         while (parent) {
@@ -445,7 +445,7 @@ void Struct::WriteCustomOperatorNewFunction(ofstream & stream, tabs t, Games::ID
             if (n) {
                 Function::SpecialData spdata;
                 spdata.mClassNameForOpNewDelete = GetFullName();
-                n->WriteFunctionCall(stream, tabs(0), game, true, isArray ?
+                n->WriteFunctionCall(stream, tabs(0), game, false, isArray ?
                     Function::SpecialCall::Custom_Array_OperatorNew : Function::SpecialCall::Custom_OperatorNew, spdata);
             }
             else {

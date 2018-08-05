@@ -51,17 +51,14 @@ string Function::NameForWrapper(Games::IDs game, bool definition, string const &
 void Function::WriteFunctionCall(ofstream &stream, tabs t, Games::IDs game, bool writeReturn, SpecialCall specialType,
     SpecialData specialData, bool wsFuncs)
 {
-    bool noReturn = true;
-    if (writeReturn) {
-        noReturn = (mRetType.mIsVoid && mRetType.mPointers.empty()) || IsConstructor() || IsDestructor();
-        if (mRVOParamIndex != -1) {
-            FunctionParameter &retParam = mParameters[mRVOParamIndex];
-            stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
-            noReturn = true;
-        }
+    bool noReturn = (mRetType.mIsVoid && mRetType.mPointers.empty()) || IsConstructor() || IsDestructor();
+    if (mRVOParamIndex != -1) {
+        FunctionParameter &retParam = mParameters[mRVOParamIndex];
+        stream << t() << retParam.mType.GetFullTypeRemovePointer() << retParam.mName << ";" << endl;
+        noReturn = true;
     }
     stream << t();
-    if (!noReturn)
+    if (!noReturn && writeReturn)
         stream << "return ";
     stream << "plugin::Call";
     if (mIsVirtual)
