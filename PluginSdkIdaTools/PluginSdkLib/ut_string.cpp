@@ -186,3 +186,9 @@ qstring toLower(qstring const &str) {
         result += tolower(static_cast<unsigned char>(str[i]));
     return result;
 }
+
+void addCommentParam(qstring &strComment, qstring const &strCommentParam) {
+    if (!strComment.empty())
+        strComment.append(' ');
+    strComment.append(strCommentParam);
+}

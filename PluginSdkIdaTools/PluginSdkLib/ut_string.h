@@ -112,3 +112,5 @@ int toNumber(qstring const &str);
 
 qstring toUpper(qstring const &str);
 qstring toLower(qstring const &str);
+
+void addCommentParam(qstring &strComment, qstring const &strCommentParam);

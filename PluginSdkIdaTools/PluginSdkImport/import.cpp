@@ -129,10 +129,10 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                                 qstring enFullMemberComment;
                                 bool enIsCounter = jsonReadBool(jm, "isCounter");
                                 if (enIsCounter)
-                                    enFullMemberComment += " iscounter:true";
+                                    addCommentParam(enFullMemberComment, "iscounter:true");
                                 int enBitWidth = jsonReadNumber(jm, "bitWidth");
                                 if (enBitWidth != 0)
-                                    enFullMemberComment += format(" bitwidth:%d", enBitWidth);
+                                    addCommentParam(enFullMemberComment, format("bitwidth:%d", enBitWidth));
                                 qstring enMemberComment = jsonReadString(jm, "comment");
                                 if (!enMemberComment.empty()) {
                                     enMemberComment.replace(";;", "\n");
@@ -362,16 +362,14 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     }
                     // member comment
                     qstring stFullMemberComment;
-                    if (!m.m_rawType.empty()) {
-                        stFullMemberComment += " rawtype:";
-                        stFullMemberComment += m.m_rawType;
-                    }
+                    if (!m.m_rawType.empty())
+                        addCommentParam(stFullMemberComment, qstring("rawtype:") + m.m_rawType);
                     if (m.m_isAnonymous)
-                        stFullMemberComment += " isanonymous:true";
+                        addCommentParam(stFullMemberComment, "isanonymous:true");
                     if (m.m_isBase)
-                        stFullMemberComment += " isbase:true";
+                        addCommentParam(stFullMemberComment, "isbase:true");
                     if (m.m_isBitfield)
-                        stFullMemberComment += " isbitfield:true";
+                        addCommentParam(stFullMemberComment, "isbitfield:true");
                     if (!m.m_comment.empty()) {
                         qstring stMemberComment = m.m_comment;
                         stMemberComment.replace(";;", "\n");
