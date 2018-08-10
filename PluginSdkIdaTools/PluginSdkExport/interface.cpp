@@ -2,6 +2,7 @@
 #include "idp.hpp"
 #include "name.hpp"
 #include "export.h"
+#include "shared.h"
 #include <Windows.h>
 #include <filesystem>
 #include "..\..\shared\Games.h"
@@ -51,7 +52,7 @@ static int idaapi modcb(int fid, form_actions_t &fa) {
 }
 
 void showform() {
-    gExportOptions = 0xFFFF;
+    gExportOptions = OPTION_FUNCTIONS|OPTION_VARIABLES;
     gSelectedVersion = 0;
 
     qstring detectedGameAndVersion;
@@ -115,6 +116,7 @@ void showform() {
         formdef +=
             "<Structures:C>"
             "<Enums:C>";
+        gExportOptions |= (OPTION_STRUCTURES|OPTION_ENUMS);
     }
     formdef +=
         "2>"

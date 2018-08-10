@@ -2,6 +2,7 @@
 #include "idp.hpp"
 #include "name.hpp"
 #include "import.h"
+#include "shared.h"
 #include <Windows.h>
 #include <filesystem>
 #include "..\..\shared\Games.h"
@@ -50,7 +51,7 @@ static int idaapi modcb(int fid, form_actions_t &fa) {
 }
 
 void showform() {
-    gImportOptions = 0xFFFF;
+    gImportOptions = OPTION_FUNCTIONS|OPTION_VARIABLES|OPTION_STRUCTURES|OPTION_ENUMS;
     gSelectedVersion = 0;
 
     qstring detectedGameAndVersion;
