@@ -356,7 +356,8 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                     }
                 }
                 qstring funcRawRetType, funcPriority;
-                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, funcRawRetType, funcPriority, entry.m_isConst);
+                getFunctionExtraInfo(cmtLine, entry.m_comment, entry.m_module, funcRawRetType, funcPriority, entry.m_isConst,
+                    entry.m_forceOverloaded);
                 if (!funcRawRetType.empty()) {
                     entry.m_retType = funcRawRetType;
                     entry.m_rawRetType = true;

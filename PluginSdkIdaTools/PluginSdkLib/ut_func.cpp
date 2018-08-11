@@ -18,14 +18,15 @@ qvector<Function> Function::FromCSV(char const *filepath) {
         if (getLine(&line, inFile)) {
             while (getLine(&line, inFile)) {
                 Function entry;
-                qstring addr, isConstStr, paramsStr, priority, vtindex;
+                qstring addr, isConstStr, paramsStr, priority, vtindex, forceOverloadedStr;
                 readcsv(line, addr, entry.m_module, entry.m_name, entry.m_demangledName, entry.m_type,
                     entry.m_cc, entry.m_retType, paramsStr, isConstStr, entry.m_refsStr, entry.m_comment,
-                    priority, vtindex);
+                    priority, vtindex, forceOverloadedStr);
                 entry.m_address = toNumber(addr);
                 entry.m_priority = toNumber(priority);
                 entry.m_vtableIndex = toNumber(vtindex);
                 entry.m_isConst = isConstStr != "0";
+                entry.m_forceOverloaded = forceOverloadedStr != "0";
                 // raw CPool<CPed> *:pool int:value(10)
                 // [raw] Type:Name(DefaultValue)
                 size_t currPos = 0;
@@ -120,7 +121,7 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
     auto outFile = qfopen(filepath, "wt");
     if (outFile) {
         // header
-        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Refs,Comment,Priority,VTIndex\n", version);
+        qfprintf(outFile, "%s,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Refs,Comment,Priority,VTIndex,ForceOverloaded\n", version);
         // entries
         for (auto const &i : entries) {
             qstring retType;
@@ -146,8 +147,8 @@ bool Function::ToCSV(qvector<Function> const &entries, char const *filepath, cha
                 if (p != (i.m_params.size() - 1))
                     parameters += ' ';
             }
-            qfprintf(outFile, "%s,%d,%s,%s,%d,%d\n", csvvalue(parameters).c_str(), i.m_isConst, csvvalue(i.m_refsStr).c_str(),
-                csvvalue(i.m_comment).c_str(), i.m_priority, i.m_vtableIndex);
+            qfprintf(outFile, "%s,%d,%s,%s,%d,%d,%d\n", csvvalue(parameters).c_str(), i.m_isConst, csvvalue(i.m_refsStr).c_str(),
+                csvvalue(i.m_comment).c_str(), i.m_priority, i.m_vtableIndex, i.m_forceOverloaded);
         }
         qfclose(outFile);
         return true;

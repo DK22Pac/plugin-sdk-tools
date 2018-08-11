@@ -17,10 +17,11 @@ public:
     qstring m_type;
     qstring m_module;
     qstring m_retType;
-    bool m_rawRetType = false;
     qstring m_cc;
     qvector<Param> m_params;
+    bool m_rawRetType = false;
     bool m_isConst = false;
+    bool m_forceOverloaded = false;
     qstring m_refsStr;
     qstring m_comment;
     unsigned int m_priority = 1;

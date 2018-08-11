@@ -95,8 +95,10 @@ void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBi
     getExtraInfo(line, outComment, getEnumMemberOptions(), outBitWidth, outIsCounter);
 }
 
-void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, qstring &outPriority, bool &outIsConst) {
-    getExtraInfo(line, outComment, getFunctionOptions(), outModuleName, outRetType, outPriority, outIsConst);
+void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType, qstring &outPriority,
+    bool &outIsConst, bool &outForceOverloaded)
+{
+    getExtraInfo(line, outComment, getFunctionOptions(), outModuleName, outRetType, outPriority, outIsConst, outForceOverloaded);
 }
 
 void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType, qstring &outDefValue) {
@@ -120,6 +122,7 @@ qvector<qstring> getFunctionOptions() {
     options.push_back("rettype");
     options.push_back("priority");
     options.push_back("isconst");
+    options.push_back("forceoverloaded");
     return options;
 }
 

@@ -40,7 +40,7 @@ CommentEntity GetCurrentEntity() {
 qstring GetModuleFromComment(qstring const &comment, CommentEntity entityType) {
     qstring outComment, outModuleName, strDummy; bool boolDummy;
     if (entityType == CommentEntity::Function)
-        getFunctionExtraInfo(comment, outComment, outModuleName, strDummy, strDummy, boolDummy);
+        getFunctionExtraInfo(comment, outComment, outModuleName, strDummy, strDummy, boolDummy, boolDummy);
     else if (entityType == CommentEntity::Variable)
         getVariableExtraInfo(comment, outComment, outModuleName, strDummy);
     else if (entityType == CommentEntity::Struct)

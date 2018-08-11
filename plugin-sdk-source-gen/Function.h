@@ -105,6 +105,7 @@ public:
     bool mIsConst = false;         // has 'const' attribute
     bool mIsEllipsis = false;      // variable parameter count ('...')
     bool mIsOverloaded = false;    // is overloaded (one or more functions with same name in the class)
+    bool mForceOverloadedMetaMacro = false; // use overloaded meta macro, even if the function is not overloaded
     bool mIsStatic = false;        // static function (function with __cdecl calling convention inside class)
     int mRVOParamIndex = -1;       // where's RVO parameter placed
     int mNumParamsToSkipForWrapper = 0; // count of 'special' parameters (this pointer, RVO parameter)

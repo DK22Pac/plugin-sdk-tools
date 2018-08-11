@@ -308,7 +308,7 @@ bool Function::UsesOverloadedMetaMacro() {
     {
         return true;
     }
-    return mIsOverloaded;
+    return mIsOverloaded || mForceOverloadedMetaMacro;
 }
 
 string Function::GetSpecialMetaWord() {

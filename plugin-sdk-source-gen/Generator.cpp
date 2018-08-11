@@ -288,9 +288,9 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     for (string const &csvLine : csvLines) {
                         // 10us,Module,Name,DemangledName,Type,CC,RetType,Parameters,IsConst,Comment
                         string fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters, fnIsConst, 
-                            fnRefsStr, fnComment, fnPriority, fnVTableIndex;
+                            fnRefsStr, fnComment, fnPriority, fnVTableIndex, fnForceOverloaded;
                         CSV::Read(csvLine, fnAddress, fnModuleName, fnName, fnDemName, fnType, fnCC, fnRetType, fnParameters,
-                            fnIsConst, fnRefsStr, fnComment, fnPriority, fnVTableIndex);
+                            fnIsConst, fnRefsStr, fnComment, fnPriority, fnVTableIndex, fnForceOverloaded);
                         if (!fnModuleName.empty()) {
                             // get module for this function
                             Module *m = Module::Find(modules, fnModuleName);
@@ -341,6 +341,7 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                                 newFn.mCC = cc;
                                 newFn.mIsEllipsis = isEllipsis;
                                 newFn.mIsConst = String::ToNumber(fnIsConst);
+                                newFn.mForceOverloadedMetaMacro = String::ToNumber(fnForceOverloaded);
                                 newFn.mComment = fnComment;
                                 newFn.mPriority = String::ToNumber(fnPriority);
                                 newFn.mVTableIndex = String::ToNumber(fnVTableIndex);

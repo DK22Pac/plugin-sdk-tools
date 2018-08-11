@@ -47,7 +47,7 @@ void getEnumExtraInfo(qstring const &line, qstring &outComment, qstring &outModu
     qstring &outStartWord);
 void getEnumMemberExtraInfo(qstring const &line, qstring &outComment, int &outBitWidth, bool &outIsCounter);
 void getFunctionExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRetType,
-    qstring &outPriority, bool &outIsConst);
+    qstring &outPriority, bool &outIsConst, bool &outForceOverloaded);
 void getFunctionArgumentExtraInfo(qstring const &line, qstring const &argName, qstring &outRawType, qstring &outDefValue);
 void getVariableExtraInfo(qstring const &line, qstring &outComment, qstring &outModuleName, qstring &outRawType);
 

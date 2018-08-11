@@ -571,6 +571,9 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
                 // priority
                 if (f.m_priority != 0)
                     fnFullComment += " priority:before";
+                // forceoverloaded
+                if (f.m_forceOverloaded)
+                    fnFullComment += " forceoverloaded:true";
                 // raw parameters types
                 for (auto const &fp : f.m_params) {
                     if (fp.m_rawType)
