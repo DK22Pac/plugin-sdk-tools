@@ -5,6 +5,8 @@
 #include <sstream>
 #include "GameVersions.h"
 
+const size_t REFS_LIST_MAX_SIZE = 100;
+
 string Function::GetFullName() const {
     if (mScope.empty())
         return mName;
@@ -163,7 +165,6 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
     if (UsesOverloadedMetaMacro())
         stream << "_OVERLOADED";
     stream << "(" << MetaDesc() << ")" << endl;
-    t++;
     stream << t() << "static int address;" << endl;
     stream << t() << "static int global_address;" << endl;
     stream << t() << "static const int id = " << String::ToHexString(mVersionInfo[0].mAddress) << ";" << endl;
@@ -194,35 +195,27 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
         stream << Games::GetGameVersionName(game, i) << " (" << refsCount << ")";
     }
     stream << endl;
-    stream << t() << "using refs_t = RefList<";
-    if (refs.size() > 0) {
-        t++;
-        IterateFirstLast(refs, [&](FunctionReference &ref, bool first, bool last) {
-            stream << endl << t();
-            stream << String::ToHexString(ref.mRefAddr) << ", ";
-            stream << "GAME_";
-            if (game == Games::IDs::GTASA && ref.mGameVersion == 0)
-                stream << "10US_COMPACT";
-            else if (game == Games::IDs::GTASA && ref.mGameVersion == 1)
-                stream << "10US_HOODLUM";
-            else
-                stream << String::ToUpper(Games::GetGameVersionName(game, ref.mGameVersion));
-            stream << ", ";
-            if (ref.mRefType == 0)
-                stream << "H_CALL";
-            else if (ref.mRefType == 1)
-                stream << "H_JUMP";
-            else if (ref.mRefType == 2)
-                stream << "H_CALLBACK";
-            stream << ", ";
-            stream << String::ToHexString(ref.mRefObjectId) << ", ";
-            stream << ref.mRefIndexInObject;
-            if (!last)
-                stream << ",";
-        });
-        t--;
-    }
-    stream << ">;" << endl;
+    //if (refs.size() > REFS_LIST_MAX_SIZE) {
+    //    stream << t() << "// NOTE: too much references; ignored" << std::endl;
+    //    stream << t() << "// using refs_t = RefList<>;" << std::endl;
+    //}
+    //else {
+        stream << t() << "using refs_t = RefList<";
+        if (refs.size() > 0) {
+            IterateFirstLast(refs, [&](FunctionReference &ref, bool first, bool last) {
+                if (!first)
+                    stream << " ";
+                stream << String::ToHexString(ref.mRefAddr) << ",";
+                stream << Games::GetUniqueId(game, ref.mGameVersion);
+                stream << "," << ref.mRefType << ",";
+                stream << String::ToHexString(ref.mRefObjectId) << ",";
+                stream << ref.mRefIndexInObject;
+                if (!last)
+                    stream << ",";
+            });
+        }
+        stream << ">;" << endl;
+    //}
     stream << t() << "using def_t = " << mRetType.GetFullType(false) << "(";
     IterateIndex(mParameters, [&](FunctionParameter &p, unsigned int index) {
         if (index != 0)
@@ -257,7 +250,6 @@ void Function::WriteMeta(ofstream &stream, tabs t, Games::IDs game) {
         stream << index;
     });
     stream << ">;" << endl;
-    t--;
     stream << t() << "META_END";
 }
 

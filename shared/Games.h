@@ -102,4 +102,32 @@ public:
         }
         return "";
     }
+
+    inline static int GetUniqueId(IDs game, unsigned int version) {
+        if (game == GTASA) {
+            if (version == 0)
+                return 1001;
+            if (version == 1)
+                return 1002;
+            if (version == 2)
+                return 1011;
+            if (version == 3)
+                return 1101;
+            if (version == 4)
+                return 1111;
+            if (version == 5)
+                return 3200;
+            if (version == 6)
+                return 3210;
+        }
+        else if (game == GTAVC || game == GTA3) {
+            if (version == 0)
+                return 100;
+            if (version == 1)
+                return 110;
+            if (version == 2)
+                return 120;
+        }
+        return 0;
+    }
 };
