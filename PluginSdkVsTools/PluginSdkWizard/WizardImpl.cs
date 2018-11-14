@@ -85,6 +85,7 @@ namespace PluginSdkWizard {
             includeDirs.Add(pluginSdkDir + "plugin_" + gameId.ToLower() + "\\");
             includeDirs.Add(pluginSdkDir + "plugin_" + gameId.ToLower() + "\\game_" + gameId.ToLower() + "\\");
             includeDirs.Add(pluginSdkDir + "shared\\");
+            includeDirs.Add(pluginSdkDir + "shared\\game\\");
             libraryDirs.Add(pluginSdkDir + "output\\lib\\");
             string pluginLibName = "plugin";
             if (gameId != "SA")
