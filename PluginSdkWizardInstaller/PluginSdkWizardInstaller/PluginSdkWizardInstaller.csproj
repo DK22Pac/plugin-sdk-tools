@@ -164,5 +164,8 @@
     <Resource Include="Icons\vs2015.png" />
     <Resource Include="Icons\vs2017.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\vs2019.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

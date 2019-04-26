@@ -15,6 +15,8 @@ namespace PluginSdkWizardInstaller {
         private BitmapImage iconNothing;
         private BitmapImage iconNotSet;
 
+        enum DevEnv { NONE = -1, VS2019, VS2017, VS2015, CODEBLOCKS };
+
         private string[] varIdents =
         {
             "SDK",
@@ -127,6 +129,12 @@ namespace PluginSdkWizardInstaller {
 
         private void installVsWizard_Click(object sender, RoutedEventArgs e) {
             Button vsBtn = sender as Button;
+            if (vsBtn.Name == "btnVs2019")
+                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2019;
+            else if (vsBtn.Name == "btnVs2017")
+                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2017;
+            else if (vsBtn.Name == "btnVs2015")
+                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2015;
             string sdkDir = GetPluginSdkDir();
             if (sdkDir != "") {
                 string vsixPath = Path.Combine(sdkDir, "tools\\general\\PluginSdkVsTools.vsix");
@@ -135,10 +143,7 @@ namespace PluginSdkWizardInstaller {
                 else
                     MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
             }
-            if (vsBtn.Name == "btnVs2017")
-                cmbGenerateSlnFor.SelectedIndex = 0;
-            else if (vsBtn.Name == "btnVs2015")
-                cmbGenerateSlnFor.SelectedIndex = 1;
+            
         }
 
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target) {
@@ -161,6 +166,7 @@ namespace PluginSdkWizardInstaller {
         }
 
         private void installCB_Click(object sender, RoutedEventArgs e) {
+            cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.CODEBLOCKS;
             FolderInputWindow dlg = new FolderInputWindow("Select Code::Blocks folder");
             dlg.Owner = this;
             dlg.ShowDialog();
@@ -183,7 +189,6 @@ namespace PluginSdkWizardInstaller {
                         MessageBox.Show(String.Format("Can't find '{0}'", installerPath));
                 }
             }
-            cmbGenerateSlnFor.SelectedIndex = 5;
         }
 
         private void brwBtn_Click(object sender, RoutedEventArgs e) {
@@ -285,9 +290,45 @@ namespace PluginSdkWizardInstaller {
             }
         }
 
+        private void chkSlnWinXpSupport_Changed(object sender, RoutedEventArgs e)
+        {
+            CheckBox chk = sender as CheckBox;
+            if (chk.IsChecked == true &&
+                (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2015
+                || cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2017
+                || cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2019))
+            {
+                lblSlnNote.Content = "Note: v14" + (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2015 ? "0" : "1") + "_xp toolset is required";
+                lblSlnNote.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                lblSlnNote.Content = "";
+                lblSlnNote.Visibility = Visibility.Hidden;
+            }
+        }
+
         private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             ComboBox cmb = sender as ComboBox;
             btnGenerateSln.IsEnabled = cmb.SelectedIndex != -1;
+            if (cmb.SelectedIndex == (int)DevEnv.VS2015 || cmb.SelectedIndex == (int)DevEnv.VS2017 || cmb.SelectedIndex == (int)DevEnv.VS2019)
+            {
+                chkSlnWinXpSupport.IsEnabled = true;
+                if (chkSlnWinXpSupport.IsChecked == true)
+                {
+                    lblSlnNote.Content = "Note: v14" + (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2015 ? "0" : "1") + "_xp toolset is required";
+                    lblSlnNote.Visibility = Visibility.Visible;
+                }
+                else
+                    chkSlnWinXpSupport.IsChecked = true;
+            }
+            else
+            {
+                chkSlnWinXpSupport.IsChecked = cmb.SelectedIndex == (int)DevEnv.CODEBLOCKS;
+                chkSlnWinXpSupport.IsEnabled = false;
+                lblSlnNote.Content = "";
+                lblSlnNote.Visibility = Visibility.Hidden;
+            }
         }
 
         private void btnGenerateSln_Click(object sender, RoutedEventArgs e) {
@@ -307,15 +348,20 @@ namespace PluginSdkWizardInstaller {
             ProcessStartInfo info = new ProcessStartInfo(premakeExePath);
             switch (cmbGenerateSlnFor.SelectedIndex) {
                 case 0:
-                    info.Arguments = "vs2017";
+                    info.Arguments = "vs2019";
                     break;
                 case 1:
-                    info.Arguments = "vs2015";
+                    info.Arguments = "vs2017";
                     break;
                 case 2:
+                    info.Arguments = "vs2015";
+                    break;
+                case 3:
                     info.Arguments = "codeblocks";
                     break;
             }
+            if (chkSlnWinXpSupport.IsChecked == true)
+                info.Arguments += " --winxp";
             info.Arguments += " --file=" + '"' + premakeScriptPath + '"' + " --pluginsdkdir=" + '"' + pluginSdkDir + '"';
             info.UseShellExecute = false;
             info.Verb = "runas";
