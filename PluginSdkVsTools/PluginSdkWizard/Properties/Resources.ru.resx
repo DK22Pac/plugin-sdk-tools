@@ -165,7 +165,7 @@
     <value>GTA 3 CLEO SDK</value>
   </data>
   <data name="strLaCompatibility" xml:space="preserve">
-    <value>Совм. с LA</value>
+    <value>Совместимость с Limit Adjuster</value>
   </data>
   <data name="strLaCompatibilityDescr" xml:space="preserve">
     <value>Сделать плагин совместимым с Limit Adjuster</value>
@@ -231,7 +231,7 @@
     <value>MoonLoader Модуль</value>
   </data>
   <data name="strUseDirectXSdk" xml:space="preserve">
-    <value>DX SDK</value>
+    <value>Использовать DirectX SDK</value>
   </data>
   <data name="strUseDirectXSdkDescr" xml:space="preserve">
     <value>Включить заголовочные файлы и библиотеки DirectX SDK</value>
@@ -280,5 +280,11 @@
   </data>
   <data name="strGameVersions" xml:space="preserve">
     <value>Версии игры:</value>
+  </data>
+  <data name="strWinXpSupport" xml:space="preserve">
+    <value>Поддержка Windows XP</value>
+  </data>
+  <data name="strWinXpSupportDescr" xml:space="preserve">
+    <value>Плагин можно будет использовать на Windows XP</value>
   </data>
 </root>

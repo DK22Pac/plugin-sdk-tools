@@ -2,11 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
-using System.Windows.Data;
-using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.Win32;
 using System;
+using System.IO;
 
 namespace PluginSdkWizard {
     public partial class WizardMainWindow : Microsoft.VisualStudio.PlatformUI.DialogWindow {
@@ -24,6 +21,22 @@ namespace PluginSdkWizard {
             cmbProjectType.Items.Add(Properties.Resources.strTypeMoonLoader);
             cmbProjectType.Items.Add(Properties.Resources.strTypeDll);
             cmbProjectType.SelectedIndex = 0;
+
+            try
+            {
+                string sdkDir = Environment.GetEnvironmentVariable("PLUGIN_SDK_DIR");
+                if (!string.IsNullOrEmpty(sdkDir))
+                {
+                    string projectFilePath = Path.Combine(sdkDir, @"plugin_sa\plugin_sa.vcxproj");
+                    if (File.Exists(projectFilePath))
+                    {
+                        string fileContent = File.ReadAllText(projectFilePath);
+                        if (fileContent.Contains("_xp</PlatformToolset>"))
+                            cbWinXpSupport.IsChecked = true;
+                    }
+                }
+            }
+            catch (Exception) { }
 
             // Navigation buttons
 

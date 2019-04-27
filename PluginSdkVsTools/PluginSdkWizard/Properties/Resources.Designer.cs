@@ -19,7 +19,7 @@ namespace PluginSdkWizard.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -221,7 +221,7 @@ namespace PluginSdkWizard.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to LA comp..
+        ///   Looks up a localized string similar to Limit Adjuster compatibility.
         /// </summary>
         public static string strLaCompatibility {
             get {
@@ -473,7 +473,7 @@ namespace PluginSdkWizard.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DX SDK.
+        ///   Looks up a localized string similar to Use DirectX SDK.
         /// </summary>
         public static string strUseDirectXSdk {
             get {
@@ -532,6 +532,24 @@ namespace PluginSdkWizard.Properties {
         public static string strWarnUnfinishedVar {
             get {
                 return ResourceManager.GetString("strWarnUnfinishedVar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows XP support.
+        /// </summary>
+        public static string strWinXpSupport {
+            get {
+                return ResourceManager.GetString("strWinXpSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The plugin can be used on Windows XP.
+        /// </summary>
+        public static string strWinXpSupportDescr {
+            get {
+                return ResourceManager.GetString("strWinXpSupportDescr", resourceCulture);
             }
         }
         

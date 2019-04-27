@@ -310,7 +310,7 @@ namespace PluginSdkWizardInstaller {
 
         private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             ComboBox cmb = sender as ComboBox;
-            btnGenerateSln.IsEnabled = cmb.SelectedIndex != -1;
+            btnGenerateSln.IsEnabled = cmb.SelectedIndex != (int)DevEnv.NONE;
             if (cmb.SelectedIndex == (int)DevEnv.VS2015 || cmb.SelectedIndex == (int)DevEnv.VS2017 || cmb.SelectedIndex == (int)DevEnv.VS2019)
             {
                 chkSlnWinXpSupport.IsEnabled = true;
@@ -347,16 +347,16 @@ namespace PluginSdkWizardInstaller {
             }
             ProcessStartInfo info = new ProcessStartInfo(premakeExePath);
             switch (cmbGenerateSlnFor.SelectedIndex) {
-                case 0:
+                case (int)DevEnv.VS2019:
                     info.Arguments = "vs2019";
                     break;
-                case 1:
+                case (int)DevEnv.VS2017:
                     info.Arguments = "vs2017";
                     break;
-                case 2:
+                case (int)DevEnv.VS2015:
                     info.Arguments = "vs2015";
                     break;
-                case 3:
+                case (int)DevEnv.CODEBLOCKS:
                     info.Arguments = "codeblocks";
                     break;
             }

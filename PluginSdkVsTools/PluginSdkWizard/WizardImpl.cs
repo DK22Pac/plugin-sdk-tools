@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TemplateWizard;
-using Microsoft.VisualStudio.Shell;
 using EnvDTE;
 using System.IO;
-using System.Windows;
-using System.Globalization;
+using Microsoft.Win32;
 
 namespace PluginSdkWizard {
     public class WizardImpl : IWizard {
@@ -45,6 +43,7 @@ namespace PluginSdkWizard {
             string outDirName = window.GetOutputDirName();
 
             bool usesD3d = window.cbUseDirectXSdk.IsChecked == true;
+            bool winXpSupport = window.cbWinXpSupport.IsChecked == true;
 
             string gameDir = "";
             if (gameId == "SA")
@@ -110,7 +109,8 @@ namespace PluginSdkWizard {
                 defs.Add("_DEBUG");
             else
                 defs.Add("_NDEBUG");
-            defs.Add("_USING_V110_SDK71_");
+            if (winXpSupport)
+                defs.Add("_USING_V110_SDK71_");
             defs.Add("_CRT_SECURE_NO_WARNINGS");
             defs.Add("_CRT_NON_CONFORMING_SWPRINTFS");
             defs.Add(gameName);
@@ -273,7 +273,8 @@ namespace PluginSdkWizard {
             VsUtility.AddLine(ref idg, "      <AdditionalIncludeDirectories>" + VsUtility.JoinList(includeDirs, true) + "%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>");
             VsUtility.AddLine(ref idg, "      <PreprocessorDefinitions>" + VsUtility.JoinList(defs, true) + "%(PreprocessorDefinitions)</PreprocessorDefinitions>");
             VsUtility.AddLine(ref idg, "      <LanguageStandard>stdcpplatest</LanguageStandard>");
-            VsUtility.AddLine(ref idg, "      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>");
+            if (winXpSupport)
+                VsUtility.AddLine(ref idg, "      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>");
             if (pluginType == 2) {
                 VsUtility.AddLine(ref idg, "      <PrecompiledHeader>Create</PrecompiledHeader>");
                 VsUtility.AddLine(ref idg, "      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>");
@@ -335,9 +336,15 @@ namespace PluginSdkWizard {
                     throw new WizardBackoutException();
 
                 string version = dte.Version;
-                string toolsetVersion = "v141_xp";
+                bool winXpSupport = window.cbWinXpSupport.IsChecked == true;
+
+                string toolsetVersion;
                 if (version == "14.0")
-                    toolsetVersion = "v140_xp";
+                    toolsetVersion = winXpSupport ? "v140_xp" : "v140";
+                else if (version == "15.0")
+                    toolsetVersion = winXpSupport ? "v141_xp" : "v141";
+                else
+                    toolsetVersion = winXpSupport ? "v141_xp" : "v142";
 
                 pluginType = window.cmbProjectType.SelectedIndex;
 
@@ -376,6 +383,32 @@ namespace PluginSdkWizard {
                 replacementsDictionary.Add("$ImportGroupPropertySheets$", importGroupPropertySheets);
                 replacementsDictionary.Add("$PropertyGroupDirs$", propertyGroupDirs);
                 replacementsDictionary.Add("$ItemDefinitionGroups$", itemDefinitionGroups);
+
+                string targetPlaformVersion = "";
+                if (version == "14.0" || version == "15.0")
+                {
+                    if (winXpSupport)
+                        targetPlaformVersion = "7.0";
+                    else if (version == "15.0") {
+                        try
+                        {
+                            RegistryKey regKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+                            object v = regKey.OpenSubKey(@"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion");
+                            if (v != null)
+                                targetPlaformVersion = (v as string) + ".0";
+                            else
+                            {
+                                v = regKey.OpenSubKey(@"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1").GetValue("ProductVersion");
+                                if (v != null)
+                                    targetPlaformVersion = "8.1";
+                            }
+                        }
+                        catch(Exception) { }
+                    }
+                }
+                if (!string.IsNullOrEmpty(targetPlaformVersion))
+                    targetPlaformVersion = "\n    <WindowsTargetPlatformVersion>" + targetPlaformVersion + "</WindowsTargetPlatformVersion>";
+                replacementsDictionary.Add("$TargetPlatformVersion$", targetPlaformVersion);
 
                 string sourceFileName = window.safeProjectName + ".cpp";
 

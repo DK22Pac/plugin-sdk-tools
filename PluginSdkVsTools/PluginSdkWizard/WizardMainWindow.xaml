@@ -41,7 +41,7 @@
                     <TabItem Header="Basic setup" Visibility="Hidden" Margin="0" Width="0" Height="0" Padding="0">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="20"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Label Content="{x:Static res:Resources.strBasicSetup}" Margin="15,0,0,0" HorizontalContentAlignment="Stretch" FontSize="14" VerticalContentAlignment="Stretch" Padding="0"/>
@@ -72,9 +72,10 @@
                                 </StackPanel>
                                 <Grid x:Name="grdBasicOptions" Grid.Row="1" IsEnabled="False">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="26"/>
+                                        <RowDefinition Height="26"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
                                         <RowDefinition Height="76"/>
                                         <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
@@ -83,18 +84,21 @@
                                         <Label x:Name="lblPluginName" Content="{x:Static res:Resources.strPluginType}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
                                         <ComboBox x:Name="cmbProjectType" Height="23" Width="150"/>
                                         <Separator Width="10" Background="Transparent"/>
+                                        <CheckBox x:Name="cbWinXpSupport" Content="{x:Static res:Resources.strWinXpSupport}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strWinXpSupportDescr}" Padding="4,-1,0,0"/>
+                                        </DockPanel>
+                                    <DockPanel Grid.Row="1" Margin="0" HorizontalAlignment="Left">
                                         <CheckBox x:Name="cbUseDirectXSdk" Content="{x:Static res:Resources.strUseDirectXSdk}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strUseDirectXSdkDescr}" Padding="4,-1,0,0"/>
                                         <Separator Width="10" Background="Transparent"/>
                                         <CheckBox x:Name="cbLimitAdjusterCompatibilityMode" Content="{x:Static res:Resources.strLaCompatibility}" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static res:Resources.strLaCompatibilityDescr}" Padding="4,-1,0,0"/>
                                     </DockPanel>
-                                    <DockPanel Grid.Row="1" Margin="0">
+                                    <DockPanel Grid.Row="2" Margin="0">
                                         <Label Content="{x:Static res:Resources.strPluginName}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
                                         <Grid>
                                             <TextBox x:Name="tbTargetName" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" VerticalAlignment="Center" Text="$projectname$.$game$" Tag="$projectname$.$game$" />
                                             <Image x:Name="errTargetName" Style="{StaticResource TextBoxImage}" Source="Icons/error.png" Margin="0,5,1,0" IsHitTestVisible="False" IsEnabled="False" />
                                         </Grid>
                                     </DockPanel>
-                                    <DockPanel Grid.Row="2" Margin="0">
+                                    <DockPanel Grid.Row="3" Margin="0">
                                         <Label Content="{x:Static res:Resources.strClassName}" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,5,0"/>
                                         <Grid>
                                             <TextBox x:Name="tbBaseClassName" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" VerticalAlignment="Center" Text="$projectname$" Tag="$projectname$" />
@@ -102,7 +106,7 @@
                                         </Grid>
                                     </DockPanel>
                                     
-                                    <Grid Grid.Row="3" VerticalAlignment="Top">
+                                    <Grid Grid.Row="4" VerticalAlignment="Top">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="24"></RowDefinition>
                                             <RowDefinition Height="24"></RowDefinition>
@@ -150,7 +154,7 @@
                                         </Grid>
                                     </Grid>
 
-                                    <Grid Margin="0" Grid.Row="4">
+                                    <Grid Margin="0" Grid.Row="5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition/>

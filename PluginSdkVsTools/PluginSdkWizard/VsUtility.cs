@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Microsoft.Win32;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -309,14 +308,19 @@ namespace PluginSdkWizard {
                 if (readingEnvVar) {
                     if (input[i] == ')') {
                         readingEnvVar = false;
-                        string envVar = Environment.GetEnvironmentVariable(currEnvVar);
-                        if (envVar != null)
-                            output += envVar;
-                        else {
-                            output += "$(" + currEnvVar + ")";
-                            if (!IsVsVariable(currEnvVar))
-                                errList.Add(String.Format(Properties.Resources.strEnvVarNotFound, currEnvVar));
+                        try
+                        {
+                            string envVar = Environment.GetEnvironmentVariable(currEnvVar);
+                            if (envVar != null)
+                                output += envVar;
+                            else
+                            {
+                                output += "$(" + currEnvVar + ")";
+                                if (!IsVsVariable(currEnvVar))
+                                    errList.Add(String.Format(Properties.Resources.strEnvVarNotFound, currEnvVar));
+                            }
                         }
+                        catch (Exception) { }
                         continue;
                     }
                     currEnvVar += input[i];
