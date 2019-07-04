@@ -99,7 +99,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IDA 7.2|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>D:\Projects\ida_plugin\idasdk72\include;$(SolutionDir)shared;$(SolutionDir)PluginSdkLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__NT__;__IDP__;__X64__;IDA_VER=70;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__NT__;__IDP__;__X64__;IDA_VER=72;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
