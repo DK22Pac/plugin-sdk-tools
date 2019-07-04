@@ -143,13 +143,14 @@ bool getLine(qstring *buf, FILE *fp) {
     return qgetline(buf, fp) != -1;
 #else
     buf->clear();
-    if (feof(fp))
+    int c = qfgetc(fp);
+    if (c == EOF)
         return false;
     while (true) {
-        int c = qfgetc(fp);
+        buf->append(c);
+        c = qfgetc(fp);
         if (c == EOF || c == '\n')
             break;
-        buf->append(c);
     }
     return true;
 #endif

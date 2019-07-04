@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSdkExport", "PluginSdkExport\PluginSdkExport.vcxproj", "{678DAA14-8AF4-40A6-B813-CB7F2376900F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -29,28 +29,39 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		IDA 6.8|Windows = IDA 6.8|Windows
 		IDA 7.0|Windows = IDA 7.0|Windows
+		IDA 7.2|Windows = IDA 7.2|Windows
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 6.8|Windows.ActiveCfg = IDA 6.8|Win32
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
 		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 7.2|Windows.ActiveCfg = IDA 7.2|x64
+		{678DAA14-8AF4-40A6-B813-CB7F2376900F}.IDA 7.2|Windows.Build.0 = IDA 7.2|x64
 		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 6.8|Windows.ActiveCfg = IDA 6.8|Win32
 		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
 		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
 		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 7.2|Windows.ActiveCfg = IDA 7.2|x64
+		{F7153287-8045-458D-A153-413B57F4AFE9}.IDA 7.2|Windows.Build.0 = IDA 7.2|x64
 		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 6.8|Windows.ActiveCfg = IDA 6.8|Win32
 		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
 		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
 		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 7.2|Windows.ActiveCfg = IDA 7.2|x64
+		{BA455B3A-16EC-474B-8C9F-FFC6AA42C4BA}.IDA 7.2|Windows.Build.0 = IDA 7.2|x64
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 6.8|Windows.ActiveCfg = IDA 6.8|Win32
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
 		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 7.2|Windows.ActiveCfg = IDA 7.2|x64
+		{476449E6-0A23-48DB-8798-7F4452866FB2}.IDA 7.2|Windows.Build.0 = IDA 7.2|x64
 		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 6.8|Windows.ActiveCfg = IDA 6.8|Win32
 		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 6.8|Windows.Build.0 = IDA 6.8|Win32
 		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 7.0|Windows.ActiveCfg = IDA 7.0|x64
 		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 7.0|Windows.Build.0 = IDA 7.0|x64
+		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 7.2|Windows.ActiveCfg = IDA 7.2|x64
+		{565052C1-8508-4E6B-9C37-CE72485AC071}.IDA 7.2|Windows.Build.0 = IDA 7.2|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
