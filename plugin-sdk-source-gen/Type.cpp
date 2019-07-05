@@ -250,8 +250,14 @@ void HandleWord(string word, Vector<Token> &tokens, bool &prevWordSU, bool &prev
                     tokens.emplace_back(word, Token::INBUILT_TYPE_NAME);
             }
             else {
-                if (corrected || word == "float" || word == "bool" || word == "wchar_t")
+                if (corrected || word == "float" || word == "bool" || word == "wchar_t" ||
+                    word == "RwReal" || word == "RwInt32" || word == "RwInt16" || word == "RwInt8" ||
+                    word == "RwBool" || word == "RwUInt32" || word == "RwUInt16" || word == "RwUInt8" ||
+                    word == "RwChar" || word == "RwUInt64" || word == "RwInt64" || word == "RwFixed"
+                    )
+                {
                     tokens.emplace_back(word, Token::INBUILT_TYPE_NAME);
+                }
                 else
                     tokens.emplace_back(word, Token::CUSTOM_TYPE_NAME);
             }

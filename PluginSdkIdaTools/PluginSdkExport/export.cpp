@@ -619,7 +619,11 @@ void exportdb(int selectedGame, unsigned short selectedVersion, unsigned short o
             #else
                 bool isHexademical = (flags & hexflag()) == hexflag();
                 int enumWidth = get_enum_width(e);
-                if (enumWidth == 3)
+                if (enumWidth == 1)
+                    enumWidth = 1;
+                else if (enumWidth == 2)
+                    enumWidth = 2;
+                else if (enumWidth == 3)
                     enumWidth = 4;
                 else if (enumWidth == 4)
                     enumWidth = 8;

@@ -29,9 +29,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
     for (const auto& p : recursive_directory_iterator(gameDbPath / "enums")) {
         if (p.path().extension() == ".json") {
             cout << "    Reading enum " << p.path() << endl;
-            ifstream enumFile(p.path().string());
-            if (enumFile.is_open()) {
-                json j = json::parse(enumFile);
+            json j = JsonIO::parse(p.path());
+            if (!j.is_null() && !j.empty()) {
                 string moduleName = JsonIO::readJsonString(j, "module");
                 if (!moduleName.empty()) {
                     Module *m = Module::Find(modules, moduleName);
@@ -68,6 +67,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     m->mEnums.push_back(e);
                 }
             }
+            else
+                ErrorCode(0, "%s: Unable to parse json file\n%s", __FUNCTION__, p.path().string().c_str());
         }
     }
 
@@ -75,9 +76,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
     for (const auto& p : recursive_directory_iterator(gameDbPath / "structs")) {
         if (p.path().extension() == ".json") {
             cout << "    Reading struct " << p.path() << endl;
-            ifstream structFile(p.path().string());
-            if (structFile.is_open()) {
-                json j = json::parse(structFile);
+            json j = JsonIO::parse(p.path());
+            if (!j.is_null() && !j.empty()) {
                 string moduleName = JsonIO::readJsonString(j, "module");
                 if (!moduleName.empty()) {
                     Module *m = Module::Find(modules, moduleName);
@@ -164,6 +164,8 @@ void Generator::ReadGame(List<Module> &modules, path const &sdkpath, Games::IDs 
                     }
                 }
             }
+            else
+                ErrorCode(0, "%s: Unable to parse json file\n%s", __FUNCTION__, p.path().string().c_str());
         }
     }
 

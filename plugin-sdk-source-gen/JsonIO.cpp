@@ -1,4 +1,5 @@
 #include "JsonIO.h"
+#include <fstream>
 
 int JsonIO::readJsonNumber(json const &node, string const &key) {
     auto it = node.find(key);
@@ -18,4 +19,16 @@ string JsonIO::readJsonString(json const &node, string const &key) {
 
 bool JsonIO::readJsonBool(json const &node, string const &key) {
     return node.value(key, false);
+}
+
+json JsonIO::parse(path const &filepath) {
+    ifstream file(filepath);
+    if (file.is_open()) {
+        try {
+            json j = json::parse(file);
+            return j;
+        }
+        catch (...) {}
+    }
+    return json();
 }

@@ -38,13 +38,36 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         return;
     }
 
+    // import inbuilt types
+    begin_type_updating(UTP_STRUCT);
+#if (IDA_VER >= 70)
+    auto tl = get_idati();
+#else
+    auto tl = idati;
+#endif
+    parse_decls((til_t*)tl,
+        "typedef long RwFixed;"
+        "typedef int  RwInt32;"
+        "typedef unsigned int RwUInt32;"
+        "typedef short RwInt16;"
+        "typedef unsigned short RwUInt16;"
+        "typedef unsigned char RwUInt8;"
+        "typedef signed char RwInt8;"
+        "typedef char RwChar;"
+        "typedef float RwReal;"
+        "typedef int RwBool;"
+        "typedef long long RwInt64;"
+        "typedef unsigned long long RwUInt64;"
+        , msg, 0);
+    end_type_updating(UTP_STRUCT);
+
     // read & create enums
     if (options & OPTION_ENUMS) {
         begin_type_updating(UTP_ENUM);
         for (const auto& p : recursive_directory_iterator(dbFolderPath / "enums")) {
             if (p.path().extension() == ".json") {
                 json j = jsonReadFromFile(p.path().string().c_str());
-                if (j.empty())
+                if (j.is_null() || j.empty())
                     continue;
                 qstring enumName = jsonReadString(j, "name");
                 if (!enumName.empty()) {
@@ -179,6 +202,8 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
         for (const auto& p : recursive_directory_iterator(dbFolderPath / "structs")) {
             if (p.path().extension() == ".json") {
                 json j = jsonReadFromFile(p.path().string().c_str());
+                if (j.is_null() || j.empty())
+                    continue;
                 qstring structName = jsonReadString(j, "name");
                 if (!structName.empty()) {
                     auto stid = get_struc_id(structName.c_str());
