@@ -39,27 +39,36 @@ void importdb(int selectedGame, unsigned short selectedVersion, unsigned short o
     }
 
     // import inbuilt types
-    begin_type_updating(UTP_STRUCT);
-#if (IDA_VER >= 70)
-    auto tl = get_idati();
-#else
-    auto tl = idati;
-#endif
-    parse_decls((til_t*)tl,
-        "typedef long RwFixed;"
-        "typedef int  RwInt32;"
-        "typedef unsigned int RwUInt32;"
-        "typedef short RwInt16;"
-        "typedef unsigned short RwUInt16;"
-        "typedef unsigned char RwUInt8;"
-        "typedef signed char RwInt8;"
-        "typedef char RwChar;"
-        "typedef float RwReal;"
-        "typedef int RwBool;"
-        "typedef long long RwInt64;"
-        "typedef unsigned long long RwUInt64;"
-        , msg, 0);
-    end_type_updating(UTP_STRUCT);
+    qstring typedefFileName = "typedef.h";
+    if (selectedGame == Games::GTASA)
+        typedefFileName = "typedef_gtasa.h";
+    else if (selectedGame == Games::GTAVC)
+        typedefFileName = "typedef_gtavc.h";
+    if (selectedGame == Games::GTA3)
+        typedefFileName = "typedef_gta3.h";
+    path typedefFilePath = input / "database" / typedefFileName.c_str();
+    if (exists(typedefFilePath)) {
+        qstring decls;
+        auto inFile = qfopen(typedefFilePath.string().c_str(), "rt");
+        if (inFile) {
+            qstring line;
+            while (getLine(&line, inFile))
+                decls += line;
+            qfclose(inFile);
+        }
+        else
+            warning("Unable to open '%s' for reading", typedefFilePath.string().c_str());
+        if (!decls.empty()) {
+            begin_type_updating(UTP_STRUCT);
+        #if (IDA_VER >= 70)
+            auto tl = get_idati();
+        #else
+            auto tl = idati;
+        #endif
+            parse_decls((til_t *)tl, decls.c_str(), msg, 0);
+            end_type_updating(UTP_STRUCT);
+        }
+    }
 
     // read & create enums
     if (options & OPTION_ENUMS) {
